@@ -1,0 +1,87 @@
+{
+  "items": [
+    {
+      "title": "Security cloud control API Documentation",
+      "items": [
+        {
+          "title": "Introduction",
+          "content": "overview/introduction.md"
+        },
+        {
+          "title": "Authentication",
+          "content": "overview/authentication.md"
+        },
+        {
+          "title": "Getting Started",
+          "content": "overview/getting-started.md"
+        },
+        {
+          "title": "API Changelog",
+          "content": "api-changelog.md"
+        }
+      ]
+    },
+    {
+      "title": "API Reference",
+      "config": {
+        "expand": 0,
+        "serverConfig": "select"
+      },
+      "items": [
+        {
+          "title": "Identity and Access Management",
+          "content": "specs/piam-iam.yaml",
+          "type": "oas3"
+        },
+        {
+          "title": "Provisioning Management",
+          "content": "specs/piam-provisioning.yaml",
+          "type": "oas3"
+        }
+      ]
+    },
+    {
+      "title": "Developer Resources",
+      "config": {
+        "expand": 0
+      },
+      "items": [
+        {
+          "title": "Postman Collections",
+          "content": "developer-resources/postman-collection.md"
+        },
+        {
+          "title": "SDKs",
+          "content": "developer-resources/sdks.md"
+        },
+        {
+          "title": "Learning Labs",
+          "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
+          "type": "url"
+        },
+        {
+          "title": "Code Exchange",
+          "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "title": "Community and Support",
+      "config": {
+        "expand": 0
+      },
+      "items": [
+        {
+          "title": "Developer Support",
+          "content": "community-and-support/developer-support.md"
+        },
+        {
+          "title": "Community",
+          "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
+          "type": "url"
+        }
+      ]
+    }
+  ]
+}
