@@ -17,7 +17,7 @@
         },
         {
           "title": "API Changelog",
-          "content": "api-changelog.md"
+          "content": "overview/api-changelog.md"
         }
       ]
     },
