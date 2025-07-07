@@ -5,7 +5,7 @@ info:
   contact: {}
   version: 1.0.0
 servers:
-  - url: https://provisioning-dev.test.security.cisco.com/v1
+  - url: https://api.int.security.cisco.com
 paths:
   /marketplaces/{marketplace_id}/subscriptions/{external_id}:
     get:
