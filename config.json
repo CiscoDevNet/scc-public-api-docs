@@ -30,12 +30,17 @@
       "items": [
         {
           "title": "Identity and Access Management",
-          "content": "specs/piam-iam.yaml",
+          "content": "specs/iam.yaml",
           "type": "oas3"
         },
         {
           "title": "Provisioning Management",
-          "content": "specs/piam-provisioning.yaml",
+          "content": "specs/provisioning.yaml",
+          "type": "oas3"
+        },
+        {
+          "title": "Managed Service Provider Management",
+          "content": "specs/msp.yaml",
           "type": "oas3"
         }
       ]

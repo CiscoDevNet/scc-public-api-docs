@@ -1,0 +1,2226 @@
+openapi: 3.0.1
+info:
+  title: Phanes microservice APIs
+  description: Phanes microservice is used for provisioning
+  contact: {}
+  version: 1.0.0
+servers:
+  - url: https://provisioning-dev.test.security.cisco.com/v1
+paths:
+  /marketplaces/{marketplace_id}/subscriptions/{external_id}:
+    get:
+      tags:
+        - Subscriptions
+      summary: Get subscription by external ID
+      description: Retrieves a subscription by its external ID.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+        - name: marketplace_id
+          in: path
+          description: Marketplace ID
+          required: true
+          schema:
+            type: string
+        - name: external_id
+          in: path
+          description: External ID of the subscription
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Active subscription data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '404':
+          description: Not Found - No subscription found by requested external ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+    patch:
+      tags:
+        - Subscriptions
+      summary: Update subscription
+      description: Update subscription for marketplace.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+        - name: marketplace_id
+          in: path
+          description: Marketplace ID
+          required: true
+          schema:
+            type: string
+        - name: external_id
+          in: path
+          description: External ID of the subscription
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Subscription update data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.PatchUpdateSubscription'
+        required: true
+      responses:
+        '200':
+          description: Subscription updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+      x-codegen-request-body-name: UpdateSubscription
+  /claim-code/read:
+    post:
+      tags:
+        - Claim Code
+      summary: Read Claim Code
+      description: Read Claim Code
+      parameters:
+        - name: Authorization
+          in: header
+          description: Access Token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Read Claim Code
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/model.ClaimSubscription'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstance'
+      x-codegen-request-body-name: order
+  /claim-code/claim:
+    post:
+      tags:
+        - Claim Code
+      summary: Claim Code
+      description: Read Claim Code
+      parameters:
+        - name: Authorization
+          in: header
+          description: Access Token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Read Claim Code
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/model.ClaimSubscription'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstance'
+      x-codegen-request-body-name: order
+  /msp-claim-code/claim:
+    post:
+      tags:
+        - Claim Code
+      summary: Claim Code
+      description: Claim MSP Claim Code
+      parameters:
+        - name: Authorization
+          in: header
+          description: Access Token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Claim MSP Claim Code
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/model.MSPClaimSubscription'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content: {}
+      x-codegen-request-body-name: order
+  /productInstance/{instanceId}/provision:
+    post:
+      tags:
+        - Product Instance
+      summary: Provision a product instance
+      description: Provisions a product instance with the given ID
+      parameters:
+        - name: instanceId
+          in: path
+          description: ID of the product instance to provision
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Provisioning request details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ProductInstanceProvisionRequest'
+        required: true
+      responses:
+        '200':
+          description: OK - Provisioning completed successfully
+          content: {}
+        '202':
+          description: Accepted - Provisioning is in progress
+          content: {}
+        '400':
+          description: Bad Request - Invalid instance ID or request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User is not an admin of the associated enterprise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - Product is not provisionable via API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '422':
+          description: Unprocessable Entity - Error during provisioning
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal Server Error - Unexpected error during provisioning
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+      x-codegen-request-body-name: body
+  /product-instance/:instanceId/reset:
+    put:
+      tags:
+        - Product Instance
+      summary: Reset the external ID and other values of a product instance
+      description: Resets the external ID and other values of a product instance for common provisioning
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstance'
+        '400':
+          description: Bad Request - Invalid request payload or empty external IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - Invalid scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        default:
+          description: Unexpected error when resetting product instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /smart-accounts:
+    get:
+      tags:
+        - SmartAccounts
+      summary: Get all the Smart Account details
+      description: Get all Smart Account Details associated with the user_id as admin of the smart account. User has to be an admin of the enterprise and user_id provided has to be an admin of the smart accounts to be able to perform this operation.
+      parameters:
+        - name: enterprise_id
+          in: query
+          description: Enterprise id of the user
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          description: user_id is the CECID of the smart account admin
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Okta access token
+          required: true
+          schema:
+            type: string
+        - name: X-SL-TOKEN
+          in: header
+          description: Smart license server access token of the user provided in user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.SmartAccounts'
+        '400':
+          description: Bad Request - Invalid enterprise_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin or user_id is not an smart account admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+    post:
+      tags:
+        - SmartAccounts
+      summary: Associate a list of smart accounts with enterprise
+      description: Associates the list of smart accounts with the enterprise. user has to be an admin of the enterprise and userId provided has to be an admin of the smart accounts to be able to perform this operation.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Okta access token
+          required: true
+          schema:
+            type: string
+        - name: X-SL-TOKEN
+          in: header
+          description: Smart license server access token of the user provided in user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Smart Accounts keys for Association with Enterprise
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/model.SmartAccountKeysAssociationRecord'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content: {}
+        '400':
+          description: Bad Request - One or more Smart Account Keys are invalid or invalid EnterpriseId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin or userId is not an admin of smart accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal Server error - Unable to associate the Smart Accounts in the list to the Enterprise.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+      x-codegen-request-body-name: smartAccountKeysAssociationRecord
+  /enterprises/{enterprise_id}/smart-licenses/{smart_license_uuid}:
+    get:
+      tags:
+        - Subscriptions
+      summary: List all subscriptions
+      description: Retrieves a list of all active subscriptions for a marketplace. Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+        - name: marketplace_id
+          in: path
+          description: Marketplace ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of active subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+    post:
+      tags:
+        - Subscriptions
+      summary: Create a subscription or cancel subscription (different payload)
+      description: Creates a new subscription entry, or cancels the existing subscription (depends on action parameter in body. Options ("create", "cancel")).  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
+      responses:
+        '200':
+          description: Subscription canceled (action - cancel)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionCanceled'
+        '201':
+          description: Subscription successfully created (action - create)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+    delete:
+      tags:
+        - SmartAccounts
+      summary: Removes a smart account license record from the enterprise
+      description: Removes the smart account licenses record from the enterprise. user has to be an admin of the enterprise to be able to perform this operation.
+      parameters:
+        - name: enterprise_id
+          in: path
+          description: Enterprise id of the user
+          required: true
+          schema:
+            type: string
+        - name: smart_license_uuid
+          in: path
+          description: Id of the smart account license record to be removed from the enterprise
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Okta access token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully removed the smart account license record from the enterprise
+          content: {}
+        '400':
+          description: Bad Request - Specified Smart Account ID or Enterprise ID does not exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal Server error - Unable to remove the Smart Account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+components:
+  schemas:
+    gorm.DeletedAt:
+      type: object
+      properties:
+        time:
+          type: string
+        valid:
+          type: boolean
+          description: Valid is true if Time is not NULL
+    model.OrgEntitlements:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/model.PaginationInfo'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubnSku'
+    model.SubnSku:
+      type: object
+      properties:
+        endDate:
+          type: string
+        externalSubscriptionId:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/model.MspSku'
+    model.MspSku:
+      type: object
+      properties:
+        availableEntitlements:
+          type: integer
+        minEntitlementsQuantity:
+          type: integer
+        productsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+        reservedEntitlements:
+          type: integer
+        sharedEntitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SharedEntitlement'
+        skuName:
+          type: string
+    model.SharedEntitlement:
+      type: object
+      properties:
+        assignedEntitlements:
+          type: integer
+        managedOrgId:
+          type: string
+        productsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+    model.ProductConf:
+      type: object
+      properties:
+        activationStatus:
+          type: string
+        name:
+          type: string
+        operand:
+          type: integer
+        operator:
+          type: string
+        region:
+          type: string
+    model.PaginationInfo:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalRecords:
+          type: integer
+    model.ActivationStatus:
+      type: object
+      properties:
+        activationStatus:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        activationTime:
+          type: string
+        isActive:
+          type: boolean
+        productInstanceId:
+          type: string
+        productName:
+          type: string
+        tenantId:
+          type: string
+    model.AdditionalTenantMetadata:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    model.Body:
+      type: object
+      properties:
+        activation_code:
+          type: string
+        id:
+          type: string
+        meta:
+          $ref: '#/components/schemas/model.Meta'
+    model.ClaimCodeProduct:
+      required:
+        - id
+        - region
+      type: object
+      properties:
+        id:
+          type: string
+        is_use_existing_tenant_set:
+          type: boolean
+        name:
+          type: string
+        region:
+          $ref: '#/components/schemas/model.Region'
+    model.ClaimCodeServices:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        is_use_existing_tenant_set:
+          type: boolean
+        name:
+          type: string
+    model.ClaimStatus:
+      type: object
+      properties:
+        claimCode:
+          type: string
+        claimedAt:
+          type: string
+        claimedByEmail:
+          type: string
+        enterpriseId:
+          type: string
+        enterpriseName:
+          type: string
+        isClaimable:
+          type: boolean
+        isClaimed:
+          type: boolean
+    model.ClaimSubscription:
+      type: object
+      properties:
+        claim_code:
+          type: string
+        enterprise_id:
+          type: string
+        enterprise_name:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ClaimCodeProduct'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ClaimCodeServices'
+    model.MSPClaimSubscription:
+      type: object
+      properties:
+        claim_code:
+          type: string
+        enterprise_id:
+          type: string
+        enterprise_name:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ClaimCodeProduct'
+    model.Contact:
+      type: object
+      properties:
+        contactType:
+          type: string
+        emailId:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+    model.DefaultResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: integer
+    model.EnableFirewallForEnterpriseRequest:
+      required:
+        - cdoTenantUid
+        - contactEmail
+        - enterpriseId
+      type: object
+      properties:
+        cdoTenantUid:
+          type: string
+        contactEmail:
+          type: string
+        enterpriseId:
+          type: string
+    model.Enterprise:
+      type: object
+      properties:
+        enterpriseId:
+          type: string
+        enterpriseName:
+          type: string
+    model.EnterpriseProductInstances:
+      type: object
+      properties:
+        enterpriseName:
+          type: string
+        isLicensed:
+          type: boolean
+        productInstancesInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.MergedProductInstancesInfo'
+    model.Entitlement:
+      type: object
+      properties:
+        description:
+          type: string
+        isService:
+          type: boolean
+        name:
+          type: string
+        productType:
+          type: string
+        value:
+          type: string
+    model.EntitlementInstance:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        createdAt:
+          type: string
+        entitlement:
+          $ref: '#/components/schemas/model.Entitlement'
+        id:
+          type: string
+        is_trial:
+          type: boolean
+        quantity:
+          type: integer
+        subscription:
+          $ref: '#/components/schemas/model.Subscription'
+        trial:
+          $ref: '#/components/schemas/model.Trial'
+        updatedAt:
+          type: string
+    model.MspEntitlementInstance:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        createdAt:
+          type: string
+        entitlement:
+          $ref: '#/components/schemas/model.Entitlement'
+        id:
+          type: string
+        quantity:
+          type: integer
+        msp_total_quantity:
+          type: integer
+        msp_available_quantity:
+          type: integer
+        operation:
+          type: string
+        operand:
+          type: integer
+        subscription:
+          $ref: '#/components/schemas/model.MspSubscription'
+        trial:
+          $ref: '#/components/schemas/model.Trial'
+        updatedAt:
+          type: string
+    model.SubscriptionProvisioningError:
+      type: object
+      properties:
+        error:
+          type: string
+        subscriptionId:
+          type: string
+    model.UpdateEntitlementResponse:
+      type: object
+      properties:
+        endDate:
+          type: string
+        id:
+          type: string
+        licenseType:
+          type: string
+        provisioningErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSubscription'
+    model.ProvisionedSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSKU'
+    model.ProvisionedSKU:
+      type: object
+      properties:
+        name:
+          type: string
+        productInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductInfo'
+    model.ProductInfo:
+      type: object
+      properties:
+        assignedEntitlements:
+          type: integer
+        product:
+          type: string
+        productRegion:
+          type: string
+    model.UpdateEntitlementsRequest:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.UserSubscription'
+    model.UserSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SKU'
+    model.SKU:
+      type: object
+      properties:
+        name:
+          type: string
+        quantity:
+          type: integer
+    model.Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+    model.FollowOn:
+      type: object
+      properties:
+        followOnDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.FollowOnDetails'
+        followOnSubRefId:
+          type: string
+    model.FollowOnDetails:
+      type: object
+      properties:
+        cancelEligSubRefId:
+          type: string
+    model.Health:
+      type: object
+      properties:
+        currentTime:
+          type: string
+        healthStatus:
+          type: string
+        serviceName:
+          type: string
+        serviceStatus:
+          type: string
+    model.InvitationStatus:
+      type: string
+      enum:
+        - invitation_pending
+        - invitation_rejected
+        - invitation_accepted
+        - invitation_fulfilled
+      x-enum-varnames:
+        - InvitationStatusPending
+        - InvitationStatusRejected
+        - InvitationStatusAccepted
+        - InvitationStatusFulfilled
+    model.LegacyProductInvitation:
+      type: object
+      properties:
+        id:
+          type: string
+        product_external_tenant_id:
+          type: string
+        product_id:
+          type: integer
+        region:
+          type: string
+    model.LegacyProductInvite:
+      type: object
+      properties:
+        email:
+          type: string
+        invitationId:
+          type: string
+        productExternalTenantId:
+          type: string
+        productName:
+          type: string
+        region:
+          type: string
+        status:
+          $ref: '#/components/schemas/model.InvitationStatus'
+    model.MajorLine:
+      required:
+        - action
+        - requestedStartDate
+      type: object
+      properties:
+        action:
+          minLength: 1
+          type: string
+        offerType:
+          type: string
+        partyAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.PartyAccount'
+        provInfoEmail:
+          type: string
+        requestedStartDate:
+          minLength: 1
+          type: string
+    model.MarketplaceCreate:
+      required:
+        - allowedEmailDomains
+        - authClients
+        - description
+        - isExplicitCancellationAllowed
+        - isImplicitCancellationActivated
+        - maximumInitialTermDays
+        - maximumRemainingTermDays
+        - maximumTotalTermDays
+        - name
+      type: object
+      properties:
+        allowedEmailDomains:
+          type: array
+          items:
+            type: string
+        authClients:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        isExplicitCancellationAllowed:
+          type: boolean
+        isImplicitCancellationActivated:
+          type: boolean
+        maximumInitialTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        maximumRemainingTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        maximumTotalTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        name:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SkuConfigUpdate'
+    model.MarketplaceUpdate:
+      type: object
+      properties:
+        allowedEmailDomains:
+          type: array
+          items:
+            type: string
+        authClients:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        isExplicitCancellationAllowed:
+          type: boolean
+        isImplicitCancellationActivated:
+          type: boolean
+        maximumInitialTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        maximumRemainingTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        maximumTotalTermDays:
+          maximum: 32767
+          minimum: 0
+          type: integer
+        name:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SkuConfigUpdate'
+    model.MergedProductInstancesInfo:
+      type: object
+      properties:
+        additionalTenantMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.AdditionalTenantMetadata'
+        entitlements:
+          type: array
+          items:
+            type: object
+        externalTenantId:
+          type: string
+        id:
+          type: string
+        isOrgEntitled:
+          type: boolean
+        isPlatformProduct:
+          type: boolean
+          description: cleanup this once discoveryAPIEnhancement flag is enabled
+        productName:
+          type: string
+        productType:
+          type: string
+        provisioningStatus:
+          type: string
+        region:
+          $ref: '#/components/schemas/model.Region'
+    model.Meta:
+      type: object
+      properties:
+        additionalTenantMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.AdditionalTenantMetadata'
+        created:
+          $ref: '#/components/schemas/model.XSDSupportingDateTime'
+        lastModified:
+          $ref: '#/components/schemas/model.XSDSupportingDateTime'
+        location:
+          type: string
+        resourceType:
+          type: string
+    model.MigrateAdditionalProductsTenantRequest:
+      required:
+        - cdoTenantUid
+        - contactEmail
+        - enterpriseId
+        - productInstanceId
+      type: object
+      properties:
+        cdoTenantUid:
+          type: string
+        contactEmail:
+          type: string
+        enterpriseId:
+          type: string
+        isHypershieldTenant:
+          type: boolean
+        isMcdTenant:
+          type: boolean
+        productInstanceId:
+          type: string
+    model.MigrateCdoTenantRequest:
+      required:
+        - cdoTenantUid
+        - contactEmail
+        - region
+        - ssxTenantUid
+      type: object
+      properties:
+        cdoTenantUid:
+          type: string
+        contactEmail:
+          type: string
+          description: initial admin of the enterprise
+        isHypershieldTenant:
+          type: boolean
+        isMcdTenant:
+          type: boolean
+        region:
+          type: string
+        salesOrderNumber:
+          type: string
+        ssxTenantUid:
+          type: string
+        tenantName:
+          type: string
+        tenantPayType:
+          type: string
+        organizationName:
+          type: string
+    model.MigrateCdoTenantRollbackRequest:
+      required:
+        - enterpriseId
+      type: object
+      properties:
+        enterpriseId:
+          type: string
+    model.MigrateCdoTenantWithEnterpriseRequest:
+      required:
+        - cdoTenantUid
+        - contactEmail
+        - enterpriseId
+      type: object
+      properties:
+        cdoTenantUid:
+          type: string
+        contactEmail:
+          type: string
+        enterpriseId:
+          type: string
+        isHypershieldTenant:
+          type: boolean
+        isMcdTenant:
+          type: boolean
+        salesOrderNumber:
+          type: string
+        tenantPayType:
+          type: string
+    model.MinorLine:
+      required:
+        - actionType
+        - partName
+        - quantity
+      type: object
+      properties:
+        actionType:
+          minLength: 1
+          type: string
+        partName:
+          minLength: 1
+          type: string
+        quantity:
+          minLength: 1
+          type: string
+    model.Option:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description is the human-readable description of this option
+        display_text:
+          type: object
+          description: Text linked to selected Option
+          allOf:
+            - $ref: '#/components/schemas/model.ProductText'
+        value:
+          type: string
+          description: Value is the machine-readable option that gets passed downstream
+    model.OrderHeader:
+      type: object
+      properties:
+        dealId:
+          type: string
+        orderId:
+          type: string
+        webOrderId:
+          type: string
+    model.OrderLine:
+      required:
+        - minorLines
+      type: object
+      properties:
+        majorLine:
+          $ref: '#/components/schemas/model.MajorLine'
+        minorLines:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/model.MinorLine'
+    model.OrderPayload:
+      required:
+        - callbackUrl
+        - orderRequest
+        - serviceProvisioningId
+        - subscriptionMasterId
+      type: object
+      properties:
+        callbackUrl:
+          minLength: 1
+          type: string
+        cancelType:
+          type: string
+        orderAction:
+          type: string
+        orderRequest:
+          $ref: '#/components/schemas/model.OrderRequest'
+        orderSource:
+          type: string
+        serviceEffectiveDate:
+          type: string
+        serviceProvisioningId:
+          minLength: 1
+          type: string
+        subscriptionMasterId:
+          minLength: 1
+          type: string
+    model.OrderRequest:
+      required:
+        - orderHeader
+        - orderLines
+      type: object
+      properties:
+        followOn:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.FollowOn'
+        orderHeader:
+          $ref: '#/components/schemas/model.OrderHeader'
+        orderLines:
+          maxItems: 1
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/model.OrderLine'
+        provisioningRequest:
+          $ref: '#/components/schemas/model.SbpProvisioningRequest'
+        sender:
+          $ref: '#/components/schemas/model.SbpSender'
+        upgrade:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.OrderRequestUpgrade'
+    model.OrderRequestUpgrade:
+      type: object
+      properties:
+        subRefId:
+          type: string
+        upgradeDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.UpgradeDetail'
+        webOrderId:
+          type: string
+    model.OrderSbpPayload:
+      type: object
+      properties:
+        orderPayload:
+          $ref: '#/components/schemas/model.OrderPayload'
+    model.OrgEntitlement:
+      type: object
+      properties:
+        access_type:
+          type: string
+        description:
+          type: string
+        is_service:
+          type: boolean
+        name:
+          type: string
+        productType:
+          type: string
+        value:
+          type: string
+    model.OrgEntitlementInstance:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        createdAt:
+          type: string
+        entitlement:
+          $ref: '#/components/schemas/model.OrgEntitlement'
+        id:
+          type: string
+        is_trial:
+          type: boolean
+        quantity:
+          type: integer
+        subscription:
+          $ref: '#/components/schemas/model.Subscription'
+        trial:
+          $ref: '#/components/schemas/model.Trial'
+        updatedAt:
+          type: string
+    model.MspOrgEntitlementInstance:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        createdAt:
+          type: string
+        entitlement:
+          $ref: '#/components/schemas/model.OrgEntitlement'
+        id:
+          type: string
+        quantity:
+          type: integer
+        msp_total_quantity:
+          type: integer
+        msp_available_quantity:
+          type: integer
+        operation:
+          type: string
+        operand:
+          type: integer
+        subscription:
+          $ref: '#/components/schemas/model.MspSubscription'
+        trial:
+          $ref: '#/components/schemas/model.Trial'
+        updatedAt:
+          type: string
+    model.PartyAccount:
+      type: object
+      properties:
+        businessName:
+          type: string
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.Contact'
+        name:
+          type: string
+        siteUseId:
+          type: integer
+        type:
+          type: string
+    model.PatchUpdateSubscription:
+      type: object
+      properties:
+        endDate:
+          type: string
+        sendClaimCodeTo:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubscriptionSkusInfo'
+        startDate:
+          type: string
+    model.PostCancelSubscription:
+      required:
+        - id
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+            - create
+            - cancel
+        id:
+          type: string
+    model.PostCreateSubscription:
+      required:
+        - id
+        - sendClaimCodeTo
+        - skus
+        - startDate
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+            - create
+            - cancel
+        endDate:
+          type: string
+        id:
+          type: string
+        isTrial:
+          type: boolean
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisioningInfo'
+        sendClaimCodeTo:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubscriptionSkusInfo'
+        startDate:
+          type: string
+    model.ProcessedSBPPayload:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+        orderLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.OrderLine'
+        subscription:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.Subscription'
+        subscriptionMasterId:
+          type: string
+    model.Product:
+      type: object
+      properties:
+        display_text:
+          type: object
+          description: It is the default text linked to a product
+          allOf:
+            - $ref: '#/components/schemas/model.ProductText'
+        is_unified_onboarding_supported:
+          type: boolean
+        name:
+          type: string
+          description: Name is the human readable name of the product.
+        product_allowed_regions:
+          type: array
+          description: AllowedRegions are where this product may be provisioned
+          items:
+            $ref: '#/components/schemas/model.Region'
+        provisioning_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestion'
+    model.ProductConfigUpdateTakeoverEmailRequest:
+      type: object
+      properties:
+        takeoverEmail:
+          type: string
+    model.ProductInstance:
+      type: object
+      properties:
+        activationCode:
+          type: string
+        createdAt:
+          type: string
+        entitlement_instances:
+          type: array
+          description: EntitlementInstances are the actual entitlement this product instance has
+          items:
+            $ref: '#/components/schemas/model.EntitlementInstance'
+        external_tenant_id:
+          type: string
+        id:
+          type: string
+        initialAdmin:
+          type: string
+        is_trial:
+          type: boolean
+        is_use_existing_tenant_set:
+          type: boolean
+        isActive:
+          type: boolean
+        isEA:
+          type: boolean
+        isHidden:
+          type: boolean
+        isLegacy:
+          type: boolean
+        isOrgEntitled:
+          type: boolean
+        org_entitlement_instances:
+          type: array
+          description: OrgEntitlementInstances which are associated with product instances
+          items:
+            $ref: '#/components/schemas/model.OrgEntitlementInstance'
+        product:
+          $ref: '#/components/schemas/model.Product'
+        provisionCheck:
+          $ref: '#/components/schemas/model.ProvisionCheck'
+        provisioning_metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+        provisioning_status:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        region:
+          type: object
+          description: Region is where this ProductInstance is (or will be) provisioned
+          allOf:
+            - $ref: '#/components/schemas/model.Region'
+        updatedAt:
+          type: string
+    model.MspProductInstance:
+      type: object
+      properties:
+        activationCode:
+          type: string
+        createdAt:
+          type: string
+        entitlement_instances:
+          type: array
+          description: EntitlementInstances are the actual entitlement this product instance has
+          items:
+            $ref: '#/components/schemas/model.MspEntitlementInstance'
+        external_tenant_id:
+          type: string
+        id:
+          type: string
+        initialAdmin:
+          type: string
+        is_trial:
+          type: boolean
+        is_use_existing_tenant_set:
+          type: boolean
+        isActive:
+          type: boolean
+        isEA:
+          type: boolean
+        isHidden:
+          type: boolean
+        isLegacy:
+          type: boolean
+        isOrgEntitled:
+          type: boolean
+        org_entitlement_instances:
+          type: array
+          description: OrgEntitlementInstances which are associated with product instances
+          items:
+            $ref: '#/components/schemas/model.MspOrgEntitlementInstance'
+        product:
+          $ref: '#/components/schemas/model.Product'
+        provisioning_metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+        provisioning_status:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        region:
+          type: object
+          description: Region is where this ProductInstance is (or will be) provisioned
+          allOf:
+            - $ref: '#/components/schemas/model.Region'
+        updatedAt:
+          type: string
+    model.ProductInstanceApplyLicensesRequest:
+      type: object
+      properties:
+        sourceInstanceId:
+          type: string
+    model.ProductInstanceInfo:
+      type: object
+      properties:
+        body:
+          $ref: '#/components/schemas/model.Body'
+        response_code:
+          type: integer
+    model.ProductInstanceProvisionRequest:
+      type: object
+      properties:
+        additional_metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+        create_new_tenant:
+          type: boolean
+        initial_admin:
+          type: string
+        region:
+          type: string
+    model.ProductText:
+      type: object
+      properties:
+        description:
+          type: string
+        value:
+          type: string
+    model.ProvisionCheck:
+      type: object
+      properties:
+        is_blocked:
+          type: boolean
+        message:
+          type: string
+        product_to_auto_apply:
+          type: string
+        product_to_clean_up:
+          type: string
+        type:
+          type: string
+    model.ProvisioningInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    model.ProvisioningQuestion:
+      type: object
+      properties:
+        createdAt:
+          type: string
+        description:
+          type: string
+        display_name:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        options:
+          type: array
+          description: Options are the acceptable answers to this question
+          items:
+            $ref: '#/components/schemas/model.Option'
+        type:
+          type: string
+          description: Type signifies how to render this question in the UI, valid types SHOULD be ['choices', 'string']
+        updatedAt:
+          type: string
+    model.ProvisioningQuestionAnswer:
+      type: object
+      properties:
+        createdAt:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        updatedAt:
+          type: string
+        value:
+          type: string
+    model.ProvisioningStatus:
+      type: string
+      enum:
+        - NEW
+        - IN_PROGRESS
+        - FINISHED
+        - ERROR
+        - ACTION_REQUIRED
+      x-enum-varnames:
+        - ProvisioningStatusNew
+        - ProvisioningStatusInProgress
+        - ProvisioningStatusFinished
+        - ProvisioningStatusError
+        - ProvisioningStatusActionRequired
+    model.Region:
+      type: object
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+          description: Name identifies the region and is the primary key
+    model.ReplaceExternalIdDetails:
+      type: object
+      properties:
+        newExternalID:
+          type: string
+        newRegion:
+          type: string
+        oldExternalID:
+          type: string
+        oldRegion:
+          type: string
+        productName:
+          type: string
+    model.SKUActionType:
+      type: string
+      enum:
+        - add
+        - modify
+        - cancel
+        - no_change
+        - unknown
+      x-enum-varnames:
+        - SKUActionTypeAdd
+        - SKUActionTypeModify
+        - SKUActionTypeCancel
+        - SKUActionTypeNoChange
+        - SKUActionTypeUnknown
+    model.SbpEaSku:
+      type: object
+      properties:
+        fulfillmentSkus:
+          type: array
+          items:
+            type: string
+        quantity:
+          type: integer
+        skuName:
+          type: string
+    model.SbpProvisioningInfoPair:
+      type: object
+      properties:
+        paramName:
+          type: string
+        paramValue:
+          type: string
+    model.SbpProvisioningRequest:
+      type: object
+      properties:
+        provisiningInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SbpProvisioningInfoPair'
+        provisioningInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SbpProvisioningInfoPair'
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SbpEaSku'
+    model.SbpSender:
+      type: object
+      properties:
+        applicationName:
+          type: string
+    model.SkuConfigUpdate:
+      required:
+        - name
+      type: object
+      properties:
+        canSubmitPaidSubscriptions:
+          type: boolean
+        canSubmitTrialSubscriptions:
+          type: boolean
+        name:
+          type: string
+    model.SkusMap:
+      type: object
+      additionalProperties:
+        type: integer
+    model.SmartAccountKey:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    model.SmartAccountKeysAssociationRecord:
+      required:
+        - enterpriseId
+        - smartAccountKeys
+        - userId
+      type: object
+      properties:
+        enterpriseId:
+          type: string
+        smartAccountKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SmartAccountKey'
+        userId:
+          type: string
+    model.SmartAccountRecord:
+      type: object
+      properties:
+        associated:
+          type: boolean
+        expiryDate:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+    model.SmartAccounts:
+      type: object
+      properties:
+        smartAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SmartAccountRecord'
+        totalRecords:
+          type: integer
+    model.SmartAccountsUserRole:
+      type: object
+      properties:
+        role:
+          type: string
+        userId:
+          type: string
+    model.SmartLicense:
+      type: object
+      properties:
+        accountDomain:
+          type: string
+        accountId:
+          type: integer
+        accountName:
+          type: string
+        expiryDate:
+          type: string
+        id:
+          type: string
+        status:
+          type: string
+        updatedAt:
+          type: string
+    model.SmartLicenses:
+      type: object
+      properties:
+        smartLicenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SmartLicense'
+        totalRecords:
+          type: integer
+    model.SourceATO:
+      type: object
+      properties:
+        sourceATO:
+          type: string
+    model.Subscription:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        cancelledSkus:
+          $ref: '#/components/schemas/model.SkusMap'
+        createdAt:
+          type: string
+        externalId:
+          type: string
+        id:
+          type: string
+        is_external:
+          type: boolean
+        is_provisionable:
+          type: boolean
+        is_provisionable_email_sent:
+          type: boolean
+        manager_subscription_id:
+          $ref: '#/components/schemas/uuid.NullUUID'
+        requested_start_date:
+          type: string
+        subscription_end_date:
+          type: string
+        subscription_start_date:
+          type: string
+        updatedAt:
+          type: string
+    model.MspSubscription:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        cancelledSkus:
+          $ref: '#/components/schemas/model.SkusMap'
+        createdAt:
+          type: string
+        externalId:
+          type: string
+        id:
+          type: string
+        is_external:
+          type: boolean
+        is_provisionable:
+          type: boolean
+        is_provisionable_email_sent:
+          type: boolean
+        manager_subscription_id:
+          $ref: '#/components/schemas/uuid.NullUUID'
+        requested_start_date:
+          type: string
+        subscription_end_date:
+          type: string
+        subscription_start_date:
+          type: string
+        updatedAt:
+          type: string
+        msp_manager_org_details:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+    model.SubscriptionSkusInfo:
+      required:
+        - actionType
+        - name
+        - quantity
+      type: object
+      properties:
+        actionType:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/model.SKUActionType'
+        name:
+          type: string
+        quantity:
+          minimum: 1
+          type: integer
+    model.Trial:
+      type: object
+      properties:
+        Deleted:
+          $ref: '#/components/schemas/gorm.DeletedAt'
+        callback_url:
+          type: string
+        createdAt:
+          type: string
+        customerId:
+          type: string
+        externalId:
+          type: string
+        id:
+          type: string
+        product_name:
+          type: string
+        provisioning_contact_email:
+          type: string
+        skus:
+          $ref: '#/components/schemas/model.SkusMap'
+        trial_end_date:
+          type: string
+        trial_start_date:
+          type: string
+        updatedAt:
+          type: string
+    model.TrialInfo:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+        createdAt:
+          type: string
+        customerID:
+          type: string
+        endCustomerName:
+          type: string
+        enterpriseID:
+          type: string
+        enterpriseName:
+          type: string
+        externalId:
+          type: string
+          description: key could be any of this `json:"trialId"` or `json:"externalId"`
+        id:
+          type: string
+        metadata:
+          type: array
+          description: '"-" tag ignores this field when writing to DB'
+          items:
+            $ref: '#/components/schemas/model.ProvisioningInfo'
+        productName:
+          type: string
+        provisioningContactEmail:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.TrialsSku'
+        sseTenantID:
+          type: string
+        trialEndDate:
+          type: string
+        trialStartDate:
+          type: string
+    model.TrialsSku:
+      type: object
+      properties:
+        quantity:
+          type: integer
+        skuName:
+          type: string
+    model.UpgradeDetail:
+      type: object
+      properties:
+        sourceATOs:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SourceATO'
+        targetATO:
+          type: string
+    model.UpstreamSubscription:
+      type: object
+      properties:
+        activationStatus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ActivationStatus'
+        claimStatus:
+          $ref: '#/components/schemas/model.ClaimStatus'
+        createdAt:
+          type: string
+        endDate:
+          type: string
+        id:
+          type: string
+        isCancelled:
+          type: boolean
+        isProvisionable:
+          type: boolean
+        isTrial:
+          type: boolean
+        sendClaimCodeTo:
+          type: string
+        skus:
+          $ref: '#/components/schemas/model.SkusMap'
+        startDate:
+          type: string
+        updatedAt:
+          type: string
+    model.XSDSupportingDateTime:
+      type: object
+      properties:
+        time.Time:
+          type: string
+    model.ManagedOrgProductsList:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Multi cloud defense
+        quantity:
+          type: integer
+          example: 200
+    model.ManagedOrgsList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+        name:
+          type: string
+          example: Managed org 1
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ManagedOrgProductsList'
+    model.RevokeManagedOrgs:
+      type: object
+      properties:
+        managedOrgs:
+          type: array
+          example:
+            - id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+              name: Managed org 1
+              products:
+                - name: Multi cloud defense
+                  quantity: 200
+                - name: HyperShield
+                  quantity: 100
+                - name: Secure Access
+                  quantity: 200
+            - id: 3c74e892-f39d-47e6-8299-5759d941c053
+              name: Managed org 2
+              products:
+                - name: Secure Access
+                  quantity: 200
+                - name: Firewall
+                  quantity: 200
+          items:
+            $ref: '#/components/schemas/model.ManagedOrgsList'
+    routes.EnterpriseResponse:
+      type: object
+      properties:
+        country:
+          type: string
+        createdAt:
+          type: string
+        name:
+          type: string
+        region:
+          type: string
+        uid:
+          type: string
+    routes.MarketplaceErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+    routes.MarketplaceResponse:
+      type: object
+      properties:
+        allowedEmailDomains:
+          type: array
+          items:
+            type: string
+        authClients:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        isExplicitCancellationAllowed:
+          type: boolean
+        isImplicitCancellationActivated:
+          type: boolean
+        maximumInitialTermDays:
+          type: integer
+        maximumRemainingTermDays:
+          type: integer
+        maximumTotalTermDays:
+          type: integer
+        name:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/routes.SkuResponse'
+        updatedAt:
+          type: string
+    routes.SkuResponse:
+      type: object
+      properties:
+        canSubmitPaidSubscriptions:
+          type: boolean
+        canSubmitTrialSubscriptions:
+          type: boolean
+        createdAt:
+          type: string
+        name:
+          type: string
+        updatedAt:
+          type: string
+    routes.UpstreamSubscriptionCanceled:
+      type: object
+      properties:
+        isCancelled:
+          type: boolean
+    routes.UpstreamSubscriptionError:
+      type: object
+      properties:
+        code:
+          type: integer
+        error:
+          type: object
+          properties: {}
+        message:
+          type: string
+    uuid.NullUUID:
+      type: object
+      properties:
+        uuid:
+          type: string
+        valid:
+          type: boolean
+          description: Valid is true if UUID is not NULL
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+x-original-swagger-version: '2.0'
