@@ -64,6 +64,15 @@
           "type": "url"
         }
       ]
+    },
+    {
+      "title": "Security Cloud Control MCP Server",
+      "items": [
+        {
+          "title": "Getting Started",
+          "content": "mcp/getting-started.md"
+        }
+      ]
     }
   ]
 }
