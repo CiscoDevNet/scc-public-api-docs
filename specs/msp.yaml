@@ -4,10 +4,10 @@ info:
   title: SCC IAM API
   description: APIs for creating and updating the customer enterprise, including user access control.
 servers:
-  - url: https://api.int.security.cisco.com/piam-iam
+  - url: https://api.int.security.cisco.com/piam-provisioning
     variables:
       baseUrl:
-        default: https://api.int.security.cisco.com/piam-iam
+        default: https://api.int.security.cisco.com/piam-provisioning
       domain:
         default: https://sso-apps-preview.myverysecuresignon.name/api
 security:
@@ -16,7 +16,7 @@ security:
 paths:
   /enterprises/{id}/manager:
     get:
-      summary: Get all management relationship of managed organaization
+      summary: Get all management relationship of managed organization
       operationId: getEnterpriseManagementRelationshipManager
       parameters:
         - name: id

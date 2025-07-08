@@ -42,6 +42,21 @@
           "title": "Managed Service Provider Management",
           "content": "specs/msp.yaml",
           "type": "oas3"
+        },
+        {
+          "title": "AI Assistant",
+          "content": "specs/ai-assistant.yaml",
+          "type": "oas3"
+        },
+        {
+          "title": "Mesh Policy Management",
+          "content": "specs/mesh-policy.yaml",
+          "type": "oas3"
+        },
+        {
+          "title": "Context Provisioning Management",
+          "content": "specs/context-provisioning.yaml",
+          "type": "oas3"
         }
       ]
     }

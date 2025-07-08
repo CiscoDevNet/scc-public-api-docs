@@ -1,0 +1,3512 @@
+components:
+  schemas:
+    actionGetResponse:
+      description: response body for getAction API
+      properties:
+        actionId:
+          description: action ID
+          type: string
+        commonMetadata:
+          description: action metadata
+          type: object
+        createdAt:
+          description: time at which the action was created
+          format: date-time
+          type: string
+        description:
+          description: action description
+          type: string
+        error:
+          description: action error
+          type: string
+        messageId:
+          description: message ID
+          format: uuid
+          type: string
+        name:
+          $ref: '#/components/schemas/actionName'
+        retryConfig:
+          description: action retry config
+          type: string
+        status:
+          $ref: '#/components/schemas/actionStatus'
+        title:
+          description: action title
+          type: string
+        updatedAt:
+          description: time at which the action was last updated
+          format: date-time
+          type: string
+        userDetails:
+          description: user details
+          properties:
+            email:
+              description: user email
+              type: string
+            id:
+              description: user ID
+              type: string
+            name:
+              description: user name
+              type: string
+          type: object
+      type: object
+    actionInvokeResponse:
+      description: invoke action response body
+      properties:
+        error:
+          description: action invocation error
+          type: string
+        status:
+          $ref: '#/components/schemas/actionStatus'
+        taskId:
+          description: async task ID for action execution
+          type: string
+        taskUrl:
+          description: URL to async task
+          type: string
+      type: object
+    actionName:
+      description: action name
+      enum:
+        - NONE
+        - FPA_CREATE_RULE
+        - FPA_PAO_REMEDIATION_ENQUEUE
+        - DISPLAY
+        - PROMPT
+      type: string
+    actionOperation:
+      description: action operation
+      enum:
+        - EXECUTE
+        - UNDO
+      type: string
+    actionStatus:
+      description: action status
+      enum:
+        - NO_ACTION_STATUS
+        - DISABLED
+        - VALIDATION
+        - CONFIRMATION
+        - IN_PROGRESS
+        - COMPLETE
+        - FAILED
+        - CANCELLED
+        - VALIDATION_IN_PROGRESS
+        - UNDO_IN_PROGRESS
+        - UNDO_COMPLETE
+        - UNDO_FAILED
+        - INVALID
+      type: string
+    actionStep:
+      description: action step object
+      properties:
+        actionOperation:
+          $ref: '#/components/schemas/actionOperation'
+        apiMetadata:
+          $ref: '#/components/schemas/actionStepAPIMetadata'
+        completedAt:
+          description: execution completion timestamp
+          format: date-time
+          type: string
+        createdAt:
+          description: action step creation timestamp
+          format: date-time
+          type: string
+        description:
+          description: description for action step
+          type: string
+        executedAt:
+          description: execution start timestamp
+          format: date-time
+          type: string
+        id:
+          description: unique identifier of action step
+          type: string
+        parentActionId:
+          description: id of parent action
+          type: string
+        result:
+          description: result of action step execution
+          format: byte
+          type: string
+        retryConfig:
+          description: retry details
+          format: byte
+          type: string
+        sequenceNumber:
+          description: sequence number of action step
+          type: integer
+        status:
+          $ref: '#/components/schemas/actionStepStatus'
+        type:
+          $ref: '#/components/schemas/actionStepType'
+        updatedAt:
+          description: action step update timestamp
+          format: date-time
+          type: string
+      type: object
+    actionStepAPIMetadata:
+      description: all details to trigger action step of type API
+      properties:
+        endpoint:
+          description: endpoint of the API
+          type: string
+        headers:
+          description: headers for the API request
+          type: object
+        method:
+          description: http method for API
+          type: string
+        payload:
+          description: payload for the API request
+          format: byte
+          type: string
+      type: object
+    actionStepStatus:
+      default: UNKNOWN
+      description: status of action step
+      enum:
+        - UNKNOWN
+        - CREATED
+        - EXECUTION_IN_PROGRESS
+        - EXECUTION_COMPLETE
+        - EXECUTION_FAILED
+        - EXECUTION_CANCELLED
+      type: string
+    actionStepType:
+      default: DEFAULT
+      description: action step type
+      enum:
+        - DEFAULT
+        - API
+      type: string
+    actionUpdateRequest:
+      description: action update API request body
+      properties:
+        common_metadata:
+          description: action metadata
+          type: object
+        description:
+          description: action description
+          type: string
+        status:
+          $ref: '#/components/schemas/actionStatus'
+      required:
+        - status
+      type: object
+    actionUpdateResponse:
+      description: action update response body
+      properties:
+        error:
+          description: update error
+          type: string
+      type: object
+    actionValidateResponse:
+      description: validate action API response body
+      properties:
+        common_metadata:
+          description: action metadata
+          type: object
+        error:
+          description: action validation error
+          type: string
+        status:
+          $ref: '#/components/schemas/actionStatus'
+      type: object
+    addLabelRequest:
+      description: Request to add labels to a conversation
+      properties:
+        labels:
+          description: List of labels to add to the conversation
+          items:
+            $ref: '#/components/schemas/label'
+          type: array
+      type: object
+    commonMetadata:
+      description: metadata which can be common across all actions
+      properties:
+        entities:
+          $ref: '#/components/schemas/entityParams'
+        error:
+          description: store custom error which will be reflected on UI
+          type: string
+        incompleteEntities:
+          $ref: '#/components/schemas/incompleteEntities'
+      type: object
+    configUserResponse:
+      description: Response containing the user configuration for the AI Assistant
+      properties:
+        amplitude_config:
+          description: Amplitude configuration details.
+          nullable: true
+          type: object
+        app_type:
+          description: The type of application, e.g., "unified".
+          type: string
+        ld_config:
+          description: LaunchDarkly configuration details.
+          properties:
+            client_id:
+              description: LaunchDarkly client ID.
+              type: string
+            secure_hash:
+              description: LaunchDarkly secure hash.
+              type: string
+          type: object
+        system_config:
+          description: System configuration details.
+          nullable: true
+          type: object
+        tenant_id:
+          description: The unique identifier for the tenant.
+          type: string
+        user_config:
+          description: User-specific configuration settings.
+          nullable: true
+          properties:
+            settings:
+              description: user settings
+              type: object
+            state:
+              description: user state
+              properties:
+                xdr:
+                  description: user xdr config
+                  properties:
+                    onboarded:
+                      description: Indicates if the user has completed onboarding.
+                      type: boolean
+                  type: object
+              type: object
+          type: object
+        user_id:
+          description: The user's email or unique identifier.
+          type: string
+      type: object
+    conversation:
+      description: Conversation object
+      properties:
+        conversationId:
+          description: conversation ID
+          format: uuid
+          type: string
+        description:
+          description: conversation description
+          type: string
+        hasUnreadMessages:
+          description: indicates whether the conversation has unread messages
+          type: boolean
+        labels:
+          description: conversation labels
+          items:
+            $ref: '#/components/schemas/label'
+          type: array
+        lastInteractionDate:
+          description: date time at which the last interaction happened
+          format: date-time
+          type: string
+        severityType:
+          description: conversation severity level
+          enum:
+            - NONE_SEVERITY
+            - LOW
+            - MEDIUM
+            - HIGH
+          type: string
+      type: object
+    conversationGetResponse:
+      description: get conversation response body
+      properties:
+        conversation:
+          $ref: '#/components/schemas/conversation'
+        messages:
+          description: conversation messages
+          items:
+            $ref: '#/components/schemas/message'
+          type: array
+      type: object
+    conversationListResponse:
+      description: list conversations response body
+      properties:
+        conversations:
+          description: list of conversations
+          items:
+            $ref: '#/components/schemas/conversation'
+          type: array
+        nextOffset:
+          description: next pagination offset
+          type: integer
+      type: object
+    createConversationRequest:
+      description: create conversation request body
+      properties:
+        description:
+          description: conversation description
+          type: string
+        headers:
+          description: conversation headers
+          items:
+            type: string
+          type: array
+        labels:
+          description: conversation labels
+          items:
+            $ref: '#/components/schemas/label'
+          type: array
+      type: object
+    createConversationResponse:
+      description: create conversation response body
+      properties:
+        conversationId:
+          description: conversation ID
+          format: uuid
+          type: string
+      required:
+        - conversationId
+      type: object
+    createPiamTenantRequest:
+      description: create PIAM tenant request body
+      properties:
+        customer:
+          description: customer object
+          properties:
+            customer_name:
+              description: customer name
+              type: string
+            initial_admin:
+              description: customer admin email
+              format: email
+              type: string
+          type: object
+        enterprise_id:
+          description: PIAM enterprise ID
+          format: uuid
+          type: string
+        entitlements:
+          description: product entitlements
+          items:
+            description: entitlement objects
+            properties:
+              enforce_quantity:
+                description: whether quantity usage should be enforced
+                type: boolean
+              name:
+                description: entitlement name
+                type: string
+              quantity:
+                description: entitlement quantity
+                properties:
+                  unit:
+                    description: entitlement unit
+                    type: string
+                  value:
+                    description: entitlement value
+                    type: integer
+                type: object
+              value:
+                description: entitlement value
+                type: string
+            type: object
+          type: array
+        processing_meta:
+          description: processing metadata
+          properties:
+            callback_url:
+              description: URL which can be used to report async tenant creation status
+              format: uri
+              type: string
+            requestID:
+              description: request ID
+              format: uuid
+              type: string
+            send_welcome_email:
+              description: whether a welcome email should be sent
+              type: boolean
+          type: object
+        product_instance_id:
+          description: PIAM product instance ID
+          format: uuid
+          type: string
+        schemas:
+          description: PIAM schema list
+          example:
+            - urn:cisco:security:scim:tenant:core:1.0
+          items:
+            description: PIAM schema
+            type: string
+          type: array
+      type: object
+    createUserNotificationMessageRequest:
+      description: create user notification API request body
+      properties:
+        notification_id:
+          description: notification ID
+          format: uuid
+          type: string
+      required:
+        - notification_id
+      type: object
+    createUserNotificationMessageResponse:
+      description: create user notification response body
+      properties:
+        conversationId:
+          description: conversation ID
+          format: uuid
+          type: string
+        error:
+          description: notification creation error
+          type: string
+        messageId:
+          description: message ID
+          format: uuid
+          type: string
+        status:
+          description: notification status
+          enum:
+            - SUCCESS
+            - FAILED
+          type: string
+      type: object
+    deleteBulkNotificationRequest:
+      description: bulk delete notifications request body
+      properties:
+        notifications:
+          description: notifications to delete
+          items:
+            properties:
+              initiation_type:
+                description: type of notification initiation
+                type: string
+              notification_id:
+                description: notification ID
+                format: uuid
+                type: string
+            required:
+              - notification_id
+              - initiation_type
+            type: object
+          type: array
+      required:
+        - notifications
+      type: object
+    deleteBulkNotificationResponse:
+      description: bulk delete notifications response body
+      properties:
+        error:
+          description: deletion error
+          type: string
+        status:
+          description: deletion status
+          enum:
+            - SUCCESS
+            - FAILED
+          type: string
+      type: object
+    deleteNotificationResponse:
+      description: delete notification API response body
+      properties:
+        error:
+          description: deletion error
+          type: string
+        status:
+          description: deletion status
+          enum:
+            - SUCCESS
+            - FAILED
+          type: string
+      type: object
+    displayType:
+      description: display type
+      enum:
+        - DISPLAY_TYPE_NONE
+        - PLAIN_TEXT
+        - DROPDOWN
+      type: string
+    entityParams:
+      description: leaf entity details
+      properties:
+        actionStepId:
+          description: action step id
+          type: string
+        details:
+          description: details related to entity
+          format: byte
+          type: string
+        id:
+          description: id of the entity
+          type: string
+        isSelected:
+          description: is entity selected by user
+          type: boolean
+        name:
+          description: name of the entity
+          type: string
+        type:
+          description: type of the entity
+          type: string
+        value:
+          description: value of the entity
+          type: string
+      type: object
+    errorResponse:
+      description: error response
+      properties:
+        code:
+          description: Error code
+          type: integer
+        details:
+          description: Additional details about the error
+          type: object
+        message:
+          description: Error message
+          type: string
+      type: object
+    extendedFeedback:
+      description: Extended feedback object
+      properties:
+        freeFormResponse:
+          description: Free form response
+          type: string
+        quickPickResponses:
+          description: List of quick pick responses
+          items:
+            description: Quick pick response
+            enum:
+              - NONE
+              - FACTUAL_INACCURACY
+              - INCORRECT_CLASSIFICATION
+              - UNHELPFUL_FORMATTING
+              - INAPPROPRIATE_LENGTH
+              - IRRELEVANT_CONTENT
+              - CITATION_ISSUE
+              - CORRECT
+              - HELPFUL
+              - OTHER
+            type: string
+          type: array
+      type: object
+    getActionsByConversationIDResponse:
+      description: response structure for getting actions for a single conversation
+      properties:
+        msgActions:
+          $ref: '#/components/schemas/messageActions'
+      type: object
+    history:
+      description: history object
+      properties:
+        date:
+          description: date time the data was aggregated for
+          format: date-time
+          type: string
+        productUsage:
+          $ref: '#/components/schemas/productUsage'
+      type: object
+    historyListResponse:
+      description: list history response body
+      properties:
+        messages:
+          description: message history list
+          items:
+            $ref: '#/components/schemas/messageWithDetails'
+          type: array
+      type: object
+    incompleteEntities:
+      description: list of incomplete entities where we need user interaction
+      properties:
+        interObjects:
+          $ref: '#/components/schemas/interObjectParams'
+        intraObject:
+          $ref: '#/components/schemas/intraObjectParams'
+        invalidParams:
+          $ref: '#/components/schemas/missedInvalidSingleValuedParams'
+        missedParams:
+          $ref: '#/components/schemas/missedInvalidSingleValuedParams'
+        singleValuedParams:
+          $ref: '#/components/schemas/missedInvalidSingleValuedParams'
+      type: object
+    interObjectOptions:
+      description: InterObjectOptions is used to provide options for the ambiguity in the inter-object params.
+      properties:
+        options:
+          $ref: '#/components/schemas/entityParams'
+        type:
+          description: this type is used to disambiguate between Application, URL, and other types
+          type: string
+      type: object
+    interObjectParams:
+      description: represents the ambiguity in the inter-object params like Application or URL
+      properties:
+        actionStepId:
+          description: action step id
+          type: string
+        options:
+          description: options for the ambiguity
+          items:
+            $ref: '#/components/schemas/interObjectOptions'
+          type: array
+        rawValue:
+          description: raw value of the entity which can be used for UI display
+          type: string
+      type: object
+    intraObjectParams:
+      description: represents the ambiguity in the intra-object params like RickMiles1, RickMiles2, etc.
+      properties:
+        actionStepId:
+          description: action step id
+          type: string
+        options:
+          $ref: '#/components/schemas/entityParams'
+        type:
+          description: type of the entity
+          type: string
+      type: object
+    label:
+      description: label object
+      properties:
+        name:
+          description: label name
+          type: string
+        value:
+          description: label value
+          type: string
+      type: object
+    listActionStepResponse:
+      description: response containing list of action steps
+      properties:
+        actionSteps:
+          description: list of action step objects
+          items:
+            $ref: '#/components/schemas/actionStep'
+          type: array
+      type: object
+    listFeedbackResponse:
+      description: List feedback response
+      properties:
+        feedbackList:
+          description: List of feedback
+          items:
+            $ref: '#/components/schemas/messageFeedback'
+          type: array
+      type: object
+    markNotificationStatusRequest:
+      description: update notification status API request body
+      properties:
+        is_read:
+          description: new read status
+          type: boolean
+        notifications:
+          description: notifications to update
+          items:
+            properties:
+              initiation_type:
+                description: notification initiation type
+                type: string
+              notification_id:
+                description: notification ID
+                format: uuid
+                type: string
+            required:
+              - notification_id
+              - initiation_type
+            type: object
+          type: array
+      required:
+        - notifications
+        - is_read
+      type: object
+    markNotificationStatusResponse:
+      description: update notification status API response body
+      properties:
+        error:
+          description: update error
+          type: string
+        status:
+          description: notification status
+          enum:
+            - SUCCESS
+            - FAILED
+          type: string
+      type: object
+    message:
+      description: message object
+      properties:
+        id:
+          description: message ID
+          format: uuid
+          type: string
+        messageSuggestion:
+          description: message suggestion
+          items:
+            description: message suggestion items
+            type: string
+          type: array
+        notification:
+          description: notification
+          type: object
+        request:
+          $ref: '#/components/schemas/messageFragment'
+        response:
+          $ref: '#/components/schemas/messageFragment'
+        responseMetadata:
+          description: response metadata
+          properties:
+            progressiveStep:
+              description: progressive step
+              items:
+                description: progressive step items
+                type: string
+              type: array
+            responseExplanation:
+              description: response explanation
+              type: string
+          type: object
+        status:
+          $ref: '#/components/schemas/messageStatus'
+      required:
+        - request
+      type: object
+    messageAction:
+      description: action details for a message
+      properties:
+        actionId:
+          description: action ID
+          type: string
+        commonMetadata:
+          $ref: '#/components/schemas/commonMetadata'
+        description:
+          description: action description
+          type: string
+        name:
+          $ref: '#/components/schemas/actionName'
+        status:
+          $ref: '#/components/schemas/actionStatus'
+        title:
+          description: action title
+          type: string
+      type: object
+    messageActions:
+      description: list of actions for a message
+      properties:
+        actions:
+          description: list of actions
+          items:
+            $ref: '#/components/schemas/messageAction'
+          type: array
+        messageId:
+          description: message ID
+          type: string
+      type: object
+    messageFeedback:
+      description: Feedback object
+      properties:
+        extendedFeedback:
+          $ref: '#/components/schemas/extendedFeedback'
+        feedbackId:
+          description: Feedback ID
+          format: uuid
+          type: string
+        rating:
+          description: Rating
+          enum:
+            - THUMBS_UP
+            - THUMBS_DOWN
+            - NONE
+          type: string
+      type: object
+    messageFragment:
+      description: message fragment
+      properties:
+        content:
+          description: message content
+          type: string
+        contentType:
+          description: message content type
+          enum:
+            - TEXT
+          type: string
+        createdAt:
+          description: date time at which the message was created
+          format: date-time
+          type: string
+        metadata:
+          description: message metadata
+          nullable: true
+          type: object
+        taskType:
+          $ref: '#/components/schemas/taskType'
+      required:
+        - content
+        - contentType
+      type: object
+    messageGetResponse:
+      description: get message response body
+      properties:
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+    messageListResponse:
+      description: list messages response body
+      properties:
+        messages:
+          description: list of messages
+          items:
+            $ref: '#/components/schemas/message'
+          type: array
+      type: object
+    messageResponseGet:
+      description: get message response body
+      properties:
+        id:
+          description: message ID
+          format: uuid
+          type: string
+        response:
+          allOf:
+            - $ref: '#/components/schemas/messageFragment'
+            - description: message response
+              properties:
+                status:
+                  $ref: '#/components/schemas/messageStatus'
+              type: object
+          description: message response object
+      type: object
+    messageStatus:
+      description: message status
+      enum:
+        - PROCESSING
+        - DONE
+        - ERROR
+        - ERR_TIMED_OUT
+        - UNKNOWN
+        - STALE
+      type: string
+    messageSuggestion:
+      description: message suggestion
+      properties:
+        displayType:
+          $ref: '#/components/schemas/displayType'
+        id:
+          description: message suggestion ID
+          type: string
+        selectedSuggestion:
+          description: selected suggestion
+          items:
+            description: selected suggestion items
+            type: string
+          type: array
+        suggestionType:
+          $ref: '#/components/schemas/suggestionType'
+        suggestions:
+          description: list of suggestions
+          items:
+            $ref: '#/components/schemas/suggestions'
+          type: array
+      type: object
+    messageWithDetails:
+      description: message object with additional details
+      properties:
+        actions:
+          description: message actions
+          items:
+            description: message action items
+            properties:
+              actionId:
+                description: action ID
+                format: uuid
+                type: string
+              commonMetadata:
+                description: action metadata
+                type: object
+              status:
+                description: action status
+                type: string
+              title:
+                description: action title
+                type: string
+            required:
+              - actionId
+              - title
+              - status
+              - commonMetadata
+            type: object
+          type: array
+        feedback:
+          $ref: '#/components/schemas/messageFeedback'
+        id:
+          description: message ID
+          format: uuid
+          type: string
+        request:
+          $ref: '#/components/schemas/messageFragment'
+        response:
+          $ref: '#/components/schemas/messageFragment'
+      type: object
+    missedInvalidSingleValuedParams:
+      description: represents the ambiguity in Missed, Invalid, and SingleValued params.
+      properties:
+        actionStepId:
+          description: action step id
+          type: string
+        error:
+          description: error string which might be helpful for UI display
+          type: string
+        name:
+          description: name of the param
+          type: string
+        options:
+          description: options for the ambiguity
+          items:
+            $ref: '#/components/schemas/entityParams'
+          type: array
+        type:
+          description: type of the entity
+          type: string
+      type: object
+    notification:
+      description: notification object
+      properties:
+        analysis:
+          description: notification analysis
+          type: string
+        appType:
+          description: notification app type
+          type: string
+        conversationId:
+          description: conversation ID
+          format: uuid
+          type: string
+        id:
+          description: notification ID
+          format: uuid
+          type: string
+        initiationType:
+          description: notification initiation type
+          type: string
+        interactionType:
+          description: notification interaction type
+          type: string
+        messageId:
+          description: message ID
+          format: uuid
+          type: string
+        notificationType:
+          description: notification type
+          type: string
+        read:
+          description: notification read status
+          type: boolean
+        severityType:
+          description: notification severity
+          type: string
+        timestamp:
+          description: notification time
+          format: date-time
+          type: string
+      type: object
+    notificationCountResponse:
+      description: get notification count API response body
+      properties:
+        error:
+          description: error encountered while fetching counts
+          type: string
+        notificationCount:
+          description: count of notifications
+          type: integer
+        unreadNotificationCount:
+          description: count of unread notifications
+          type: integer
+      type: object
+    notificationListResponse:
+      description: list notifications API response body
+      properties:
+        notifications:
+          description: notification object list
+          items:
+            $ref: '#/components/schemas/notification'
+          type: array
+      type: object
+    pageContext:
+      description: page context
+      properties:
+        product:
+          description: product name
+          type: string
+        uri:
+          description: page URI
+          type: string
+      type: object
+    patchConfigUserState:
+      description: update user state config request body
+      properties:
+        unified:
+          description: unified assistant user state config
+          properties:
+            onboarded:
+              description: indicates if the user has completed onboarding
+              type: boolean
+          type: object
+      type: object
+    patchFeedbackRequest:
+      description: update feedback request body
+      properties:
+        extendedFeedback:
+          $ref: '#/components/schemas/extendedFeedback'
+      type: object
+    pollActionExecutionStatusResponse:
+      description: response to getActionStatus API
+      properties:
+        responseMessage:
+          description: response message
+          type: string
+        status:
+          $ref: '#/components/schemas/actionStatus'
+      type: object
+    postFeedbackRequest:
+      description: create feedback request body
+      properties:
+        extended_feedback:
+          $ref: '#/components/schemas/extendedFeedback'
+        rating:
+          description: rating
+          enum:
+            - THUMBS_UP
+            - THUMBS_DOWN
+            - NONE
+          type: string
+      required:
+        - rating
+      type: object
+    postFeedbackResponse:
+      description: create feedback response body
+      properties:
+        feedbackId:
+          description: feedback ID
+          format: uuid
+          type: string
+      required:
+        - feedbackId
+      type: object
+    postMessageRequest:
+      description: create message request body
+      properties:
+        content:
+          description: message content
+          type: string
+        content_type:
+          description: message content type
+          enum:
+            - TEXT
+          type: string
+        pagecontext:
+          $ref: '#/components/schemas/pageContext'
+        task_type:
+          $ref: '#/components/schemas/taskType'
+      required:
+        - content
+        - content_type
+      type: object
+    postMessageResponse:
+      description: create message response body
+      properties:
+        conversation_id:
+          description: conversation ID
+          format: uuid
+          type: string
+        message_id:
+          description: message ID
+          format: uuid
+          type: string
+        status:
+          $ref: '#/components/schemas/messageStatus'
+      required:
+        - status
+        - conversation_id
+        - message_id
+      type: object
+    postMessageSseResponse:
+      description: create message SSE response body
+      properties:
+        Data:
+          description: event data
+          oneOf:
+            - description: For TEXT event, Data is a simple string.
+              type: string
+            - description: For OBJECT event, Data is a JSON object.
+              type: object
+        Event:
+          description: event type
+          enum:
+            - TEXT
+            - OBJECT
+          type: string
+        Id:
+          description: event ID
+          format: uuid
+          type: string
+      required:
+        - Id
+        - Data
+        - Event
+      type: object
+    productUsage:
+      description: product usage object
+      properties:
+        freeUnits:
+          description: amount of free units used by the AI assistant
+          type: integer
+        paidUnits:
+          description: amount of paid units used by the AI assistant
+          type: integer
+        product:
+          description: product that used the units
+          enum:
+            - INVALID
+            - FIREWALL
+            - XDR
+            - SSE
+            - DUO
+            - HSD
+            - UNIFIED
+          type: string
+      type: object
+    quickPickFeedback:
+      description: quick pick feedback object
+      properties:
+        deleted:
+          description: Indicates if the quick pick feedback is deleted.
+          type: boolean
+        displayString:
+          description: The display string for the quick pick feedback.
+          type: string
+        id:
+          description: The unique identifier for the quick pick feedback.
+          type: string
+      type: object
+    quickPickFeedbacks:
+      description: quick pick feedbacks object
+      properties:
+        quickPickFeedback:
+          description: A list of quick pick feedback items.
+          items:
+            $ref: '#/components/schemas/quickPickFeedback'
+          type: array
+      type: object
+    quickPicks:
+      description: quick pick feedbacks object
+      properties:
+        quickPicks:
+          additionalProperties:
+            $ref: '#/components/schemas/quickPickFeedbacks'
+          description: Map containing model_type <> quick picks.
+          type: object
+      type: object
+    removeLabelRequest:
+      description: remove label request body
+      properties:
+        labels:
+          description: labels list
+          items:
+            $ref: '#/components/schemas/label'
+          type: array
+      type: object
+    suggestionType:
+      description: suggestion type
+      enum:
+        - SUGGESTION_TYPE_NONE
+        - FOLLOW_UP_QUESTION
+        - CLARIFICATION_QUESTION
+      type: string
+    suggestions:
+      description: suggestions object
+      properties:
+        key:
+          description: suggestion key
+          type: string
+        value:
+          description: suggestion value
+          type: string
+      type: object
+    taskType:
+      description: task type
+      enum:
+        - NONE
+        - POLICY_LLM
+        - DOC_LLM
+        - TASK_LLM
+        - OTHER_LLM
+      type: string
+    updateConversationRequest:
+      description: update conversation request body
+      properties:
+        description:
+          description: conversation description
+          type: string
+      required:
+        - description
+      type: object
+    updatePiamTenantRequest:
+      description: update PIAM tenant request body
+      properties:
+        customer:
+          description: customer object
+          properties:
+            customer_name:
+              description: customer name
+              type: string
+            initial_admin:
+              description: customer admin email
+              format: email
+              type: string
+          type: object
+        enterprise_id:
+          description: PIAM enterprise ID
+          format: uuid
+          type: string
+        entitlements:
+          description: product entitlements
+          items:
+            description: entitlement object
+            properties:
+              enforce_quantity:
+                description: whether quantity usage should be enforced
+                type: boolean
+              name:
+                description: entitlement name
+                type: string
+              quantity:
+                description: entitlement quantity
+                properties:
+                  unit:
+                    description: entitlement unit
+                    type: string
+                  value:
+                    description: entitlement value
+                    type: integer
+                type: object
+              value:
+                description: entitlement value
+                type: string
+            type: object
+          type: array
+        product_instance_id:
+          description: PIAM product instance ID
+          format: uuid
+          type: string
+        schemas:
+          description: PIAM schema list
+          example:
+            - urn:cisco:security:scim:tenant:core:1.0
+          items:
+            description: PIAM schema
+            type: string
+          type: array
+      type: object
+    updatePiamTenantResponse:
+      description: update PIAM tenant response body
+      properties:
+        customer:
+          description: customer object
+          properties:
+            customer_name:
+              description: customer name
+              type: string
+            initial_admin:
+              description: customer email
+              format: email
+              type: string
+          type: object
+        enterprise_id:
+          description: PIAM enterprise ID
+          format: uuid
+          type: string
+        entitlements:
+          description: product entitlements list
+          items:
+            description: entitlement object
+            properties:
+              name:
+                description: entitlement name
+                type: string
+              quantity:
+                description: quantity object
+                properties:
+                  unit:
+                    description: quantity unit
+                    type: string
+                  value:
+                    description: quantity value
+                    type: integer
+                type: object
+              value:
+                description: entitlement value
+                type: string
+            type: object
+          type: array
+        id:
+          description: tenant ID
+          format: uuid
+          type: string
+        meta:
+          description: PIAM tenant metadata
+          properties:
+            created:
+              description: date time at which the tenant was created
+              format: date-time
+              type: string
+            lastModified:
+              description: date time at which the tenant was last modified
+              format: date-time
+              type: string
+            resourceType:
+              description: resource type
+              type: string
+          type: object
+        schemas:
+          description: PIAM schemas
+          example:
+            - urn:cisco:security:scim:tenant:core:1.0
+          items:
+            description: PIAM schema
+            type: string
+          type: array
+      type: object
+    usageHistoryResponse:
+      description: Response containing the AI Assistant Usage
+      properties:
+        history:
+          description: list of aggregated data based on day or month
+          items:
+            $ref: '#/components/schemas/history'
+          type: array
+      type: object
+    usageResponse:
+      description: Response containing the AI Assistant Usage
+      properties:
+        productUsage:
+          description: product usage list
+          items:
+            $ref: '#/components/schemas/productUsage'
+          type: array
+        totalFreeUnits:
+          description: total number of free units used by the AI assistant
+          type: integer
+        totalPaidUnits:
+          description: total number of paid units used by the AI assistant
+          type: integer
+        totalUnits:
+          description: total number of units used by the AI assistant
+          type: integer
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      description: bearer token security scheme
+      scheme: bearer
+      type: http
+info:
+  description: APIs for interacting with AI Assistant
+  title: AI Assistant APIs
+  version: 2.0.0
+openapi: 3.0.0
+paths:
+  /piam/v1/Tenants:
+    post:
+      operationId: createPiamTenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createPiamTenantRequest'
+        required: true
+      responses:
+        '201':
+          description: Tenant resource was successfully created.
+        '202':
+          description: Provisioning request received and will be handled asynchronously.
+        '400':
+          description: Request is syntactically incorrect or violates the Tenant schema.
+        '401':
+          description: Authorization failure. The Authorization header is invalid or missing.
+        '403':
+          description: Operation is not permitted based on the supplied information.
+        '500':
+          description: Internal error occurred while processing the provisioning request.
+      security:
+        - bearerAuth: []
+      summary: Create a PIAM Tenant
+      tags:
+        - Tenant
+  /piam/v1/Tenants/{id}:
+    put:
+      operationId: updatePiamTenant
+      parameters:
+        - description: ID of the tenant to update
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updatePiamTenantRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updatePiamTenantResponse'
+          description: Tenant updated successfully.
+        '400':
+          description: Request is syntactically incorrect or violates the Tenant schema.
+        '401':
+          description: Authorization failure. The Authorization header is invalid or missing.
+        '403':
+          description: Operation is not permitted based on the supplied information.
+        '404':
+          description: The specified Tenant resource does not exist.
+        '500':
+          description: Internal error occurred while processing the update request.
+      security:
+        - bearerAuth: []
+      summary: Update a PIAM Tenant
+      tags:
+        - Tenant
+  /v2/config:
+    get:
+      operationId: getConfig
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/configUserResponse'
+          description: Configuration retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get the user configuration for the AI Assistant
+      tags:
+        - Config
+  /v2/config/user/state:
+    patch:
+      operationId: updateUserStateConfig
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchConfigUserState'
+        required: true
+      responses:
+        '200':
+          description: Configuration updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Update the config user state for the AI Assistant
+      tags:
+        - Config
+  /v2/conversations:
+    get:
+      operationId: listConversations
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: max number of conversations to return
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+        - description: offset used to retrieve next set of conversations with desired limit
+          in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+        - description: order of conversations to be shown based on sort by value
+          in: query
+          name: order
+          required: false
+          schema:
+            enum:
+              - DESC
+              - ASC
+            type: string
+        - description: value to sort the conversations by
+          in: query
+          name: sort_by
+          required: false
+          schema:
+            enum:
+              - last_interaction_date
+            type: string
+        - description: Array containing which conversations with specified label/s name to show in the resulting list. This should have the same length as label_value_filter
+          in: query
+          name: label_name_filter
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+        - description: Array containing which conversations with specified label/s value to show in the resulting list. This should have the same length as label_name_filter
+          in: query
+          name: label_value_filter
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conversationListResponse'
+          description: Conversations retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Tenant Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: List conversations along with details in paginated form
+      tags:
+        - Conversation
+    post:
+      operationId: createConversation
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createConversationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createConversationResponse'
+          description: Conversation created successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Tenant Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Create new conversation for a given user
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}:
+    delete:
+      description: Deletes a specific conversation by its conversation ID.
+      operationId: deleteConversation
+      parameters:
+        - description: The ID of the conversation to delete.
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful deletion of the conversation
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation not found
+      security:
+        - bearerAuth: []
+      summary: Delete a conversation
+      tags:
+        - Conversation
+    get:
+      operationId: getConversation
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to fetch
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conversationGetResponse'
+          description: Conversation retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get Conversation details along with chat history for this particular conversation
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/action/{action_id}/action_steps:
+    get:
+      operationId: listActionSteps
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: unique ID for the conversation.
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+        - description: unique ID for the action.
+          in: path
+          name: action_id
+          required: true
+          schema:
+            type: string
+        - description: max number of action steps to return
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+        - description: offset used to retrieve the desired set of action steps
+          in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listActionStepResponse'
+          description: A successful response.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: list action steps for a given action
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/actions/{action_id}:
+    get:
+      operationId: getAction
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to fetch
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of action to fetch
+          in: path
+          name: action_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/actionGetResponse'
+          description: Action retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get action details
+      tags:
+        - Action
+    patch:
+      operationId: updateAction
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to fetch
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of action to fetch
+          in: path
+          name: action_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/actionUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/actionUpdateResponse'
+          description: Action retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Update the action
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/actions/{action_id}/invoke:
+    post:
+      operationId: invokeAction
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to fetch
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of action to fetch
+          in: path
+          name: action_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Common metadata to be passed to the action
+          in: query
+          name: common_metadata
+          required: true
+          schema:
+            $ref: '#/components/schemas/commonMetadata'
+        - description: Param to skip actual action execution and just post a message
+          in: query
+          name: post_message_only
+          required: false
+          schema:
+            type: boolean
+        - description: Operation to perform on the action
+          in: query
+          name: action_operation
+          required: true
+          schema:
+            $ref: '#/components/schemas/actionOperation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/actionInvokeResponse'
+          description: Action invoked successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Invoke an action
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/actions/{action_id}/status:
+    get:
+      operationId: getActionStatus
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: conversation id
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+        - description: action ID
+          in: path
+          name: action_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pollActionExecutionStatusResponse'
+          description: A successful response.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: get the execution status of an action that has already been invoked
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/actions/{action_id}/validate:
+    put:
+      operationId: validateAction
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to fetch
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of action to fetch
+          in: path
+          name: action_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Common metadata to be passed to the action
+          in: query
+          name: common_metadata
+          required: true
+          schema:
+            $ref: '#/components/schemas/commonMetadata'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/actionValidateResponse'
+          description: Action validated successfully and status updated accordingly.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Validate action details
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/addLabel:
+    put:
+      operationId: addLabel
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to retrieve messages from
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/addLabelRequest'
+        required: true
+      responses:
+        '200':
+          description: Labels added successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Add label/s to a conversation's metadata - can be used for filtering
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/description:
+    put:
+      operationId: updateConversationDescription
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to update.
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateConversationRequest'
+        required: true
+      responses:
+        '200':
+          description: Conversation updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Update conversation description by providing conversation id
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/history:
+    get:
+      operationId: listHistory
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to retrieve messages from
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: offset used to retrieve the desired set of messages
+          in: query
+          name: offset
+          required: true
+          schema:
+            type: integer
+        - description: max number of messages to return
+          in: query
+          name: limit
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyListResponse'
+          description: Messages retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Retrieve conversation's messages with additional information, in the reverse order of their creation.
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message:
+    get:
+      operationId: listMessages
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to retrieve messages from
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: offset used to retrieve the desired set of messages
+          in: query
+          name: offset
+          required: true
+          schema:
+            type: integer
+        - description: max number of messages to return
+          in: query
+          name: limit
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageListResponse'
+          description: Messages retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Retrieve conversation's messages, in the reverse order of their creation.
+      tags:
+        - Conversation
+    post:
+      operationId: createMessage
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to add message to
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postMessageRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/postMessageResponse'
+          description: Message added to conversation successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Post request message to an existing active conversation
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message/{message_id}:
+    get:
+      operationId: getMessage
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation the message is associated with
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the message to poll
+          in: path
+          name: message_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageGetResponse'
+          description: Message retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Message Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Retrieve a message using conversation_id and message_id
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message/{message_id}/actions:
+    get:
+      operationId: listConversationActions
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: conversation ID
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+        - description: message ID
+          in: path
+          name: message_id
+          required: true
+          schema:
+            type: string
+        - description: return only actions with these names
+          in: query
+          name: nameFilter
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getActionsByConversationIDResponse'
+          description: A successful response.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: get list of actions for a single conversation
+      tags:
+        - Action
+  /v2/conversations/{conversation_id}/message/{message_id}/feedback:
+    get:
+      operationId: listFeedback
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of the conversation to list feedback for
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the message to list feedback for
+          in: path
+          name: message_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listFeedbackResponse'
+          description: List of feedback retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Message Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: List all feedbacks for a specific message
+      tags:
+        - Conversation
+    post:
+      operationId: createFeedback
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of the conversation
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the message that feedback is being given on
+          in: path
+          name: message_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postFeedbackRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/postFeedbackResponse'
+          description: Feedback successfully stored.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Message Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Allows for creating an initial feedback object, with Rating, for a particular message
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message/{message_id}/feedback/{feedback_id}:
+    patch:
+      operationId: updateFeedback
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: 'ID of the conversation '
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the message that feedback was given on
+          in: path
+          name: message_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the feedback to be modified
+          in: path
+          name: feedback_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchFeedbackRequest'
+        required: true
+      responses:
+        '200':
+          description: Feedback successfully updated.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Feedback Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Allows for updating an existing feedback object with quick pick responses and/or freeform response, for a particular message and save said feedback
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message/{message_id}/response:
+    get:
+      operationId: getMessageResponse
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation the message is associated with
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ID of the message to poll
+          in: path
+          name: message_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageResponseGet'
+          description: Message response retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Message Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Retrieve the response for a given message using conversation_id and message_id
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/message_sse:
+    post:
+      operationId: createMessageSse
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to add message to
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postMessageRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/postMessageSseResponse'
+          description: Message added to conversation successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Post request message to an existing active conversation with streaming response
+      tags:
+        - Conversation
+  /v2/conversations/{conversation_id}/removeLabel:
+    put:
+      operationId: removeLabel
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: ID of conversation to retrieve messages from
+          in: path
+          name: conversation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/removeLabelRequest'
+        required: true
+      responses:
+        '200':
+          description: Labels removed successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Conversation Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Remove label/s from a conversation's metadata
+      tags:
+        - Conversation
+  /v2/feedback/quickpicks:
+    get:
+      operationId: listQuickPicks
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/quickPicks'
+          description: Quick pick feedback options retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: GetQuickPicks gets all quick pick feedback options for a given integration.
+      tags:
+        - Feedback
+  /v2/notifications:
+    get:
+      operationId: listNotifications
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notificationListResponse'
+          description: Notifications retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get all notifications for the user based on the tenant
+      tags:
+        - Notification
+  /v2/notifications/delete:
+    put:
+      operationId: bulkDeleteNotifications
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deleteBulkNotificationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteBulkNotificationResponse'
+          description: Notifications deleted successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Bulk deletes the notifications for the user based on the initiation_type, user_id and tenant_key
+      tags:
+        - Notification
+  /v2/notifications/{notification_id}/initiation_type/{initiation_type}:
+    delete:
+      operationId: deleteNotification
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: unique ID of notification
+          in: path
+          name: notification_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: initiation type of notification
+          in: path
+          name: initiation_type
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteNotificationResponse'
+          description: Notification deleted successfully.
+        '400':
+          description: Bad request or missing fields
+        '404':
+          description: Notification not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Delete a notification by given notification id and initiation type
+      tags:
+        - Notification
+  /v2/usage:
+    get:
+      operationId: getUsage
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usageResponse'
+          description: Usage information retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get the AI assistant usage information
+      tags:
+        - Usage
+  /v2/usage/history:
+    get:
+      operationId: getUsageHistory
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+        - description: filter for how much data to show in the history graph
+          in: query
+          name: filter
+          required: false
+          schema:
+            enum:
+              - WEEK
+              - MONTH
+              - SIX_MONTHS
+              - YEAR
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usageHistoryResponse'
+          description: Usage History retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get the historical usage of AI Assistant
+      tags:
+        - Usage
+  /v2/user/notifications:
+    put:
+      operationId: updateNotificationStatus
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/markNotificationStatusRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/markNotificationStatusResponse'
+          description: User notification status updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Update the user notification is_read status
+      tags:
+        - Notification
+  /v2/user/notifications/count:
+    get:
+      operationId: getNotificationCount
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notificationCountResponse'
+          description: Notifications count retrieved successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Get the count of unread notifications for the user based on the tenant
+      tags:
+        - Notification
+  /v2/user/notifications/message:
+    post:
+      operationId: createUserNotificationMessage
+      parameters:
+        - description: Client product identifier
+          in: header
+          name: x-aiassistant-client-product
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUserNotificationMessageRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createUserNotificationMessageResponse'
+          description: Created user notification message successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Bad request or missing fields
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+      summary: Creates a new message for a notification
+      tags:
+        - Notification
+servers:
+  - description: AI Assistant Production API Server (NAM region)
+    url: https://api.security.cisco.com/api/ai-assistant
+tags:
+  - description: Tenant APIs
+    name: Tenant
+  - description: Conversation APIs
+    name: Conversation
+  - description: Feedback APIs
+    name: Feedback
+  - description: Configuration APIs
+    name: Config
+  - description: Usage APIs
+    name: Usage
+  - description: Action APIs
+    name: Action
+  - description: Notification APIs
+    name: Notification
