@@ -57,6 +57,11 @@
           "title": "Context Provisioning Management",
           "content": "specs/context-provisioning.yaml",
           "type": "oas3"
+        },
+        {
+          "title": "Firewall Management",
+          "content": "https://developer.cisco.com/docs/cisco-security-cloud-control/introduction/",
+          "type": "url"
         }
       ]
     }
