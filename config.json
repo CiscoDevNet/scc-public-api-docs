@@ -155,12 +155,14 @@
             }
           ]
         },
-    {
-      "title": "Model Context Protocol(MCP) Server",
-      "items": [
         {
-          "title": "Getting Started",
-          "content": "mcp/getting-started.md"
+          "title": "Model Context Protocol(MCP) Server",
+          "items": [
+            {
+              "title": "Getting Started",
+              "content": "mcp/getting-started.md"
+            }
+          ]
         }
       ]
     }
