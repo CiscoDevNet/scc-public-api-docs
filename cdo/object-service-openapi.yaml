@@ -1,0 +1,1421 @@
+openapi: 3.0.1
+info:
+  title: Cisco Security Cloud Control API
+  description: Use the documentation to explore the endpoints Security Cloud Control
+    has to offer
+  contact:
+    name: Cisco Security Cloud Control TAC
+    email: cdo.tac@cisco.com
+  version: 1.5.0
+servers:
+- url: https://edge.us.cdo.cisco.com/api/rest
+  description: US
+- url: https://edge.eu.cdo.cisco.com/api/rest
+  description: EU
+- url: https://edge.apj.cdo.cisco.com/api/rest
+  description: APJ
+- url: https://edge.aus.cdo.cisco.com/api/rest
+  description: AUS
+- url: https://edge.in.cdo.cisco.com/api/rest
+  description: IN
+- url: https://edge.staging.cdo.cisco.com/api/rest
+  description: Staging
+- url: https://edge.scale.cdo.cisco.com/api/rest
+  description: Scale
+- url: https://edge.ci.cdo.cisco.com/api/rest
+  description: CI
+paths:
+  /v1/objects:
+    get:
+      tags:
+      - Object Management
+      summary: Get Objects
+      description: "Get objects in the Security Cloud Control tenant. To use the object\
+        \ APIs, contact customer support or provision Multicloud Defense and turn\
+        \ on object sharing. Note: the object APIs only support operations on network\
+        \ objects and groups."
+      operationId: getObjects
+      parameters:
+      - name: q
+        in: query
+        description: "The query to execute. Use the Lucene Query Syntax to construct\
+          \ your query. Possible fields to search by are name, content."
+        required: false
+        schema:
+          type: string
+        example: content:*2.2.* AND name:Lab1
+      - name: includeOverrides
+        in: query
+        description: "If enabled, the search will also include results from override\
+          \ objects."
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: offset
+        in: query
+        description: "The offset of the results retrieved. The Security Cloud Control\
+          \ API uses the offset field to determine the index of the first result retrieved,\
+          \ and will retrieve `limit` results from the offset specified."
+        required: false
+        schema:
+          minimum: 0
+          type: string
+          default: "0"
+      - name: limit
+        in: query
+        description: The number of results to retrieve.
+        required: false
+        schema:
+          maximum: 200
+          minimum: 1
+          type: string
+          default: "50"
+      - name: sortBy
+        in: query
+        description: The fields to sort results by.
+        required: false
+        schema:
+          type: string
+        example: name:DESC
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: A paginated view of the Security Cloud Control objects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListObjectResponse'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+    post:
+      tags:
+      - Object Management
+      summary: Create Object
+      description: "Create an object in the Security Cloud Control tenant. To use\
+        \ the object APIs, contact customer support or provision Multicloud Defense\
+        \ and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: createObject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRequest'
+        required: true
+      responses:
+        "201":
+          description: A descriptive representation of the created Security Cloud
+            Control object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectResponse'
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/{uid}/targets:
+    post:
+      tags:
+      - Object Management
+      summary: Create Targets
+      description: "Create targets for an object in the Security Cloud Control tenant.\
+        \ To use the object APIs, contact customer support or provision Multicloud\
+        \ Defense and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: createTargets
+      parameters:
+      - name: uid
+        in: path
+        description: the unique identifier of the object for which the targets are
+          being added to.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetsRequest'
+        required: true
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: No content
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: Not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+    delete:
+      tags:
+      - Object Management
+      summary: Delete Targets
+      description: "Delete targets from an object in the Security Cloud Control tenant.\
+        \ To use the object APIs, contact customer support or provision Multicloud\
+        \ Defense and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: deleteTargets
+      parameters:
+      - name: uid
+        in: path
+        description: the unique identifier of the object for which the targets are
+          being removed from.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      - name: targetUuids
+        in: query
+        description: The list of UIDs of the targets being removed.
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+        example: "[7131daad-e813-4b8f-8f42-be1e241e8cdb, yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy]"
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "204":
+          description: No content
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: Not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/{uid}:
+    get:
+      tags:
+      - Object Management
+      summary: Get Object
+      description: "Gets an object in the Security Cloud Control tenant. To use the\
+        \ object APIs, contact customer support or provision Multicloud Defense and\
+        \ turn on object sharing. Note: the object APIs only support operations on\
+        \ network objects and groups."
+      operationId: getObject
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object being retrieved.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      - name: fields
+        in: query
+        description: "The scope of the fields to be retrieved. One of [\"@basic\"\
+          , \"@detailed\"]. Defaults to \"@basic\"."
+        required: false
+        schema:
+          type: string
+        example: '@detailed'
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectResponse'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+    delete:
+      tags:
+      - Object Management
+      summary: Delete Object
+      description: "Delete an object in the Security Cloud Control tenant. To use\
+        \ the object APIs, contact customer support or provision Multicloud Defense\
+        \ and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: deleteObject
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object being deleted.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "204":
+          description: No content
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+    patch:
+      tags:
+      - Object Management
+      summary: Modify Object
+      description: "Modify an object in the Security Cloud Control tenant. To use\
+        \ the object APIs, contact customer support or provision Multicloud Defense\
+        \ and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: modifyObject
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object being updated.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequest'
+        required: true
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: A descriptive representation of the updated Security Cloud
+            Control object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectResponse'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/{uid}/usage:
+    get:
+      tags:
+      - Object Management
+      summary: Get Object Usages
+      description: "Get usages of an object in the Security Cloud Control tenant.\
+        \ To use the object APIs, contact customer support or provision Multicloud\
+        \ Defense and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: getObjectUsages
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object to retrieve usages for.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      responses:
+        "200":
+          description: A descriptive representation of the created Security Cloud
+            Control object.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReferenceInfo'
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/{uid}/duplicates:
+    get:
+      tags:
+      - Object Management
+      summary: Get Duplicate Objects
+      description: "Get objects in the Security Cloud Control tenant that are duplicates\
+        \ of the given object. To use the object APIs, contact customer support or\
+        \ provision Multicloud Defense and turn on object sharing. Note: the object\
+        \ APIs only support operations on network objects and groups."
+      operationId: getDuplicateObjects
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object to retrieve duplicates for.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      - name: targetUid
+        in: query
+        description: the unique identifier of the target to restrict the duplicate
+          search to.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 6131daad-e813-4b8f-8f42-be1e241e8cdb
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: Duplicates of the object.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DuplicateGroupDto'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/overrides/{uid}:
+    get:
+      tags:
+      - Object Management
+      summary: Get Override Object With Values For Specific Target
+      description: "Gets an object in the Security Cloud Control tenant with values\
+        \ for specific target uid. To use the object APIs, contact customer support\
+        \ or provision Multicloud Defense and turn on object sharing. Note: the object\
+        \ APIs only support operations on network objects and groups."
+      operationId: getOverrideObject
+      parameters:
+      - name: uid
+        in: path
+        description: The unique identifier of the object being retrieved.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      - name: targetUid
+        in: query
+        description: The target UID to calculate values for.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectResponse'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+  /v1/objects/issues-count:
+    get:
+      tags:
+      - Object Management
+      summary: Get Issues Count
+      description: "Get issues count in the Security Cloud Control tenant. To use\
+        \ the object APIs, contact customer support or provision Multicloud Defense\
+        \ and turn on object sharing. Note: the object APIs only support operations\
+        \ on network objects and groups."
+      operationId: getIssuesCount
+      parameters:
+      - name: q
+        in: query
+        description: "The query to execute. Use the Lucene Query Syntax to construct\
+          \ your query. Possible fields to search by are name, content."
+        required: false
+        schema:
+          type: string
+        example: content:*2.2.* AND name:Lab1
+      responses:
+        "403":
+          $ref: '#/components/responses/http403Forbidden'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuesCount'
+        "401":
+          $ref: '#/components/responses/http401Unauthorised'
+        "400":
+          $ref: '#/components/responses/http400BadRequest'
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonApiError'
+components:
+  schemas:
+    CreateRequest:
+      required:
+      - name
+      - value
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the object
+          example: my-object
+        value:
+          $ref: '#/components/schemas/SharedObjectValue'
+        description:
+          type: string
+          description: The human-readable description of the object
+          example: My object description
+        targetIds:
+          uniqueItems: true
+          type: array
+          description: "Set of IDs for targets that contain the object. A target can\
+            \ be, for example, a device, service, or a shared policy (Ruleset)."
+          example:
+          - 7131daad-e813-4b8f-8f42-be1e241e8cdb
+          items:
+            type: string
+            description: "Set of IDs for targets that contain the object. A target\
+              \ can be, for example, a device, service, or a shared policy (Ruleset)."
+            example: "[\"7131daad-e813-4b8f-8f42-be1e241e8cdb\"]"
+        tags:
+          type: object
+          additionalProperties:
+            uniqueItems: true
+            type: array
+            description: The tags for the object
+            example:
+              location:
+              - London
+              - Head-office
+            items:
+              type: string
+              description: The tags for the object
+              example: "{\"location\":[\"London\",\"Head-office\"]}"
+          description: The tags for the object
+          example:
+            location:
+            - London
+            - Head-office
+        labels:
+          uniqueItems: true
+          type: array
+          description: The labels for the object
+          example:
+          - migration
+          items:
+            type: string
+            description: The labels for the object
+            example: "[\"migration\"]"
+    GroupContent:
+      type: object
+      properties:
+        literals:
+          type: array
+          description: List of content literals
+          items:
+            $ref: '#/components/schemas/SingleContent'
+        referencedObjectUids:
+          uniqueItems: true
+          type: array
+          description: Set of UIDs of the group's referenced objects
+          example:
+          - 7131daad-e813-4b8f-8f42-be1e241e8cdb
+          items:
+            type: string
+            description: Set of UIDs of the group's referenced objects
+            format: uuid
+      description: The contents of an object group
+    Icmp4Value:
+      type: object
+      properties:
+        icmp4Type:
+          type: string
+          example: DESTINATION_UNREACHABLE
+          enum:
+          - ANY
+          - ECHO_REPLY
+          - DESTINATION_UNREACHABLE
+          - SOURCE_QUENCH
+          - REDIRECT_MESSAGE
+          - ALTERNATE_HOST_ADDRESS
+          - ECHO_REQUEST
+          - ROUTER_ADVERTISEMENT
+          - ROUTER_SOLICITATION
+          - TIME_EXCEEDED
+          - PARAMETER_PROBLEM
+          - TIMESTAMP
+          - TIMESTAMP_REPLY
+          - INFO_REQUEST
+          - INFO_REPLY
+          - ADDR_MASK_REQUEST
+          - ADDR_MASK_REPLY
+          - TRACEROUTE
+          - DATAGRAM_CONVERSION_ERROR
+          - MOBILE_HOST_REDIRECT
+          - WHERE_ARE_YOU
+          - HERE_I_AM
+          - MOBILE_REG_REQUEST
+          - MOBILE_REG_REPLY
+          - DOMAIN_NAME_REQUEST
+          - DOMAIN_NAME_REPLY
+          - SKIP_ALGORITHM_DISCOVERY_PROTOCOL
+          - PHOTURIS
+          - EXPERIMENTAL_MOB_PROTOCOLS
+        icmp4Code:
+          type: string
+          example: NET_UNREACHABLE
+          enum:
+          - NET_UNREACHABLE
+          - HOST_UNREACHABLE
+          - PROTOCOL_UNREACHABLE
+          - PORT_UNREACHABLE
+          - FRAGMENTATION_NEEDED
+          - SOURCE_ROUTE_FAILED
+          - DEST_NETWORK_UNKNOWN
+          - DEST_HOST_UNKNOWN
+          - SRC_HOST_ISOLATED
+          - COMMUNICATION_DEST_NET_PROHIBITED
+          - COMMUNICATION_DEST_HOST_PROHIBITED
+          - DEST_NET_UNREACHABLE_FOR_TOS
+          - DEST_HOST_UNREACHABLE_FOR_TOS
+          - COMM_ADMINISTRATIVELY_PROHIBITED
+          - HOST_PRECEDENCE_VIOLATION
+          - PRECEDENCE_CUTOFF
+          - REDIRECT_DATAGRAM_NETWORK
+          - REDIRECT_DATAGRAM_HOST
+          - REDIRECT_DATAGRAM_SERVICE_NETWORK
+          - REDIRECT_DATAGRAM_SERVICE_HOST
+          - ALTERNATE_HOST_ADDR
+          - DO_NOT_ROUTE_COMMON_TRAFFIC
+          - NORMAL_ROUTER_ADV
+          - TTL_EXPIRED_TRANSIT
+          - FRAG_ASSEMBLY
+          - PTR_ERROR
+          - MISSING_REQD_OPTION
+          - BAD_LENGTH
+          - BAD_SPI
+          - AUTH_FAILED
+          - DECOMPRESSION_FAILED
+          - DECRYPTION_FAILED
+          - NEED_AUTHENTICATION
+          - NEED_AUTHORIZATION
+    Icmp6Value:
+      type: object
+      properties:
+        icmp6Type:
+          type: string
+          example: DESTINATION_UNREACHABLE
+          enum:
+          - ANY
+          - DESTINATION_UNREACHABLE
+          - PACKET_TOO_BIG
+          - TIME_EXCEEDED
+          - PARAMETER_PROBLEM
+          - ECHO_REQUEST
+          - ECHO_REPLY
+          - MULTICAST_LISTENER_QUERY
+          - MULTICAST_LISTENER_REPORT
+          - MULTICAST_LISTENER_DONE
+          - ROUTER_SOLICITATION
+          - ROUTER_ADVERTISEMENT
+          - NEIGHBOUR_SOLICITATION
+          - NEIGHBOUR_ADVERTISEMENT
+          - REDIRECT_MESSAGE
+          - ROUTER_RENUMBERING
+          - ICMP_NODE_INFO_QUERY
+          - ICMP_NODE_INFO_RESPONSE
+          - INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION
+          - INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT
+          - VER2_MULTICAST_LISTENER_REPORT
+          - HOME_AGENT_ADDR_DISCOVERY_REQUEST
+          - HOME_AGENT_ADDR_DISCOVERY_REPLY
+          - MOBILE_PREFIX_SOLICITATION
+          - MOBILE_PREFIX_ADVERTISEMENT
+          - CERT_PATH_SOLICITATION
+          - CERT_PATH_ADVERTISEMENT
+          - ICMP_EXP_MOBILITY_PROTOCOLS
+          - MULTICAST_ROUTER_ADVERTISEMENT
+          - MULTICAST_ROUTER_SOLICITATION
+          - MULTICAST_ROUTER_TERMINATION
+          - FMIPV6_MESSAGE
+          - RPL_CONTROL_MESSAGE
+          - PRIVATE_EXPERIMENTATION
+          - PRIVATE_EXPERIMENTATION_EXTENDED
+        icmp6Code:
+          type: string
+          example: ADDRESS_UNREACHABLE
+          enum:
+          - NO_ROUTE_DEST
+          - COMMUNICATION_PROHIBITED
+          - BEYOND_SCOPE_SRC_ADDR
+          - ADDRESS_UNREACHABLE
+          - PORT_UNREACHABLE
+          - SOURCE_ADDRESS_FAILED
+          - REJECT_ROUTE
+          - ERROR_SRC_ROUTING_HEADER
+          - HOP_LIMIT_EXCEEDED
+          - FRAGMENT_REASSEMBLY_TIME_EXCEEDED
+          - ERRONEOUS_HEADER_ENCOUNTERED
+          - UNRECOGNIZED_NEXT_HEADER_TYPE_ENCOUNTERED
+          - UNRECOGNIZED_IPV6_OPTION_ENCOUNTERED
+          - IPV6_FIRST_FRAG_HAS_INCOMPLETE_HEADER_CHAIN
+          - SR_UPPER_LAYER_HEADER_ERROR
+          - ROUTER_RENUMBERING_COMMAND
+          - ROUTER_RENUMBERING_RESULT
+          - DATA_CONTAINS_IPV6
+          - DATA_CONTAINS_NAME
+          - DATA_CONTAINS_IPV4
+          - SUCCESSFUL_REPLY
+          - RESPONDER_REFUSES_ANSWER
+          - QTYPE_UNKNOWN
+    NetworkObjectContent:
+      required:
+      - literal
+      type: object
+      properties:
+        literal:
+          type: string
+          description: The literal content of the network object
+          example: a:b:c::1
+      description: The content of a network object
+    ObjectContent:
+      type: object
+      description: The content value of the override. This overrides the object's
+        default content.
+      example:
+        literal: a:b:c::1
+      oneOf:
+      - $ref: '#/components/schemas/ServiceObjectContent'
+      - $ref: '#/components/schemas/UrlObjectContent'
+      - $ref: '#/components/schemas/GroupContent'
+      - $ref: '#/components/schemas/NetworkObjectContent'
+    Override:
+      required:
+      - content
+      type: object
+      properties:
+        targetId:
+          type: string
+          description: "The ID of the target. A target can be, for example, a device,\
+            \ service, or a shared policy (Ruleset)."
+          example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+        content:
+          $ref: '#/components/schemas/ObjectContent'
+      description: The list of target overrides for the object. Each override the
+        default content for its target.
+      example:
+        targetId: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+        content: a:b:c::2
+    PortsValue:
+      type: object
+      properties:
+        literal:
+          type: string
+          description: The literal port or range of port values
+          example: 8000-8080
+    ProtocolValueContent:
+      type: object
+      properties:
+        protocolValue:
+          type: string
+          description: The literal for a custom protocol value
+          example: www
+    ServiceObjectContent:
+      type: object
+      properties:
+        protocol:
+          type: string
+          description: The service object protocol
+          example: TCP
+          enum:
+          - TCP
+          - UDP
+          - ICMP
+          - ICMP4
+          - ICMP6
+          - TCP_UDP
+          - IGMP
+          - GGP
+          - ST2
+          - CBT
+          - EGP
+          - IGP
+          - BBNRCCMON
+          - NVP2
+          - PUP
+          - ARGUS
+          - EMCON
+          - XNET
+          - CHAOS
+          - MUX
+          - DCNMEAS
+          - HMP
+          - PRM
+          - XNSIDP
+          - TRUNK1
+          - TRUNK2
+          - LEAF1
+          - LEAF2
+          - RDP
+          - IRTP
+          - ISOTP4
+          - NETBLT
+          - MFENSP
+          - MERITINP
+          - SEP
+          - THREEPC
+          - IDPR
+          - XTP
+          - DDP
+          - IDPRCMTP
+          - TPPLUSPLUS
+          - IL
+          - SDRP
+          - IDRP
+          - RSVP
+          - GRE
+          - MHRP
+          - BNA
+          - ESP
+          - AH
+          - INLSP
+          - SWIPE
+          - NARP
+          - MOBILE
+          - TLSP
+          - SKIP
+          - IPv6NONXT
+          - CFTP
+          - SATEXPAK
+          - KRYPTOLAN
+          - RVD
+          - IPPC
+          - SATMON
+          - VISA
+          - IPCV
+          - CPNX
+          - CPHB
+          - WSN
+          - PVP
+          - BRSATMON
+          - SUNND
+          - WBMON
+          - WBEXPAK
+          - ISOIP
+          - VMTP
+          - SECUREVMTP
+          - VINES
+          - TTP
+          - NSFNETIGP
+          - DGP
+          - TCF
+          - EIGRP
+          - OSPFIGP
+          - SPRITERPC
+          - LARP
+          - MTP
+          - AX25
+          - IPIP
+          - MICP
+          - SCCSP
+          - ETHERIP
+          - ENCAP
+          - GMTP
+          - IFMP
+          - PNNI
+          - PIM
+          - ARIS
+          - SCPS
+          - QNX
+          - AN
+          - IPCOMP
+          - SNP
+          - COMPAQPEER
+          - IPXINIP
+          - VRRP
+          - PGM
+          - L2TP
+          - DDX
+          - IATP
+          - ST
+          - SRP
+          - UTI
+          - SMP
+          - SM
+          - PTP
+          - ISIS
+          - FIRE
+          - CRTP
+          - CRUDP
+          - SSCOPMCE
+          - IPLT
+          - SPS
+          - PIPE
+          - SCTP
+          - FC
+          - DIVERT
+          - CUSTOM
+        serviceValue:
+          $ref: '#/components/schemas/ServiceObjectValueContent'
+    ServiceObjectValueContent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - NETWORK_OBJECT
+          - URL_OBJECT
+          - SERVICE_OBJECT
+          - ICMP_4
+          - ICMP_6
+          - SOURCE_DESTINATION_PORT
+          - PORT
+          - PROTOCOL_VALUE
+      description: The value of the service object
+      example: "{ \"8000-9000\"] }"
+      oneOf:
+      - $ref: '#/components/schemas/Icmp4Value'
+      - $ref: '#/components/schemas/Icmp6Value'
+      - $ref: '#/components/schemas/SourceDestinationPortsValue'
+      - $ref: '#/components/schemas/PortsValue'
+      - $ref: '#/components/schemas/ProtocolValueContent'
+    SharedObjectValue:
+      required:
+      - defaultContent
+      - objectType
+      type: object
+      properties:
+        objectType:
+          type: string
+          description: The type of object
+          example: NETWORK_OBJECT
+          enum:
+          - NETWORK_OBJECT
+          - URL_OBJECT
+          - SERVICE_OBJECT
+          - NETWORK_GROUP
+          - URL_GROUP
+          - SERVICE_GROUP
+        defaultContent:
+          $ref: '#/components/schemas/ObjectContent'
+        overrides:
+          type: array
+          description: The list of target overrides for the object. Each override
+            the default content for its target.
+          items:
+            $ref: '#/components/schemas/Override'
+      description: The value of the object
+    SingleContent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - NETWORK_OBJECT
+          - URL_OBJECT
+          - SERVICE_OBJECT
+          - ICMP_4
+          - ICMP_6
+          - SOURCE_DESTINATION_PORT
+          - PORT
+          - PROTOCOL_VALUE
+      description: List of content literals
+      oneOf:
+      - $ref: '#/components/schemas/ServiceObjectContent'
+      - $ref: '#/components/schemas/UrlObjectContent'
+      - $ref: '#/components/schemas/NetworkObjectContent'
+    SourceDestinationPortsValue:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/PortsValue'
+        destination:
+          $ref: '#/components/schemas/PortsValue'
+    UrlObjectContent:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          type: string
+          description: The URL literal
+          example: https://www.cisco.com/
+    IssuesDto:
+      type: object
+      properties:
+        unusedTargetIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        duplicateTargetIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+      description: The issues for the object
+      example:
+        unusedTargetIds:
+        - 7131daad-e813-4b8f-8f42-be1e241e8cdb
+    ObjectResponse:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: The unique identifier of the object
+          format: uuid
+          example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+        name:
+          type: string
+          description: The name of the object
+          example: my-object
+        value:
+          $ref: '#/components/schemas/SharedObjectValue'
+        description:
+          type: string
+          description: The human-readable description of the object
+          example: My object description
+        targets:
+          type: array
+          description: "Set of targets that contain the object. A target can be, for\
+            \ example, a device, service, or a shared policy (Ruleset)."
+          items:
+            $ref: '#/components/schemas/Target'
+        elements:
+          type: array
+          description: A flattened list of the content value of the object
+          example: "[a:b:c::1]"
+          items:
+            type: string
+            description: A flattened list of the content value of the object
+            example: "[a:b:c::1]"
+        referencesInfoFromDefaultAndOverrides:
+          type: array
+          description: List of objects referenced in the default content or in any
+            of the overrides.
+          items:
+            $ref: '#/components/schemas/ReferenceInfo'
+        tags:
+          type: object
+          additionalProperties:
+            uniqueItems: true
+            type: array
+            description: The tags for the object
+            example:
+              location:
+              - London
+              - Head-office
+            items:
+              type: string
+              description: The tags for the object
+              example: "{\"location\":[\"London\",\"Head-office\"]}"
+          description: The tags for the object
+          example:
+            location:
+            - London
+            - Head-office
+        labels:
+          uniqueItems: true
+          type: array
+          description: The labels for the object
+          example:
+          - migration
+          items:
+            type: string
+            description: The labels for the object
+            example: "[\"migration\"]"
+        issues:
+          $ref: '#/components/schemas/IssuesDto'
+    ReferenceInfo:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: The unique identifier of the referenced object
+          format: uuid
+          example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+        name:
+          type: string
+          description: The name of the referenced object
+          example: another-object
+        objectType:
+          type: string
+          description: The object type
+          example: NETWORK_OBJECT
+          enum:
+          - NETWORK_OBJECT
+          - URL_OBJECT
+          - SERVICE_OBJECT
+          - NETWORK_GROUP
+          - URL_GROUP
+          - SERVICE_GROUP
+      description: List of objects referenced in the default content or in any of
+        the overrides.
+    Target:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The ID of the target with which the object is associated.\
+            \ A target can be, for example, a device, service, or a shared policy\
+            \ (Ruleset)."
+          example: "[7131daad-e813-4b8f-8f42-be1e241e8cdb]"
+        displayName:
+          type: string
+          description: The display name of the target
+          example: My ASA
+        type:
+          type: string
+          description: The target type
+          example: ASA
+          enum:
+          - ASA
+          - FDM_MANAGED_FTD
+          - CDFMC
+          - CDFMC_MANAGED_FTD
+          - SFCN
+          - AWS_VPC
+          - ONPREM_FMC
+          - MERAKI_MX
+          - FDM_RULESET
+          - ONPREM_FMC_MANAGED_FTD
+          - MCD
+          - SDWAN
+      description: "Set of targets that contain the object. A target can be, for example,\
+        \ a device, service, or a shared policy (Ruleset)."
+    TargetsRequest:
+      type: object
+      properties:
+        targetsUuids:
+          type: array
+          description: The list of UIDs of the targets to be deleted.
+          example:
+          - 7131daad-e813-4b8f-8f42-be1e241e8cdb
+          items:
+            type: string
+            description: The list of UIDs of the targets to be deleted.
+            example: "[\"7131daad-e813-4b8f-8f42-be1e241e8cdb\"]"
+    UpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the object to update
+          example: my-object
+        description:
+          type: string
+          description: The description of the object
+          example: My object description
+        value:
+          $ref: '#/components/schemas/SharedObjectValue'
+        tags:
+          type: object
+          additionalProperties:
+            uniqueItems: true
+            type: array
+            description: The tags for the object
+            example:
+              location:
+              - London
+              - Head-office
+            items:
+              type: string
+              description: The tags for the object
+              example: "{\"location\":[\"London\",\"Head-office\"]}"
+          description: The tags for the object
+          example:
+            location:
+            - London
+            - Head-office
+        labels:
+          uniqueItems: true
+          type: array
+          description: The labels for the object
+          example:
+          - migration
+          items:
+            type: string
+            description: The labels for the object
+            example: "[\"migration\"]"
+    ListObjectResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of results available.
+          format: int64
+          example: 100
+        limit:
+          maximum: 200
+          type: integer
+          description: The number of results retrieved.
+          format: int64
+          example: 50
+        offset:
+          type: integer
+          description: "The offset of the results retrieved. The CDO API uses the\
+            \ offset field to determine the index of the first result retrieved, and\
+            \ will retrieve `limit` results from the offset specified."
+          format: int64
+          example: 0
+        items:
+          type: array
+          description: The list of objects retrieved.
+          items:
+            $ref: '#/components/schemas/UnifiedObjectListView'
+    UnifiedObjectListView:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        value:
+          $ref: '#/components/schemas/SharedObjectValue'
+        targetIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        overrideIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        tags:
+          type: object
+          additionalProperties:
+            uniqueItems: true
+            type: array
+            items:
+              type: string
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        issues:
+          $ref: '#/components/schemas/IssuesDto'
+      description: The list of objects retrieved.
+    DuplicateGroupDto:
+      type: object
+      properties:
+        targetUid:
+          type: string
+          description: The unique identifier of the target to search in.
+          format: uuid
+          example: 7131daad-e813-4b8f-8f42-be1e241e8cdb
+        unifiedObjectUids:
+          uniqueItems: true
+          type: array
+          description: The set of unique identifiers of the duplicate objects.
+          items:
+            type: string
+            description: The set of unique identifiers of the duplicate objects.
+            format: uuid
+    IssuesCount:
+      type: object
+      properties:
+        totalObjects:
+          type: integer
+          description: Total number of objects for the tenant
+          format: int64
+          example: 4
+        unAssociated:
+          type: integer
+          description: Number of UnAssociated Objects
+          format: int64
+          example: 1
+        unUseds:
+          type: integer
+          description: Number of unAssigned Objects
+          format: int64
+          example: 1
+        duplicates:
+          type: integer
+          description: Number of duplicate Objects
+          format: int64
+          example: 2
+    AuthenticationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: A human-readable error description in English.
+          example: invalid_token
+        errorDescription:
+          type: string
+          description: A human-readable error description in English.
+          example: Your token is invalid
+    CommonApiError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: A unique code that describes the error.
+          example: INVALID_INPUT
+          enum:
+          - INVALID_INPUT
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - METHOD_NOT_ALLOWED
+          - CONFLICT
+          - TOO_MANY_REQUESTS
+          - SERVER_ERROR
+          - PROXY_ERROR
+          - BAD_REQUEST
+          - UNPROCESSABLE_ENTITY
+        errorMsg:
+          type: string
+          description: A human-readable error description in English.
+          example: sample error
+        details:
+          type: object
+          additionalProperties:
+            type: object
+            description: "Additional details, if any, on the error"
+            example: {}
+          description: "Additional details, if any, on the error"
+          example: {}
+  responses:
+    http400BadRequest:
+      description: Invalid input provided. Check the response for details.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+    http401Unauthorised:
+      description: Request not authorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthenticationError'
+    http403Forbidden:
+      description: User does not have sufficient privileges to perform this operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+    http404NotFound:
+      description: Entity not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+    http405MethodNotAllowed:
+      description: Method not allowed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+    http409Conflict:
+      description: Conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+    http422UnprocessableEntity:
+      description: Unprocessable entity.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommonApiError'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

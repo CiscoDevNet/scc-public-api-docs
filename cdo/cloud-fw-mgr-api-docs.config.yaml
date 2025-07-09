@@ -1,0 +1,57 @@
+services:
+  - name: "api-facade"
+    url: "https://staging.manage.security.cisco.com/api/platform/public-api/v3/api-docs.yaml"
+  - name: "msp-api"
+    url: "https://staging.manage.security.cisco.com/api/platform/msp-api/v3/api-docs.yaml"
+  - name: "device-upgrade"
+    url: "https://staging.manage.security.cisco.com/api/platform/device-upgrade/v3/api-docs.yaml"
+  - name: "object-service"
+    url: "https://staging.manage.security.cisco.com/api/platform/object-service/v3/api-docs.yaml"
+  - name: "transaction-service"
+    url: "https://staging.manage.security.cisco.com/api/platform/transaction-service/v3/api-docs.yaml"
+  - name: "device-gateway-service"
+    url: "https://edge.staging.cdo.cisco.com/api/platform/device-gateway/v3/api-docs.yaml"
+    prefixToAdd: "/v1/fmc/gateway"
+  - name: "device-health"
+    url: "https://staging.manage.security.cisco.com/api/platform/device-health/v3/api-docs.yaml"
+cdfmc:
+  url: "https://demo-red.app.us.cdo.cisco.com/api/api-explorer/fmc_oas3.json"
+info:
+  cdo:
+    title: "Cisco Security Cloud Control Firewall Manager API"
+    version: "1.13.0"
+    description: "Use the documentation to explore the endpoints Security Cloud Control Firewall Manager has to offer"
+    contact:
+      name: "Cisco Security Cloud Control TAC"
+      email: "cdo.tac@cisco.com"
+  cdfmc:
+    title: "Cisco Cloud-delivered Firewall Management Center (cdFMC) API"
+    version: "1.13.0"
+    description: "Use the documentation to explore the endpoints the cdFMC has to offer"
+    contact:
+      name: "Cisco Firepower TAC"
+      email: "ngfw-support@cisco.com"
+servers:
+ - url: https://api.us.security.cisco.com/firewall
+   description: US
+ - url: https://api.eu.security.cisco.com/firewall
+   description: EU
+ - url: https://api.apj.security.cisco.com/firewall
+   description: APJ
+ - url: https://api.au.security.cisco.com/firewall
+   description: AUS
+ - url: https://api.in.security.cisco.com/firewall
+   description: IN
+ - url: https://api.int.security.cisco.com/firewall
+   description: Staging
+ - url: https://scale.manage.security.cisco.com/api/rest
+   description: Scale
+ - url: https://ci.manage.security.cisco.com/api/rest
+   description: CI
+ - url: https://manage.stg.secure.cisco/api/rest
+   description: Stgf9
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
