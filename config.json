@@ -29,6 +29,11 @@
       },
       "items": [
         {
+          "title": "API Key Management",
+          "content": "specs/api-token.yaml",
+          "type": "oas3"
+        },
+        {
           "title": "Identity and Access Management",
           "content": "specs/iam.yaml",
           "type": "oas3"
