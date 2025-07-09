@@ -67,102 +67,97 @@
           "title": "Firewall Management",
           "items": [
             {
-              "title": "SCC Firewall Manager API Documentation",
-              "items": [
-                {
-                  "title": "Introduction",
-                  "content": "cdo/overview/intro.md"
-                },
-                {
-                  "title": "Authentication",
-                  "content": "cdo/overview/authentication.md"
-                },
-                {
-                  "title": "Getting Started",
-                  "content": "cdo/overview/getting-started.md"
-                },
-                {
-                  "title": "Searching",
-                  "content": "cdo/overview/searching.md"
-                },
-                {
-                  "title": "API Changelog",
-                  "content": "cdo/api-changelog.md"
-                }
-              ]
+              "title": "Introduction",
+              "content": "cdo/overview/intro.md"
             },
             {
-              "title": "API Reference",
-              "config": {
-                "expand": 0,
-                "serverConfig": "select"
-              },
-              "items": [
-                {
-                  "title": "SCC Firewall Manager API",
-                  "content": "cdo/openapi.yaml",
-                  "type": "oas3"
-                },
-                {
-                  "title": "cdFMC API",
-                  "content": "cdo/cdfmc-openapi.yaml",
-                  "type": "oas3"
-                }
-              ]
+              "title": "Authentication",
+              "content": "cdo/overview/authentication.md"
             },
             {
-              "title": "Developer Resources",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Postman Collections",
-                  "content": "cdo/developer-resources/postman-collection.md"
-                },
-                {
-                  "title": "SDKs",
-                  "content": "cdo/developer-resources/sdks.md"
-                },
-                {
-                  "title": "Learning Labs",
-                  "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
-                  "type": "url"
-                },
-                {
-                  "title": "Code Exchange",
-                  "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
-                  "type": "url"
-                }
-              ]
+              "title": "Getting Started",
+              "content": "cdo/overview/getting-started.md"
             },
             {
-              "title": "Community and Support",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Developer Support",
-                  "content": "community-and-support/developer-support.md"
-                },
-                {
-                  "title": "Community",
-                  "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
-                  "type": "url"
-                }
-              ]
+              "title": "Searching",
+              "content": "cdo/overview/searching.md"
+            },
+            {
+              "title": "API Changelog",
+              "content": "cdo/api-changelog.md"
             }
           ]
         },
         {
-          "title": "Model Context Protocol(MCP) Server",
+          "title": "API Reference",
+          "config": {
+            "expand": 0,
+            "serverConfig": "select"
+          },
           "items": [
             {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
+              "title": "SCC Firewall Manager API",
+              "content": "cdo/openapi.yaml",
+              "type": "oas3"
+            },
+            {
+              "title": "cdFMC API",
+              "content": "cdo/cdfmc-openapi.yaml",
+              "type": "oas3"
             }
           ]
+        },
+        {
+          "title": "Developer Resources",
+          "config": {
+            "expand": 0
+          },
+          "items": [
+            {
+              "title": "Postman Collections",
+              "content": "cdo/developer-resources/postman-collection.md"
+            },
+            {
+              "title": "SDKs",
+              "content": "cdo/developer-resources/sdks.md"
+            },
+            {
+              "title": "Learning Labs",
+              "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
+              "type": "url"
+            },
+            {
+              "title": "Code Exchange",
+              "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
+              "type": "url"
+            }
+          ]
+        },
+        {
+          "title": "Community and Support",
+          "config": {
+            "expand": 0
+          },
+          "items": [
+            {
+              "title": "Developer Support",
+              "content": "community-and-support/developer-support.md"
+            },
+            {
+              "title": "Community",
+              "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
+              "type": "url"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Model Context Protocol(MCP) Server",
+      "items": [
+        {
+          "title": "Getting Started",
+          "content": "mcp/getting-started.md"
         }
       ]
     }
