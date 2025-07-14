@@ -3,40 +3,55 @@ components:
     ApiKey:
       properties:
         createdDate:
+          description: The date and time when the API key was created.
           format: date-time
           type: string
         creatorUserEmail:
+          description: The email address of the user who created the API key.
           type: string
         cuiMachineAccountId:
+          description: The unique identifier for the CUI machine account.
           type: string
         cuiMachineAccountName:
+          description: The name of the CUI machine account.
           type: string
         description:
+          description: A brief description of the API key.
           type: string
         keyExpiresAt:
+          description: The expiration date and time of the API key.
           type: string
         lastModifiedDate:
+          description: The date and time when the API key was last modified.
           format: date-time
           type: string
         lastRefreshed:
+          description: The date and time when the API key was last refreshed.
           type: string
         lastUsed:
+          description: The date and time when the API key was last used.
           format: date-time
           type: string
         piamOrgId:
+          description: The organization ID in PIAM.
           type: string
         refreshExpiresAt:
+          description: The expiration date and time of the refresh token.
           type: string
         tokenExpiresAt:
+          description: The expiration date and time of the token.
           type: string
       type: object
     CreateApiKeyRequest:
       properties:
         apiKeyName:
+          description: The name of the API key to be created.
           type: string
         description:
+          description: A brief description of the API key.
           type: string
         permissions:
+          description: A list of permissions to be assigned to the API key.
           items:
             $ref: '#/components/schemas/Permission'
           type: array
@@ -44,53 +59,77 @@ components:
     CreateApiKeyResponse:
       properties:
         accessToken:
+          description: The access token generated for the API key.
           type: string
         cuiMachineAccountId:
+          description: The unique identifier for the CUI machine account.
           type: string
         refreshToken:
+          description: The refresh token generated for the API key.
           type: string
+      type: object
+    ErrorResponse:
+      properties:
+        message:
+          description: A descriptive error message.
+          type: string
+        timestamp:
+          description: The timestamp of when the error occurred in ISO 8601 format.
+          format: date-time
+          type: string
+        trackingId:
+          description: A unique identifier for tracking the error.
+          format: uuid
+          type: string
+      required:
+        - trackingId
+        - message
+        - timestamp
       type: object
     Permission:
       properties:
         applicationScopeIds:
+          description: A list of application scope IDs associated with the role.
           items:
             type: string
           type: array
         product:
+          description: The product associated with the role.
           type: string
         productInstanceId:
+          description: The instance ID of the product.
           type: string
         productKey:
+          description: The key of the product associated with the role.
           type: string
         roleDisplayName:
+          description: The display name of the role.
           type: string
         roleId:
+          description: The unique identifier for the role.
           type: string
         roleName:
+          description: The name of the role.
           type: string
         roleType:
+          description: The type of the role, either static or custom.
           enum:
             - static
             - custom
           type: string
       type: object
-    PiamTokenResponse:
-      properties:
-        expiresAt:
-          format: date-time
-          type: string
-        token:
-          type: string
-      type: object
     RefreshTokenFormRequest:
       properties:
         apiKeyId:
+          description: The ID of the API key associated with the refresh token.
           type: string
         grantType:
+          description: The type of grant, which must be 'refresh_token'.
           enum:
             - refresh_token
           type: string
         refreshToken:
+          description: The refresh token to be used for generating a new access token.
           type: string
       required:
         - grantType
@@ -100,8 +139,10 @@ components:
     RefreshTokenResponse:
       properties:
         accessToken:
+          description: The newly generated access token.
           type: string
         refreshToken:
+          description: The newly generated refresh token.
           type: string
       type: object
   securitySchemes:
@@ -117,6 +158,7 @@ openapi: 3.0.3
 paths:
   /access_token:
     post:
+      description: Create a new access token using a CUI refresh token for API keys. A valid PIAM token must be provided in the authorization header.
       operationId: generateCUIToken
       requestBody:
         content:
@@ -134,12 +176,19 @@ paths:
         '400':
           description: Invalid request
         '401':
-          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+                type: array
+          description: Unauthorized - Invalid PIAM token
       security:
         - bearerAuth: []
-      summary: Generate CUI access token from refresh token
+      summary: Generate a CUI access token using a refresh token
   /apiKeys:
     get:
+      description: Fetch a list of API keys associated with the enterprise using a valid PIAM token. This API is accessible only to enterprise administrators.
       operationId: getApiKeys
       responses:
         '200':
@@ -149,15 +198,20 @@ paths:
                 items:
                   $ref: '#/components/schemas/ApiKey'
                 type: array
-          description: List of API keys
+          description: List of all API keys for the enterprise
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+                type: array
+          description: Unauthorized - Invalid PIAM token
       security:
         - bearerAuth: []
-      summary: Get API Keys
+      summary: Retrieve all API keys
     post:
+      description: Generate a new API key for the enterprise with specific permissions using a valid PIAM token. This API is accessible only to enterprise administrators.
       operationId: createApiKey
       requestBody:
         content:
@@ -175,27 +229,19 @@ paths:
         '400':
           description: Invalid request
         '401':
-          description: Unauthorized
-      security:
-        - bearerAuth: []
-      summary: Create API Key
-  /apiKeys/client_token:
-    get:
-      operationId: generatePIAMToken
-      responses:
-        '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PiamTokenResponse'
-          description: PIAM token generated
-        '401':
-          description: Unauthorized
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+                type: array
+          description: Unauthorized - Invalid PIAM token
       security:
         - bearerAuth: []
-      summary: Generate PIAM Token
+      summary: Create a new API key
   /apiKeys/{apiKeyId}:
     delete:
+      description: Delete a specific API key using a valid PIAM token. This API is accessible only to enterprise administrators.
       operationId: deleteApiKey
       parameters:
         - description: ID of the API key to delete
@@ -206,13 +252,19 @@ paths:
             type: string
       responses:
         '204':
-          description: API key deleted
+          description: Api key deleted
         '401':
-          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+                type: array
+          description: Unauthorized - Invalid PIAM token
         '404':
           description: API key not found
       security:
         - bearerAuth: []
-      summary: Delete API Key
+      summary: Remove an API key
 servers:
-  - url: https://api.int.security.cisco.com/v1/api/applications
+  - url: https://api.qa.security.cisco.com/v1/api/applications
