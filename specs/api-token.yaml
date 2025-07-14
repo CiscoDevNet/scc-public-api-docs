@@ -267,4 +267,4 @@ paths:
         - bearerAuth: []
       summary: Remove an API key
 servers:
-  - url: https://api.qa.security.cisco.com/v1/api/applications
+  - url: https://api.int.security.cisco.com/v1/api/applications
