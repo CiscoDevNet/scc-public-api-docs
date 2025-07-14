@@ -158,11 +158,34 @@
       ]
     },
     {
-      "title": "Model Context Protocol(MCP) Server",
+      "title": "Developer Resources",
       "items": [
         {
-          "title": "Getting Started",
-          "content": "mcp/getting-started.md"
+          "title": "Model Context Protocol(MCP) Server",
+          "items": [
+            {
+              "title": "Getting Started",
+              "content": "mcp/getting-started.md"
+            }
+          ]
+        },
+        {
+          "title": "SDKs",
+          "items": [
+            {
+              "title": "Getting Started",
+              "content": "mcp/getting-started.md"
+            }
+          ]
+        },
+        {
+          "title": "Postman Collection",
+          "items": [
+            {
+              "title": "Getting Started",
+              "content": "mcp/getting-started.md"
+            }
+          ]
         }
       ]
     }
