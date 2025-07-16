@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Phanes microservice APIs
+  title: Provisioning APIs
   description: Phanes microservice is used for provisioning
   contact: {}
   version: 1.0.0
