@@ -5,12 +5,135 @@ info:
   contact: {}
   version: 1.0.0
 servers:
-  - url: https://api.int.security.cisco.com
+  - url: https://api.int.security.cisco.com/provisioning
 paths:
+  /marketplaces/{marketplace_id}/subscriptions:
+    get:
+      tags:
+        - Subscription
+      summary: List all subscriptions
+      description: Retrieves a list of all active subscriptions for a marketplace. Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+        - name: marketplace_id
+          in: path
+          description: Marketplace ID
+          required: true
+          schema:
+            type: string
+      security:
+        - OAuth2:
+            - security:global:provisioning-subscription:write
+      responses:
+        '200':
+          description: List of active subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+    post:
+      tags:
+        - Subscription
+      summary: Create a subscription or cancel subscription (different payload)
+      description: Creates a new subscription entry, or cancels the existing subscription (depends on action parameter in body. Options ("create", "cancel")).  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+        - name: marketplace_id
+          in: path
+          description: Marketplace ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Subscription request data (PostCreateSubscription for create action, PostCancelSubscription for cancel action)
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/model.PostCreateSubscription'
+                - $ref: '#/components/schemas/model.PostCancelSubscription'
+        required: true
+      security:
+        - OAuth2:
+            - security:global:provisioning-subscription:write
+      responses:
+        '200':
+          description: Subscription canceled (action - cancel)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionCanceled'
+        '201':
+          description: Subscription successfully created (action - create)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpstreamSubscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
+      x-codegen-request-body-name: request
   /marketplaces/{marketplace_id}/subscriptions/{external_id}:
     get:
       tags:
-        - Subscriptions
+        - Subscription
       summary: Get subscription by external ID
       description: Retrieves a subscription by its external ID.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
       parameters:
@@ -32,6 +155,9 @@ paths:
           required: true
           schema:
             type: string
+      security:
+        - OAuth2:
+            - security:global:provisioning-subscription:write
       responses:
         '200':
           description: Active subscription data
@@ -71,7 +197,7 @@ paths:
                 $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
     patch:
       tags:
-        - Subscriptions
+        - Subscription
       summary: Update subscription
       description: Update subscription for marketplace.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
       parameters:
@@ -100,9 +226,12 @@ paths:
             schema:
               $ref: '#/components/schemas/model.PatchUpdateSubscription'
         required: true
+      security:
+        - OAuth2:
+            - security:global:provisioning-subscription:write
       responses:
         '200':
-          description: Subscription updated
+          description: Successfully updated subscription
           content:
             application/json:
               schema:
@@ -135,9 +264,9 @@ paths:
   /claim-code/read:
     post:
       tags:
-        - Claim Code
+        - Subscription
       summary: Read Claim Code
-      description: Read Claim Code
+      description: Read Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
       parameters:
         - name: Authorization
           in: header
@@ -152,6 +281,9 @@ paths:
             schema:
               $ref: '#/components/schemas/model.ClaimSubscription'
         required: true
+      security:
+        - OAuth2:
+            - security:provisioning:subscriptions:write
       responses:
         '200':
           description: OK
@@ -159,13 +291,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.ProductInstance'
+        '403':
+          description: Forbidden - trial claim is blocked for manager org
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
       x-codegen-request-body-name: order
   /claim-code/claim:
     post:
       tags:
-        - Claim Code
+        - Subscription
       summary: Claim Code
-      description: Read Claim Code
+      description: Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
       parameters:
         - name: Authorization
           in: header
@@ -180,6 +318,9 @@ paths:
             schema:
               $ref: '#/components/schemas/model.ClaimSubscription'
         required: true
+      security:
+        - OAuth2:
+            - security:provisioning:subscriptions:write
       responses:
         '200':
           description: OK
@@ -191,9 +332,9 @@ paths:
   /msp-claim-code/claim:
     post:
       tags:
-        - Claim Code
+        - Subscription
       summary: Claim Code
-      description: Claim MSP Claim Code
+      description: Claim MSP Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
       parameters:
         - name: Authorization
           in: header
@@ -208,21 +349,33 @@ paths:
             schema:
               $ref: '#/components/schemas/model.MSPClaimSubscription'
         required: true
+      security:
+        - OAuth2:
+            - security:provisioning:subscriptions:write
       responses:
         '200':
           description: OK
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.MspProductInstance'
       x-codegen-request-body-name: order
   /productInstance/{instanceId}/provision:
     post:
       tags:
-        - Product Instance
+        - Subscription
       summary: Provision a product instance
-      description: Provisions a product instance with the given ID
+      description: Provisions a product instance with the given ID. Specific scopes are required to access the API `security:provisioning:maintainance:write`. Client credentials are issued by IAM team individually.
       parameters:
         - name: instanceId
           in: path
-          description: ID of the product instance to provision
+          description: ID of the product instance
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
           required: true
           schema:
             type: string
@@ -233,6 +386,9 @@ paths:
             schema:
               $ref: '#/components/schemas/model.ProductInstanceProvisionRequest'
         required: true
+      security:
+        - OAuth2:
+            - security:provisioning:maintainance:write
       responses:
         '200':
           description: OK - Provisioning completed successfully
@@ -271,12 +427,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/model.Error'
       x-codegen-request-body-name: body
-  /product-instance/:instanceId/reset:
+  /product-instance/{instanceId}/reset:
     put:
       tags:
-        - Product Instance
+        - Subscription
       summary: Reset the external ID and other values of a product instance
-      description: Resets the external ID and other values of a product instance for common provisioning
+      description: Resets the external ID and other values of a product instance for common provisioning. Specific scopes are required to access the API `security:provisioning:maintainance:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - name: instanceId
+          in: path
+          description: ID of the product instance
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN
+          required: true
+          schema:
+            type: string
+      security:
+        - OAuth2:
+            - security:provisioning:maintainance:write
       responses:
         '200':
           description: OK
@@ -290,252 +462,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - Invalid scope
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        default:
-          description: Unexpected error when resetting product instance
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-  /smart-accounts:
-    get:
-      tags:
-        - SmartAccounts
-      summary: Get all the Smart Account details
-      description: Get all Smart Account Details associated with the user_id as admin of the smart account. User has to be an admin of the enterprise and user_id provided has to be an admin of the smart accounts to be able to perform this operation.
-      parameters:
-        - name: enterprise_id
-          in: query
-          description: Enterprise id of the user
-          required: true
-          schema:
-            type: string
-        - name: user_id
-          in: query
-          description: user_id is the CECID of the smart account admin
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Okta access token
-          required: true
-          schema:
-            type: string
-        - name: X-SL-TOKEN
-          in: header
-          description: Smart license server access token of the user provided in user_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.SmartAccounts'
-        '400':
-          description: Bad Request - Invalid enterprise_id
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '403':
-          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin or user_id is not an smart account admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-    post:
-      tags:
-        - SmartAccounts
-      summary: Associate a list of smart accounts with enterprise
-      description: Associates the list of smart accounts with the enterprise. user has to be an admin of the enterprise and userId provided has to be an admin of the smart accounts to be able to perform this operation.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Okta access token
-          required: true
-          schema:
-            type: string
-        - name: X-SL-TOKEN
-          in: header
-          description: Smart license server access token of the user provided in user_id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Smart Accounts keys for Association with Enterprise
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.SmartAccountKeysAssociationRecord'
-        required: true
-      responses:
-        '200':
-          description: Ok
-          content: {}
-        '400':
-          description: Bad Request - One or more Smart Account Keys are invalid or invalid EnterpriseId
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '403':
-          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin or userId is not an admin of smart accounts
+        '404':
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '500':
-          description: Internal Server error - Unable to associate the Smart Accounts in the list to the Enterprise.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: smartAccountKeysAssociationRecord
-  /enterprises/{enterprise_id}/smart-licenses/{smart_license_uuid}:
-    get:
-      tags:
-        - Subscriptions
-      summary: List all subscriptions
-      description: Retrieves a list of all active subscriptions for a marketplace. Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of active subscriptions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-    post:
-      tags:
-        - Subscriptions
-      summary: Create a subscription or cancel subscription (different payload)
-      description: Creates a new subscription entry, or cancels the existing subscription (depends on action parameter in body. Options ("create", "cancel")).  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      responses:
-        '200':
-          description: Subscription canceled (action - cancel)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionCanceled'
-        '201':
-          description: Subscription successfully created (action - create)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-    delete:
-      tags:
-        - SmartAccounts
-      summary: Removes a smart account license record from the enterprise
-      description: Removes the smart account licenses record from the enterprise. user has to be an admin of the enterprise to be able to perform this operation.
-      parameters:
-        - name: enterprise_id
-          in: path
-          description: Enterprise id of the user
-          required: true
-          schema:
-            type: string
-        - name: smart_license_uuid
-          in: path
-          description: Id of the smart account license record to be removed from the enterprise
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Okta access token
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successfully removed the smart account license record from the enterprise
-          content: {}
-        '400':
-          description: Bad Request - Specified Smart Account ID or Enterprise ID does not exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '403':
-          description: Forbidden - User is not part of the enterprise or user is not an enterprise admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal Server error - Unable to remove the Smart Account.
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -706,6 +640,8 @@ components:
           type: string
         enterprise_name:
           type: string
+        enterprise_type:
+          type: string
         products:
           type: array
           items:
@@ -802,7 +738,13 @@ components:
           $ref: '#/components/schemas/model.Entitlement'
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         is_trial:
+          type: boolean
+        isAddOn:
           type: boolean
         quantity:
           type: integer
@@ -1349,6 +1291,10 @@ components:
           $ref: '#/components/schemas/model.OrgEntitlement'
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         is_trial:
           type: boolean
         quantity:
@@ -1515,6 +1461,10 @@ components:
           type: string
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         initialAdmin:
           type: string
         is_trial:
@@ -1547,10 +1497,8 @@ components:
         provisioning_status:
           $ref: '#/components/schemas/model.ProvisioningStatus'
         region:
-          type: object
+          $ref: '#/components/schemas/model.Region'
           description: Region is where this ProductInstance is (or will be) provisioned
-          allOf:
-            - $ref: '#/components/schemas/model.Region'
         updatedAt:
           type: string
     model.MspProductInstance:
@@ -1599,10 +1547,8 @@ components:
         provisioning_status:
           $ref: '#/components/schemas/model.ProvisioningStatus'
         region:
-          type: object
+          $ref: '#/components/schemas/model.Region'
           description: Region is where this ProductInstance is (or will be) provisioned
-          allOf:
-            - $ref: '#/components/schemas/model.Region'
         updatedAt:
           type: string
     model.ProductInstanceApplyLicensesRequest:
@@ -1640,6 +1586,10 @@ components:
     model.ProvisionCheck:
       type: object
       properties:
+        entitlements_to_clean_up:
+          type: array
+          items:
+            type: string
         is_blocked:
           type: boolean
         message:
@@ -1687,6 +1637,10 @@ components:
           type: string
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         name:
           type: string
         updatedAt:
@@ -1893,6 +1847,10 @@ components:
           type: string
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         is_external:
           type: boolean
         is_provisionable:
@@ -1954,9 +1912,12 @@ components:
       type: object
       properties:
         actionType:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/model.SKUActionType'
+          $ref: '#/components/schemas/model.SKUActionType'
+          enum:
+            - add
+            - modify
+            - cancel
+            - no_change
         name:
           type: string
         quantity:
@@ -1977,6 +1938,10 @@ components:
           type: string
         id:
           type: string
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
         product_name:
           type: string
         provisioning_contact_email:
@@ -2223,4 +2188,17 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
+          scopes:
+            security:global:provisioning-config:write: Global provisioning configuration management
+            security:global:provisioning-subscription:write: Global subscription provisioning operations
+            security:provisioning:subscriptions:read: Read subscription data
+            security:provisioning:subscriptions:write: Write subscription data
+            security:subscription:move: Move subscriptions between enterprises
+            security:provisioning:maintainance:write: Maintenance operations (provisioning, migrations)
+            security:provisioning:global-config:write: Global configuration write access
 x-original-swagger-version: '2.0'

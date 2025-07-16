@@ -1,13 +1,13 @@
 openapi: 3.0.3
 info:
   version: 1.4.0
-  title: SCC IAM API
+  title: Identity and Access Management APIs
   description: APIs for creating and updating the customer enterprise, including user access control.
 servers:
-  - url: https://api.int.security.cisco.com/piam-iam
+  - url: https://api.int.security.cisco.com/identity
     variables:
       baseUrl:
-        default: https://api.int.security.cisco.com/piam-iam
+        default: https://api.int.security.cisco.com/identity
       domain:
         default: https://sso-apps-preview.myverysecuresignon.name/api
 security:
@@ -24,7 +24,7 @@ paths:
       parameters:
         - name: showAllMemberships
           in: query
-          description: If this query param is present and is value is true, this will additonally return all the enterprises that the user is a member of (regardless of admin status or not)
+          description: If this query param is present and is value is true, this will additionally return all the enterprises that the user is a member of (regardless of admin status or not)
           schema:
             type: string
         - name: showOnlyAdminMemberships
@@ -1083,8 +1083,12 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GeneralError'
+      tags:
+        - Domains and Identity providers
   /enterprises/{id}/domains:
     get:
+      tags:
+        - Domains and Identity providers
       operationId: getEnterpriseDomains
       description: Reads from the domains table first to see if it has any verified domains. If such a one exists, it returns that domain. Else this API will read from the pending_domains table and return all the unverified domains the enterprise has. After 30 days, if the domain is unverified, the entry will be deleted by the TTL in DDB and thus this API will not return it.
       parameters:
@@ -1115,6 +1119,8 @@ paths:
         default:
           $ref: '#/components/responses/GeneralError'
     post:
+      tags:
+        - Domains and Identity providers
       operationId: initiatePendingEnterpriseDomain
       description: Will begin the domain verification process for the enterprise. Action needs to done by the admin of the enterprise
       parameters:
@@ -1153,6 +1159,8 @@ paths:
           $ref: '#/components/responses/GeneralError'
   /enterprises/{id}/groupMappings:
     put:
+      tags:
+        - Domains and Identity providers
       operationId: createIdpGroupMapping
       summary: Create or update an IDP group mapping, if a set of group mappings exist for the IDP already, this should be updated in-place. Requires enterprise admin to invoke this endpoint.
       security:
@@ -1183,10 +1191,10 @@ paths:
           $ref: '#/components/responses/GeneralError'
   /enterprises/{id}/authorizedExternalIdps:
     get:
+      tags:
+        - Domains and Identity providers
       summary: List authorize external IdP for this enterprise. Requires enterprise admin to invoke this endpoint.
       operationId: listExternalIdp
-      tags:
-        - Authorized External IdPs
       parameters:
         - name: id
           in: path
@@ -1213,7 +1221,7 @@ paths:
       summary: Authorize external IdP for this enterprise. Requires enterprise admin to invoke this endpoint.
       operationId: addExternalIdp
       tags:
-        - Authorized External IdPs
+        - Domains and Identity providers
       parameters:
         - name: id
           in: path
@@ -1238,57 +1246,6 @@ paths:
                 $ref: '#/components/schemas/ExternalIdpGroupMappingCreateResponse'
         default:
           $ref: '#/components/responses/GeneralError'
-  /duoMfa/auth:
-    get:
-      operationId: duoMfaAuth
-      description: Initiates the SCSO forgot password using Duo flow
-      parameters:
-        - name: email
-          in: query
-          description: URI encoded email of the user initiating the SCSO forgot password using Duo flow
-          required: true
-          schema:
-            properties:
-              email:
-                type: string
-            format: email
-      responses:
-        '302':
-          description: Redirect URI to Duo prompt
-          headers:
-            Location:
-              schema:
-                type: string
-  /duoMfa/auth/callback:
-    get:
-      operationId: duoMfaAuthCallback
-      description: The OAuth callback for the SCSO forgot password using Duo flow
-      parameters:
-        - name: state
-          in: query
-          description: The OAuth state parameter.
-          required: true
-          schema:
-            properties:
-              state:
-                type: string
-            format: string
-        - name: duo_code
-          in: query
-          description: The OAuth code parameter (name duo_code in Duo's flow).
-          required: true
-          schema:
-            properties:
-              code:
-                type: string
-            format: string
-      responses:
-        '302':
-          description: Redirect URI back to the application with either the reset password URL for the user or the error URL.
-          headers:
-            Location:
-              schema:
-                type: string
 components:
   schemas:
     EnterpriseSupportAccessStatusResponse:
@@ -2349,7 +2306,7 @@ components:
       type: object
       properties:
         product:
-          type: string
+          type: integer
         roleDisplayName:
           type: string
         roleDescription:
@@ -2412,7 +2369,7 @@ components:
         name:
           type: string
         product:
-          type: string
+          type: integer
         productKey:
           type: string
         roleDisplayName:

@@ -1,13 +1,13 @@
 openapi: 3.0.3
 info:
   version: 1.4.0
-  title: SCC IAM API
-  description: APIs for creating and updating the customer enterprise, including user access control.
+  title: MSP APIs
+  description: MSP APIs for viewing, creating and updating the manager and managed organizations
 servers:
-  - url: https://api.int.security.cisco.com/piam-provisioning
+  - url: https://api.int.security.cisco.com/identity
     variables:
       baseUrl:
-        default: https://api.int.security.cisco.com/piam-provisioning
+        default: https://api.int.security.cisco.com/identity
       domain:
         default: https://sso-apps-preview.myverysecuresignon.name/api
 security:
@@ -16,7 +16,7 @@ security:
 paths:
   /enterprises/{id}/manager:
     get:
-      summary: Get all management relationship of managed organization
+      summary: Get all management relationships of managed organization
       operationId: getEnterpriseManagementRelationshipManager
       parameters:
         - name: id
@@ -74,19 +74,19 @@ paths:
                   relationshipType:
                     type: string
                     example: manager
-                  organaizations:
+                  organizations:
                     type: array
                     items:
-                      $ref: '#/components/schemas/organaizationsRelationship'
+                      $ref: '#/components/schemas/organizationsRelationship'
         '404':
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GeneralError'
       tags:
-        - Management Relations
+        - Management Relationships
   /enterprises/{id}/managed:
     get:
-      summary: Get all management relationship for the maanager organaization
+      summary: Get all management relationship for the manager organization
       operationId: getEnterpriseManagementRelationshipManaged
       parameters:
         - name: id
@@ -144,16 +144,16 @@ paths:
                   relationshipType:
                     type: string
                     example: managed
-                  organaizations:
+                  organizations:
                     type: array
                     items:
-                      $ref: '#/components/schemas/organaizationsRelationship'
+                      $ref: '#/components/schemas/organizationsRelationship'
         '404':
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GeneralError'
       tags:
-        - Management Relations
+        - Management Relationships
     post:
       summary: create relationship between manager org and managed orgs. And then share entitlements with managed org
       description: create relationship between manager org and managed orgs. And then share entitlements with managed org
@@ -220,7 +220,7 @@ paths:
               schema:
                 $ref: '#/components/responses/GeneralError'
       tags:
-        - Management Relations
+        - Management Relationships
   /enterprises/{id}/createManaged:
     post:
       summary: Create a new managed organization
@@ -399,7 +399,7 @@ paths:
           content:
             NoContent: {}
       tags:
-        - Management Relations
+        - Management Relationships
     get:
       summary: get management relationship details of an associated org
       operationId: getEnterpriseManagementRelationshipManagedDetails
@@ -429,16 +429,16 @@ paths:
                     type: string
                     enum:
                       - managed
-                  organaizations:
+                  organizations:
                     type: array
                     items:
-                      $ref: '#/components/schemas/organaizationsRelationship'
+                      $ref: '#/components/schemas/organizationsRelationship'
         '404':
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GeneralError'
       tags:
-        - Management Relations
+        - Management Relationships
   /enterprises/{managedId}/manager/{managerId}:
     get:
       summary: get management relationship details of an associated org
@@ -468,19 +468,17 @@ paths:
                   relationshipType:
                     type: string
                     example: manager
-                  organaizations:
+                  organizations:
                     type: array
                     items:
-                      $ref: '#/components/schemas/organaizationsRelationship'
+                      $ref: '#/components/schemas/organizationsRelationship'
         '404':
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GeneralError'
       tags:
-        - Management Relations
+        - Management Relationships
   /enterprises/{managerId}/manageEntitlements/{managedOrgId}:
-    servers:
-      - url: https://provisioning-dev.test.security.cisco.com/v1
     patch:
       tags:
         - Manage Entitlements
@@ -539,13 +537,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/model.Error'
   /enterprises/{managerOrgID}/manageEntitlements/{managedOrgID}:
-    servers:
-      - url: https://provisioning-dev.test.security.cisco.com/v1
     get:
       summary: Get entitlements for an organization
       description: List all the active entitlements at the SKU level between a manager and managed org. User has to be a member of the enterprise to be able to get list of entitlements info.
       tags:
         - Manage Entitlements
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
       parameters:
         - description: ManagerOrgID(UUID)
           name: managerOrgID
@@ -725,11 +723,11 @@ paths:
       tags:
         - Manage Access
   /marketplaces/{marketplace_id}/subscriptions/{external_id}:
-    servers:
-      - url: https://provisioning-dev.test.security.cisco.com/v1
     get:
       tags:
         - Subscriptions
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
       summary: Get subscription by external ID
       description: Retrieves a subscription by its external ID.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
       parameters:
@@ -791,6 +789,8 @@ paths:
     patch:
       tags:
         - Subscriptions
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
       summary: Update subscription
       description: Update subscription for marketplace.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
       parameters:
@@ -821,7 +821,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Subscription updated
+          description: Successfully updated subscription
           content:
             application/json:
               schema:
@@ -852,11 +852,11 @@ paths:
                 $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
       x-codegen-request-body-name: UpdateSubscription
   /marketplaces/{marketplace_id}/subscriptions/{external_id}/resendclaimcode:
-    servers:
-      - url: https://provisioning-dev.test.security.cisco.com/v1
     post:
       tags:
         - Subscriptions
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
       summary: Resend claim code
       description: Re-send welcome email with claim code for the given subscription. Cannot be re-sent if subscription was already claimed.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
       parameters:
@@ -903,20 +903,237 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-  /move-subscription:
-    servers:
-      - url: https://provisioning-dev.test.security.cisco.com/v1
-    post:
+  /organizations/{managerId}/managed/{managedId}/entitlements:
+    get:
       tags:
-        - Subscriptions
-      summary: Move a subscription from an enterprise to another enterprise
-      description: Checks for existence of both enterprises and if user is admin of both, allows to move subscription between them. Also updates license and correspondingly platform services for both enterprises. Also leads to outbox events to let prometheus update this info in its dynamoDB. Also makes downstream calls to produce topics for product instances of concerned subscription to be know of the change in enterprise
+        - ManageEntitlements
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
+      summary: Get entitlements for an organization
+      description: List all the active entitlements at the SKU level between a manager and managed org. User has to be a member of the enterprise to be able to get list of entitlements info.
+      parameters:
+        - name: managerId
+          in: path
+          description: ManagerID(UUID)
+          required: true
+          schema:
+            type: string
+        - name: managedId
+          in: path
+          description: ManagedID(UUID)
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page (default 10)
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: Pagination offset (default 0)
+          required: false
+          schema:
+            minimum: 0
+            type: integer
+            default: 0
+        - name: Authorization
+          in: header
+          description: Okta access token (user must be an admin of the specified organization)
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.OrgEntitlements'
+        '400':
+          description: Invalid enterprise ID, limit, or offset value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User is not admin of the organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+    delete:
+      tags:
+        - ManageEntitlements
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
+      summary: Revoke entitlements for an organization
+      description: Revoke all entitlemendts shared from a manager organization to a managed organization.
+      parameters:
+        - name: managerId
+          in: path
+          description: ManagerID(UUID)
+          required: true
+          schema:
+            type: string
+        - name: managedId
+          in: path
+          description: ManagedID(UUID)
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Okta access token (user must be an admin of the manager organization)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.RevokeAPIResponse'
+        '400':
+          description: Invalid Org ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User is not admin of the manager organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+    patch:
+      tags:
+        - ManageEntitlements
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
+      summary: Update entitlements between manager and managed organizations
+      description: Updates the quantity of entitlements shared from a manager organization to a managed organization
+      parameters:
+        - name: managerId
+          in: path
+          description: Manager Organization ID (UUID)
+          required: true
+          schema:
+            type: string
+        - name: managedId
+          in: path
+          description: Managed Organization ID (UUID)
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Authorization token (user must be admin of both manager and managed orgs)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Request body containing subscription and SKU details to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successfully updated entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
+        '400':
+          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: User is not an admin of manager or managed org
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+      x-codegen-request-body-name: body
+  /move-subscription:
+    post:
+      tags:
+        - Subscriptions
+      servers:
+        - url: https://api.int.security.cisco.com/provisioning
+      summary: Move a subscription from an enterprise to another enterprise
+      description: Checks for existence of both enterprises and if user is admin of both, allows to move subscription between them. Also updates license and correspondingly platform services for both enterprises. Also leads to outbox events to let prometheus update this info in its dynamoDB. Also makes downstream calls to produce topics for product instances of concerned subscription to be know of the change in enterprise
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer TOKEN (security:subscription:move scope required)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Subscription move request data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/gin.H'
+        required: true
+      responses:
+        '200':
+          description: Subscription moved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gin.H'
+        '400':
+          description: Bad request - Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gin.H'
+        '401':
+          description: Unauthorized - Invalid scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gin.H'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gin.H'
+      x-codegen-request-body-name: subscriptionMoveRequest
 components:
   schemas:
+    gin.H:
+      type: object
+      additionalProperties:
+        type: object
     model.UpstreamSubscription:
       type: object
       properties:
@@ -1848,7 +2065,7 @@ components:
           example:
             - id: 6280494d-dd0f-4655-b558-d36ce9a10655
               name: Group A
-    organaizationsRelationship:
+    organizationsRelationship:
       properties:
         id:
           type: string
@@ -2683,6 +2900,13 @@ components:
           enum:
             - Administrator
           example: Administrator
+    model.RevokeAPIResponse:
+      type: object
+      properties:
+        revokedSubscriptions:
+          type: array
+          items:
+            type: string
     Error:
       type: object
       required:
