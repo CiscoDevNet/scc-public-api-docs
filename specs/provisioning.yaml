@@ -1,565 +1,19 @@
-openapi: 3.0.1
-info:
-  title: Provisioning APIs
-  description: Phanes microservice is used for provisioning
-  contact: {}
-  version: 1.0.0
-servers:
-  - url: https://api.int.security.cisco.com/provisioning
-paths:
-  /marketplaces/{marketplace_id}/subscriptions:
-    get:
-      tags:
-        - Subscription
-      summary: List all subscriptions
-      description: Retrieves a list of all active subscriptions for a marketplace. Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-      security:
-        - OAuth2:
-            - security:global:provisioning-subscription:write
-      responses:
-        '200':
-          description: List of active subscriptions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-    post:
-      tags:
-        - Subscription
-      summary: Create a subscription or cancel subscription (different payload)
-      description: Creates a new subscription entry, or cancels the existing subscription (depends on action parameter in body. Options ("create", "cancel")).  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Subscription request data (PostCreateSubscription for create action, PostCancelSubscription for cancel action)
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - $ref: '#/components/schemas/model.PostCreateSubscription'
-                - $ref: '#/components/schemas/model.PostCancelSubscription'
-        required: true
-      security:
-        - OAuth2:
-            - security:global:provisioning-subscription:write
-      responses:
-        '200':
-          description: Subscription canceled (action - cancel)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionCanceled'
-        '201':
-          description: Subscription successfully created (action - create)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-      x-codegen-request-body-name: request
-  /marketplaces/{marketplace_id}/subscriptions/{external_id}:
-    get:
-      tags:
-        - Subscription
-      summary: Get subscription by external ID
-      description: Retrieves a subscription by its external ID.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-        - name: external_id
-          in: path
-          description: External ID of the subscription
-          required: true
-          schema:
-            type: string
-      security:
-        - OAuth2:
-            - security:global:provisioning-subscription:write
-      responses:
-        '200':
-          description: Active subscription data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '404':
-          description: Not Found - No subscription found by requested external ID
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-    patch:
-      tags:
-        - Subscription
-      summary: Update subscription
-      description: Update subscription for marketplace.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-        - name: external_id
-          in: path
-          description: External ID of the subscription
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Subscription update data
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/model.PatchUpdateSubscription'
-        required: true
-      security:
-        - OAuth2:
-            - security:global:provisioning-subscription:write
-      responses:
-        '200':
-          description: Successfully updated subscription
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-      x-codegen-request-body-name: UpdateSubscription
-  /claim-code/read:
-    post:
-      tags:
-        - Subscription
-      summary: Read Claim Code
-      description: Read Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Read Claim Code
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.ClaimSubscription'
-        required: true
-      security:
-        - OAuth2:
-            - security:provisioning:subscriptions:write
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-        '403':
-          description: Forbidden - trial claim is blocked for manager org
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: order
-  /claim-code/claim:
-    post:
-      tags:
-        - Subscription
-      summary: Claim Code
-      description: Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Read Claim Code
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.ClaimSubscription'
-        required: true
-      security:
-        - OAuth2:
-            - security:provisioning:subscriptions:write
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-      x-codegen-request-body-name: order
-  /msp-claim-code/claim:
-    post:
-      tags:
-        - Subscription
-      summary: Claim Code
-      description: Claim MSP Claim Code. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Claim MSP Claim Code
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.MSPClaimSubscription'
-        required: true
-      security:
-        - OAuth2:
-            - security:provisioning:subscriptions:write
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.MspProductInstance'
-      x-codegen-request-body-name: order
-  /productInstance/{instanceId}/provision:
-    post:
-      tags:
-        - Subscription
-      summary: Provision a product instance
-      description: Provisions a product instance with the given ID. Specific scopes are required to access the API `security:provisioning:maintainance:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: instanceId
-          in: path
-          description: ID of the product instance
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Provisioning request details
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/model.ProductInstanceProvisionRequest'
-        required: true
-      security:
-        - OAuth2:
-            - security:provisioning:maintainance:write
-      responses:
-        '200':
-          description: OK - Provisioning completed successfully
-          content: {}
-        '202':
-          description: Accepted - Provisioning is in progress
-          content: {}
-        '400':
-          description: Bad Request - Invalid instance ID or request payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '403':
-          description: Forbidden - Product is not provisionable via API
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '422':
-          description: Unprocessable Entity - Error during provisioning
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal Server Error - Unexpected error during provisioning
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: body
-  /product-instance/{instanceId}/reset:
-    put:
-      tags:
-        - Subscription
-      summary: Reset the external ID and other values of a product instance
-      description: Resets the external ID and other values of a product instance for common provisioning. Specific scopes are required to access the API `security:provisioning:maintainance:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: instanceId
-          in: path
-          description: ID of the product instance
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-      security:
-        - OAuth2:
-            - security:provisioning:maintainance:write
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-        '400':
-          description: Bad Request - Invalid request payload or empty external IDs
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
 components:
   schemas:
     gorm.DeletedAt:
-      type: object
       properties:
         time:
           type: string
         valid:
-          type: boolean
           description: Valid is true if Time is not NULL
-    model.OrgEntitlements:
+          type: boolean
       type: object
+    model.AcceptLegacyProductInvitationRequest:
       properties:
-        pagination:
-          $ref: '#/components/schemas/model.PaginationInfo'
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SubnSku'
-    model.SubnSku:
+        enterpriseId:
+          type: string
       type: object
-      properties:
-        endDate:
-          type: string
-        externalSubscriptionId:
-          type: string
-        licenseType:
-          type: string
-        skus:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/model.MspSku'
-    model.MspSku:
-      type: object
-      properties:
-        availableEntitlements:
-          type: integer
-        minEntitlementsQuantity:
-          type: integer
-        productsList:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductConf'
-        reservedEntitlements:
-          type: integer
-        sharedEntitlements:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SharedEntitlement'
-        skuName:
-          type: string
-    model.SharedEntitlement:
-      type: object
-      properties:
-        assignedEntitlements:
-          type: integer
-        managedOrgId:
-          type: string
-        productsList:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductConf'
-    model.ProductConf:
-      type: object
-      properties:
-        activationStatus:
-          type: string
-        name:
-          type: string
-        operand:
-          type: integer
-        operator:
-          type: string
-        region:
-          type: string
-    model.PaginationInfo:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        totalRecords:
-          type: integer
     model.ActivationStatus:
-      type: object
       properties:
         activationStatus:
           $ref: '#/components/schemas/model.ProvisioningStatus'
@@ -573,15 +27,61 @@ components:
           type: string
         tenantId:
           type: string
-    model.AdditionalTenantMetadata:
       type: object
+    model.AddManagedEntitlementsRequest:
+      properties:
+        initialAdmin:
+          type: string
+        managedOrgs:
+          items:
+            $ref: '#/components/schemas/model.Organization'
+          type: array
+      type: object
+    model.AddManagedEntitlementsResponse:
+      properties:
+        failed:
+          items:
+            $ref: '#/components/schemas/model.AddManagedEntitlementsResult'
+          type: array
+        success:
+          items:
+            $ref: '#/components/schemas/model.AddManagedEntitlementsResult'
+          type: array
+      type: object
+    model.AddManagedEntitlementsResult:
+      properties:
+        errors:
+          items:
+            type: string
+          type: array
+        managedOrgId:
+          type: string
+      type: object
+    model.AdditionalTenantMetadata:
       properties:
         key:
           type: string
         value:
           type: string
-    model.Body:
       type: object
+    model.AppError:
+      properties:
+        code:
+          type: integer
+        error: {}
+        errorCode:
+          type: integer
+        message:
+          type: string
+      type: object
+    model.AttachCDOTenantRequest:
+      properties:
+        cdoTenantId:
+          type: string
+      required:
+        - cdoTenantId
+      type: object
+    model.Body:
       properties:
         activation_code:
           type: string
@@ -589,11 +89,8 @@ components:
           type: string
         meta:
           $ref: '#/components/schemas/model.Meta'
-    model.ClaimCodeProduct:
-      required:
-        - id
-        - region
       type: object
+    model.ClaimCodeProduct:
       properties:
         id:
           type: string
@@ -603,10 +100,18 @@ components:
           type: string
         region:
           $ref: '#/components/schemas/model.Region'
-    model.ClaimCodeServices:
       required:
         - id
+        - region
       type: object
+    model.ClaimCodeReadRequest:
+      properties:
+        claim_code:
+          type: string
+        enterprise_id:
+          type: string
+      type: object
+    model.ClaimCodeServices:
       properties:
         id:
           type: string
@@ -614,8 +119,10 @@ components:
           type: boolean
         name:
           type: string
-    model.ClaimStatus:
+      required:
+        - id
       type: object
+    model.ClaimStatus:
       properties:
         claimCode:
           type: string
@@ -631,8 +138,8 @@ components:
           type: boolean
         isClaimed:
           type: boolean
-    model.ClaimSubscription:
       type: object
+    model.ClaimSubscription:
       properties:
         claim_code:
           type: string
@@ -643,28 +150,53 @@ components:
         enterprise_type:
           type: string
         products:
-          type: array
           items:
             $ref: '#/components/schemas/model.ClaimCodeProduct'
-        services:
           type: array
+        services:
           items:
             $ref: '#/components/schemas/model.ClaimCodeServices'
-    model.MSPClaimSubscription:
-      type: object
-      properties:
-        claim_code:
-          type: string
-        enterprise_id:
-          type: string
-        enterprise_name:
-          type: string
-        products:
           type: array
-          items:
-            $ref: '#/components/schemas/model.ClaimCodeProduct'
-    model.Contact:
       type: object
+    model.ClaimedEntitlement:
+      description: ClaimedEntitlement represents a single claimed subscription with its SKUs
+      properties:
+        endDate:
+          type: string
+        externalSubscriptionId:
+          type: string
+        isTrial:
+          type: boolean
+        licenseType:
+          type: string
+        skus:
+          additionalProperties:
+            $ref: '#/components/schemas/model.ClaimedEntitlementsSKU'
+          type: object
+      type: object
+    model.ClaimedEntitlementsSKU:
+      description: ClaimedEntitlementsSKU represents SKU details in claimed entitlements
+      properties:
+        entitlements:
+          type: integer
+        productsList:
+          items:
+            $ref: '#/components/schemas/model.ProductConfManagedOrg'
+          type: array
+        skuName:
+          type: string
+      type: object
+    model.ClaimedSubscriptions:
+      description: ClaimedSubscriptions represents the response structure for claimed entitlements
+      properties:
+        claimedSubscriptions:
+          items:
+            $ref: '#/components/schemas/model.ClaimedEntitlement'
+          type: array
+        pagination:
+          $ref: '#/components/schemas/model.PaginationInfo'
+      type: object
+    model.Contact:
       properties:
         contactType:
           type: string
@@ -676,46 +208,31 @@ components:
           type: string
         middleName:
           type: string
-    model.DefaultResponse:
       type: object
-      properties:
-        message:
-          type: string
-        status:
-          type: integer
-    model.EnableFirewallForEnterpriseRequest:
-      required:
-        - cdoTenantUid
-        - contactEmail
-        - enterpriseId
-      type: object
-      properties:
-        cdoTenantUid:
-          type: string
-        contactEmail:
-          type: string
-        enterpriseId:
-          type: string
     model.Enterprise:
-      type: object
       properties:
         enterpriseId:
           type: string
         enterpriseName:
           type: string
-    model.EnterpriseProductInstances:
       type: object
+    model.EnterpriseDetails:
+      properties:
+        enterpriseId:
+          type: string
+      type: object
+    model.EnterpriseProductInstances:
       properties:
         enterpriseName:
           type: string
         isLicensed:
           type: boolean
         productInstancesInfo:
-          type: array
           items:
             $ref: '#/components/schemas/model.MergedProductInstancesInfo'
-    model.Entitlement:
+          type: array
       type: object
+    model.Entitlement:
       properties:
         description:
           type: string
@@ -727,8 +244,28 @@ components:
           type: string
         value:
           type: string
-    model.EntitlementInstance:
       type: object
+    model.EntitlementDetails:
+      properties:
+        managedOrgIds:
+          items:
+            type: string
+          type: array
+        managerOrgIds:
+          items:
+            type: string
+          type: array
+        operationType:
+          type: string
+        pagination:
+          $ref: '#/components/schemas/model.PaginationDetails'
+        search:
+          type: string
+      required:
+        - operationType
+        - pagination
+      type: object
+    model.EntitlementInstance:
       properties:
         Deleted:
           $ref: '#/components/schemas/gorm.DeletedAt'
@@ -737,15 +274,19 @@ components:
         entitlement:
           $ref: '#/components/schemas/model.Entitlement'
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
-        is_trial:
-          type: boolean
+          type: string
         isAddOn:
           type: boolean
+        is_trial:
+          type: boolean
+        provisionCheck:
+          allOf:
+            - $ref: '#/components/schemas/model.ProvisionCheck'
+          description: Field for single tenancy check while claiming
         quantity:
           type: integer
         subscription:
@@ -754,130 +295,48 @@ components:
           $ref: '#/components/schemas/model.Trial'
         updatedAt:
           type: string
-    model.MspEntitlementInstance:
       type: object
+    model.EntitlementInstanceMinimalInfo:
       properties:
-        Deleted:
-          $ref: '#/components/schemas/gorm.DeletedAt'
-        createdAt:
+        product_key:
           type: string
-        entitlement:
-          $ref: '#/components/schemas/model.Entitlement'
-        id:
+        product_name:
           type: string
-        quantity:
-          type: integer
-        msp_total_quantity:
-          type: integer
-        msp_available_quantity:
-          type: integer
-        operation:
+        subscription_end_date:
           type: string
-        operand:
-          type: integer
-        subscription:
-          $ref: '#/components/schemas/model.MspSubscription'
-        trial:
-          $ref: '#/components/schemas/model.Trial'
-        updatedAt:
+        subscription_id:
           type: string
-    model.SubscriptionProvisioningError:
+        subscription_start_date:
+          type: string
+        trial_end_date:
+          type: string
+        trial_id:
+          type: string
+        trial_start_date:
+          type: string
       type: object
-      properties:
-        error:
-          type: string
-        subscriptionId:
-          type: string
-    model.UpdateEntitlementResponse:
-      type: object
-      properties:
-        endDate:
-          type: string
-        id:
-          type: string
-        licenseType:
-          type: string
-        provisioningErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProvisionedSubscription'
-    model.ProvisionedSubscription:
-      type: object
-      properties:
-        id:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProvisionedSKU'
-    model.ProvisionedSKU:
-      type: object
-      properties:
-        name:
-          type: string
-        productInfo:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductInfo'
-    model.ProductInfo:
-      type: object
-      properties:
-        assignedEntitlements:
-          type: integer
-        product:
-          type: string
-        productRegion:
-          type: string
-    model.UpdateEntitlementsRequest:
-      type: object
-      properties:
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.UserSubscription'
-    model.UserSubscription:
-      type: object
-      properties:
-        id:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SKU'
-    model.SKU:
-      type: object
-      properties:
-        name:
-          type: string
-        quantity:
-          type: integer
     model.Error:
-      type: object
       properties:
         error:
           type: string
         message:
           type: string
-    model.FollowOn:
       type: object
+    model.FollowOn:
       properties:
         followOnDetails:
-          type: array
           items:
             $ref: '#/components/schemas/model.FollowOnDetails'
+          type: array
         followOnSubRefId:
           type: string
-    model.FollowOnDetails:
       type: object
+    model.FollowOnDetails:
       properties:
         cancelEligSubRefId:
           type: string
-    model.Health:
       type: object
+    model.Health:
       properties:
         currentTime:
           type: string
@@ -887,31 +346,20 @@ components:
           type: string
         serviceStatus:
           type: string
+      type: object
     model.InvitationStatus:
-      type: string
       enum:
         - invitation_pending
         - invitation_rejected
         - invitation_accepted
         - invitation_fulfilled
+      type: string
       x-enum-varnames:
         - InvitationStatusPending
         - InvitationStatusRejected
         - InvitationStatusAccepted
         - InvitationStatusFulfilled
-    model.LegacyProductInvitation:
-      type: object
-      properties:
-        id:
-          type: string
-        product_external_tenant_id:
-          type: string
-        product_id:
-          type: integer
-        region:
-          type: string
     model.LegacyProductInvite:
-      type: object
       properties:
         email:
           type: string
@@ -925,11 +373,19 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/model.InvitationStatus'
-    model.MajorLine:
-      required:
-        - action
-        - requestedStartDate
       type: object
+    model.LegacyProductInviteRequest:
+      properties:
+        productExternalTenantId:
+          type: string
+        region:
+          type: string
+        users:
+          items:
+            type: string
+          type: array
+      type: object
+    model.MajorLine:
       properties:
         action:
           minLength: 1
@@ -937,105 +393,67 @@ components:
         offerType:
           type: string
         partyAccounts:
-          type: array
           items:
             $ref: '#/components/schemas/model.PartyAccount'
+          type: array
         provInfoEmail:
           type: string
         requestedStartDate:
           minLength: 1
           type: string
-    model.MarketplaceCreate:
       required:
-        - allowedEmailDomains
-        - authClients
-        - description
-        - isExplicitCancellationAllowed
-        - isImplicitCancellationActivated
-        - maximumInitialTermDays
-        - maximumRemainingTermDays
-        - maximumTotalTermDays
-        - name
+        - action
+        - requestedStartDate
       type: object
+    model.ManagedOrg:
       properties:
-        allowedEmailDomains:
-          type: array
-          items:
-            type: string
-        authClients:
-          type: array
-          items:
-            type: string
-        description:
+        id:
           type: string
-        isExplicitCancellationAllowed:
-          type: boolean
-        isImplicitCancellationActivated:
-          type: boolean
-        maximumInitialTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
-        maximumRemainingTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
-        maximumTotalTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
         name:
           type: string
-        skus:
-          type: array
+        products:
           items:
-            $ref: '#/components/schemas/model.SkuConfigUpdate'
-    model.MarketplaceUpdate:
+            $ref: '#/components/schemas/model.ManagedOrgProductsList'
+          type: array
       type: object
+    model.ManagedOrgProductsList:
       properties:
-        allowedEmailDomains:
-          type: array
-          items:
-            type: string
-        authClients:
-          type: array
-          items:
-            type: string
-        description:
-          type: string
-        isExplicitCancellationAllowed:
-          type: boolean
-        isImplicitCancellationActivated:
-          type: boolean
-        maximumInitialTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
-        maximumRemainingTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
-        maximumTotalTermDays:
-          maximum: 32767
-          minimum: 0
-          type: integer
         name:
           type: string
-        skus:
-          type: array
+        quantity:
+          type: integer
+      type: object
+    model.ManagerOrgDetails:
+      properties:
+        id:
+          type: string
+        subscriptions:
           items:
-            $ref: '#/components/schemas/model.SkuConfigUpdate'
+            $ref: '#/components/schemas/model.SubscriptionInfo'
+          type: array
+      type: object
+    model.ManagerOrgsInfo:
+      properties:
+        itemsPerPage:
+          type: integer
+        organizationSubscriptions:
+          items:
+            $ref: '#/components/schemas/model.ManagerOrgDetails'
+          type: array
+        startIndex:
+          type: integer
+        totalResults:
+          type: integer
+      type: object
     model.MergedProductInstancesInfo:
-      type: object
       properties:
         additionalTenantMetadata:
-          type: array
           items:
             $ref: '#/components/schemas/model.AdditionalTenantMetadata'
-        entitlements:
           type: array
-          items:
-            type: object
+        entitlements:
+          items: {}
+          type: array
         externalTenantId:
           type: string
         id:
@@ -1043,8 +461,8 @@ components:
         isOrgEntitled:
           type: boolean
         isPlatformProduct:
-          type: boolean
           description: cleanup this once discoveryAPIEnhancement flag is enabled
+          type: boolean
         productName:
           type: string
         productType:
@@ -1053,13 +471,13 @@ components:
           type: string
         region:
           $ref: '#/components/schemas/model.Region'
-    model.Meta:
       type: object
+    model.Meta:
       properties:
         additionalTenantMetadata:
-          type: array
           items:
             $ref: '#/components/schemas/model.AdditionalTenantMetadata'
+          type: array
         created:
           $ref: '#/components/schemas/model.XSDSupportingDateTime'
         lastModified:
@@ -1068,89 +486,37 @@ components:
           type: string
         resourceType:
           type: string
-    model.MigrateAdditionalProductsTenantRequest:
-      required:
-        - cdoTenantUid
-        - contactEmail
-        - enterpriseId
-        - productInstanceId
       type: object
+    model.MigrateTenantRequest:
       properties:
-        cdoTenantUid:
+        additionalParams:
+          additionalProperties:
+            type: string
+          type: object
+        adminEmail:
           type: string
-        contactEmail:
+        managedTenants:
+          items:
+            type: string
+          type: array
+        productKey:
           type: string
-        enterpriseId:
-          type: string
-        isHypershieldTenant:
-          type: boolean
-        isMcdTenant:
-          type: boolean
-        productInstanceId:
-          type: string
-    model.MigrateCdoTenantRequest:
-      required:
-        - cdoTenantUid
-        - contactEmail
-        - region
-        - ssxTenantUid
-      type: object
-      properties:
-        cdoTenantUid:
-          type: string
-        contactEmail:
-          type: string
-          description: initial admin of the enterprise
-        isHypershieldTenant:
-          type: boolean
-        isMcdTenant:
-          type: boolean
         region:
           type: string
-        salesOrderNumber:
+        runId:
           type: string
-        ssxTenantUid:
+        tenantId:
           type: string
         tenantName:
           type: string
-        tenantPayType:
-          type: string
-        organizationName:
-          type: string
-    model.MigrateCdoTenantRollbackRequest:
       required:
-        - enterpriseId
+        - adminEmail
+        - productKey
+        - region
+        - runId
+        - tenantId
       type: object
-      properties:
-        enterpriseId:
-          type: string
-    model.MigrateCdoTenantWithEnterpriseRequest:
-      required:
-        - cdoTenantUid
-        - contactEmail
-        - enterpriseId
-      type: object
-      properties:
-        cdoTenantUid:
-          type: string
-        contactEmail:
-          type: string
-        enterpriseId:
-          type: string
-        isHypershieldTenant:
-          type: boolean
-        isMcdTenant:
-          type: boolean
-        salesOrderNumber:
-          type: string
-        tenantPayType:
-          type: string
     model.MinorLine:
-      required:
-        - actionType
-        - partName
-        - quantity
-      type: object
       properties:
         actionType:
           minLength: 1
@@ -1161,22 +527,69 @@ components:
         quantity:
           minLength: 1
           type: string
-    model.Option:
+      required:
+        - actionType
+        - partName
+        - quantity
       type: object
+    model.MoveSubscriptionRequest:
+      properties:
+        adminEmail:
+          type: string
+        isSubscription:
+          type: boolean
+        sourceEnterpriseId:
+          type: string
+        subTrialId:
+          type: string
+        targetEnterpriseId:
+          type: string
+      required:
+        - adminEmail
+        - sourceEnterpriseId
+        - subTrialId
+        - targetEnterpriseId
+      type: object
+    model.MspRevokedManagedOrgsInfo:
+      properties:
+        managedOrgs:
+          items:
+            $ref: '#/components/schemas/model.ManagedOrg'
+          type: array
+      type: object
+    model.MspSku:
+      properties:
+        availableEntitlements:
+          type: integer
+        minEntitlementsQuantity:
+          type: integer
+        productsList:
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+          type: array
+        reservedEntitlements:
+          type: integer
+        sharedEntitlements:
+          items:
+            $ref: '#/components/schemas/model.SharedEntitlement'
+          type: array
+        skuName:
+          type: string
+      type: object
+    model.Option:
       properties:
         description:
-          type: string
           description: Description is the human-readable description of this option
+          type: string
         display_text:
-          type: object
-          description: Text linked to selected Option
           allOf:
             - $ref: '#/components/schemas/model.ProductText'
+          description: Text linked to selected Option
         value:
-          type: string
           description: Value is the machine-readable option that gets passed downstream
-    model.OrderHeader:
+          type: string
       type: object
+    model.OrderHeader:
       properties:
         dealId:
           type: string
@@ -1184,25 +597,20 @@ components:
           type: string
         webOrderId:
           type: string
-    model.OrderLine:
-      required:
-        - minorLines
       type: object
+    model.OrderLine:
       properties:
         majorLine:
           $ref: '#/components/schemas/model.MajorLine'
         minorLines:
-          minItems: 1
-          type: array
           items:
             $ref: '#/components/schemas/model.MinorLine'
-    model.OrderPayload:
+          minItems: 1
+          type: array
       required:
-        - callbackUrl
-        - orderRequest
-        - serviceProvisioningId
-        - subscriptionMasterId
+        - minorLines
       type: object
+    model.OrderPayload:
       properties:
         callbackUrl:
           minLength: 1
@@ -1220,53 +628,53 @@ components:
         serviceProvisioningId:
           minLength: 1
           type: string
-        subscriptionMasterId:
+        subscriptionPrimaryId:
           minLength: 1
           type: string
-    model.OrderRequest:
       required:
-        - orderHeader
-        - orderLines
+        - callbackUrl
+        - orderRequest
+        - serviceProvisioningId
+        - subscriptionPrimaryId
       type: object
+    model.OrderRequest:
       properties:
         followOn:
-          type: array
           items:
             $ref: '#/components/schemas/model.FollowOn'
+          type: array
         orderHeader:
           $ref: '#/components/schemas/model.OrderHeader'
         orderLines:
+          items:
+            $ref: '#/components/schemas/model.OrderLine'
           maxItems: 1
           minItems: 1
           type: array
-          items:
-            $ref: '#/components/schemas/model.OrderLine'
         provisioningRequest:
           $ref: '#/components/schemas/model.SbpProvisioningRequest'
         sender:
           $ref: '#/components/schemas/model.SbpSender'
         upgrade:
-          type: array
           items:
             $ref: '#/components/schemas/model.OrderRequestUpgrade'
-    model.OrderRequestUpgrade:
+          type: array
+      required:
+        - orderHeader
+        - orderLines
       type: object
+    model.OrderRequestUpgrade:
       properties:
         subRefId:
           type: string
         upgradeDetails:
-          type: array
           items:
             $ref: '#/components/schemas/model.UpgradeDetail'
+          type: array
         webOrderId:
           type: string
-    model.OrderSbpPayload:
       type: object
-      properties:
-        orderPayload:
-          $ref: '#/components/schemas/model.OrderPayload'
     model.OrgEntitlement:
-      type: object
       properties:
         access_type:
           type: string
@@ -1280,8 +688,8 @@ components:
           type: string
         value:
           type: string
-    model.OrgEntitlementInstance:
       type: object
+    model.OrgEntitlementInstance:
       properties:
         Deleted:
           $ref: '#/components/schemas/gorm.DeletedAt'
@@ -1290,11 +698,11 @@ components:
         entitlement:
           $ref: '#/components/schemas/model.OrgEntitlement'
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
         is_trial:
           type: boolean
         quantity:
@@ -1305,86 +713,72 @@ components:
           $ref: '#/components/schemas/model.Trial'
         updatedAt:
           type: string
-    model.MspOrgEntitlementInstance:
       type: object
+    model.OrgEntitlements:
       properties:
-        Deleted:
-          $ref: '#/components/schemas/gorm.DeletedAt'
-        createdAt:
-          type: string
-        entitlement:
-          $ref: '#/components/schemas/model.OrgEntitlement'
+        pagination:
+          $ref: '#/components/schemas/model.PaginationInfo'
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.SubnSku'
+          type: array
+      type: object
+    model.Organization:
+      properties:
         id:
           type: string
-        quantity:
-          type: integer
-        msp_total_quantity:
-          type: integer
-        msp_available_quantity:
-          type: integer
-        operation:
-          type: string
-        operand:
-          type: integer
-        subscription:
-          $ref: '#/components/schemas/model.MspSubscription'
-        trial:
-          $ref: '#/components/schemas/model.Trial'
-        updatedAt:
-          type: string
-    model.PartyAccount:
       type: object
+    model.PaginationDetails:
+      properties:
+        max:
+          type: integer
+        page:
+          type: integer
+      type: object
+    model.PaginationInfo:
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalRecords:
+          type: integer
+      type: object
+    model.PartyAccount:
       properties:
         businessName:
           type: string
         contacts:
-          type: array
           items:
             $ref: '#/components/schemas/model.Contact'
+          type: array
         name:
           type: string
         siteUseId:
           type: integer
         type:
           type: string
-    model.PatchUpdateSubscription:
       type: object
+    model.PatchUpdateSubscription:
       properties:
         endDate:
           type: string
         sendClaimCodeTo:
           type: string
         skus:
-          type: array
           items:
             $ref: '#/components/schemas/model.SubscriptionSkusInfo'
+          type: array
         startDate:
           type: string
-    model.PostCancelSubscription:
-      required:
-        - id
       type: object
-      properties:
-        action:
-          type: string
-          enum:
-            - create
-            - cancel
-        id:
-          type: string
     model.PostCreateSubscription:
-      required:
-        - id
-        - sendClaimCodeTo
-        - skus
-        - startDate
-      type: object
       properties:
         action:
-          type: string
           enum:
             - create
             - cancel
+          type: string
         endDate:
           type: string
         id:
@@ -1392,85 +786,106 @@ components:
         isTrial:
           type: boolean
         metadata:
-          type: array
           items:
             $ref: '#/components/schemas/model.ProvisioningInfo'
+          type: array
         sendClaimCodeTo:
           type: string
         skus:
-          type: array
           items:
             $ref: '#/components/schemas/model.SubscriptionSkusInfo'
+          type: array
         startDate:
           type: string
-    model.ProcessedSBPPayload:
+      required:
+        - id
+        - sendClaimCodeTo
+        - skus
+        - startDate
       type: object
-      properties:
-        callbackUrl:
-          type: string
-        orderLines:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.OrderLine'
-        subscription:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.Subscription'
-        subscriptionMasterId:
-          type: string
     model.Product:
-      type: object
       properties:
         display_text:
-          type: object
-          description: It is the default text linked to a product
           allOf:
             - $ref: '#/components/schemas/model.ProductText'
+          description: It is the default text linked to a product
         is_unified_onboarding_supported:
           type: boolean
         name:
-          type: string
           description: Name is the human readable name of the product.
+          type: string
         product_allowed_regions:
-          type: array
           description: AllowedRegions are where this product may be provisioned
           items:
             $ref: '#/components/schemas/model.Region'
-        provisioning_questions:
           type: array
+        provisioning_questions:
           items:
             $ref: '#/components/schemas/model.ProvisioningQuestion'
-    model.ProductConfigUpdateTakeoverEmailRequest:
+          type: array
       type: object
+    model.ProductConf:
       properties:
-        takeoverEmail:
+        activationStatus:
           type: string
-    model.ProductInstance:
+        name:
+          type: string
+        operand:
+          type: integer
+        operator:
+          type: string
+        region:
+          type: string
       type: object
+    model.ProductConfManagedOrg:
+      description: ProductConfManagedOrg represents product configuration for managed organizations
+      properties:
+        activationStatus:
+          type: string
+        name:
+          type: string
+        region:
+          type: string
+      type: object
+    model.ProductDetails:
+      properties:
+        assignedEntitlements:
+          type: integer
+        product:
+          type: string
+        productRegion:
+          type: string
+      type: object
+    model.ProductInfo:
+      properties:
+        assignedEntitlements:
+          type: integer
+        product:
+          type: string
+        productRegion:
+          type: string
+      type: object
+    model.ProductInstance:
       properties:
         activationCode:
           type: string
         createdAt:
           type: string
         entitlement_instances:
-          type: array
           description: EntitlementInstances are the actual entitlement this product instance has
           items:
             $ref: '#/components/schemas/model.EntitlementInstance'
+          type: array
         external_tenant_id:
           type: string
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
         initialAdmin:
           type: string
-        is_trial:
-          type: boolean
-        is_use_existing_tenant_set:
-          type: boolean
         isActive:
           type: boolean
         isEA:
@@ -1481,115 +896,180 @@ components:
           type: boolean
         isOrgEntitled:
           type: boolean
+        is_trial:
+          type: boolean
+        is_use_existing_tenant_set:
+          type: boolean
         org_entitlement_instances:
-          type: array
           description: OrgEntitlementInstances which are associated with product instances
           items:
             $ref: '#/components/schemas/model.OrgEntitlementInstance'
+          type: array
         product:
           $ref: '#/components/schemas/model.Product'
         provisionCheck:
           $ref: '#/components/schemas/model.ProvisionCheck'
         provisioning_metadata:
-          type: array
           items:
             $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+          type: array
         provisioning_status:
           $ref: '#/components/schemas/model.ProvisioningStatus'
         region:
-          $ref: '#/components/schemas/model.Region'
+          allOf:
+            - $ref: '#/components/schemas/model.Region'
           description: Region is where this ProductInstance is (or will be) provisioned
         updatedAt:
           type: string
-    model.MspProductInstance:
       type: object
-      properties:
-        activationCode:
-          type: string
-        createdAt:
-          type: string
-        entitlement_instances:
-          type: array
-          description: EntitlementInstances are the actual entitlement this product instance has
-          items:
-            $ref: '#/components/schemas/model.MspEntitlementInstance'
-        external_tenant_id:
-          type: string
-        id:
-          type: string
-        initialAdmin:
-          type: string
-        is_trial:
-          type: boolean
-        is_use_existing_tenant_set:
-          type: boolean
-        isActive:
-          type: boolean
-        isEA:
-          type: boolean
-        isHidden:
-          type: boolean
-        isLegacy:
-          type: boolean
-        isOrgEntitled:
-          type: boolean
-        org_entitlement_instances:
-          type: array
-          description: OrgEntitlementInstances which are associated with product instances
-          items:
-            $ref: '#/components/schemas/model.MspOrgEntitlementInstance'
-        product:
-          $ref: '#/components/schemas/model.Product'
-        provisioning_metadata:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
-        provisioning_status:
-          $ref: '#/components/schemas/model.ProvisioningStatus'
-        region:
-          $ref: '#/components/schemas/model.Region'
-          description: Region is where this ProductInstance is (or will be) provisioned
-        updatedAt:
-          type: string
     model.ProductInstanceApplyLicensesRequest:
-      type: object
       properties:
         sourceInstanceId:
           type: string
-    model.ProductInstanceInfo:
       type: object
+    model.ProductInstanceInfo:
       properties:
         body:
           $ref: '#/components/schemas/model.Body'
         response_code:
           type: integer
-    model.ProductInstanceProvisionRequest:
       type: object
+    model.ProductInstanceProvisionRequest:
       properties:
         additional_metadata:
-          type: array
           items:
             $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+          type: array
         create_new_tenant:
           type: boolean
         initial_admin:
           type: string
         region:
           type: string
-    model.ProductText:
       type: object
+    model.ProductInstanceResponseDTO:
+      properties:
+        createdAt:
+          type: string
+        entitlement_instances:
+          description: EntitlementInstances are the actual entitlement this product instance has
+          items:
+            $ref: '#/components/schemas/model.EntitlementInstance'
+          type: array
+        external_tenant_id:
+          type: string
+        id:
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
+        initialAdmin:
+          type: string
+        isActive:
+          type: boolean
+        product:
+          $ref: '#/components/schemas/model.Product'
+        provisioning_metadata:
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+          type: array
+        provisioning_status:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        region:
+          allOf:
+            - $ref: '#/components/schemas/model.Region'
+          description: Region is where this ProductInstance is (or will be) provisioned
+        updatedAt:
+          type: string
+      type: object
+    model.ProductInstanceWithMetadata:
+      properties:
+        activationCode:
+          type: string
+        additionalTenantMetadata:
+          items:
+            $ref: '#/components/schemas/model.AdditionalTenantMetadata'
+          type: array
+        createdAt:
+          type: string
+        entitlement_instances:
+          description: EntitlementInstances are the actual entitlement this product instance has
+          items:
+            $ref: '#/components/schemas/model.EntitlementInstance'
+          type: array
+        external_tenant_id:
+          type: string
+        id:
+          description: |-
+            Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+            This avoids setting ID manually in code and ensures consistency when using DBResolver.
+            Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
+        initialAdmin:
+          type: string
+        isActive:
+          type: boolean
+        isEA:
+          type: boolean
+        isHidden:
+          type: boolean
+        isLegacy:
+          type: boolean
+        isOrgEntitled:
+          type: boolean
+        is_trial:
+          type: boolean
+        is_use_existing_tenant_set:
+          type: boolean
+        org_entitlement_instances:
+          description: OrgEntitlementInstances which are associated with product instances
+          items:
+            $ref: '#/components/schemas/model.OrgEntitlementInstance'
+          type: array
+        product:
+          $ref: '#/components/schemas/model.Product'
+        provisionCheck:
+          $ref: '#/components/schemas/model.ProvisionCheck'
+        provisioning_metadata:
+          items:
+            $ref: '#/components/schemas/model.ProvisioningQuestionAnswer'
+          type: array
+        provisioning_status:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        region:
+          allOf:
+            - $ref: '#/components/schemas/model.Region'
+          description: Region is where this ProductInstance is (or will be) provisioned
+        updatedAt:
+          type: string
+      type: object
+    model.ProductInstancesAndRegionsAndServices:
+      properties:
+        all_regions:
+          $ref: '#/components/schemas/model.RegionalHierarchy'
+        productInstances:
+          items:
+            $ref: '#/components/schemas/model.ProductInstance'
+          type: array
+        services:
+          items:
+            $ref: '#/components/schemas/model.Services'
+          type: array
+      type: object
+    model.ProductText:
       properties:
         description:
           type: string
         value:
           type: string
-    model.ProvisionCheck:
       type: object
+    model.ProvisionCheck:
       properties:
         entitlements_to_clean_up:
-          type: array
           items:
             type: string
+          type: array
         is_blocked:
           type: boolean
         message:
@@ -1600,15 +1080,37 @@ components:
           type: string
         type:
           type: string
-    model.ProvisioningInfo:
       type: object
+    model.ProvisionedSKU:
+      properties:
+        name:
+          type: string
+        productInfo:
+          items:
+            $ref: '#/components/schemas/model.ProductInfo'
+          type: array
+      type: object
+    model.ProvisionedSubscription:
+      properties:
+        endDate:
+          type: string
+        id:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSKU'
+          type: array
+      type: object
+    model.ProvisioningInfo:
       properties:
         key:
           type: string
         value:
           type: string
-    model.ProvisioningQuestion:
       type: object
+    model.ProvisioningQuestion:
       properties:
         createdAt:
           type: string
@@ -1621,123 +1123,190 @@ components:
         name:
           type: string
         options:
-          type: array
           description: Options are the acceptable answers to this question
           items:
             $ref: '#/components/schemas/model.Option'
+          type: array
         type:
-          type: string
           description: Type signifies how to render this question in the UI, valid types SHOULD be ['choices', 'string']
+          type: string
         updatedAt:
           type: string
-    model.ProvisioningQuestionAnswer:
       type: object
+    model.ProvisioningQuestionAnswer:
       properties:
         createdAt:
           type: string
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
         name:
           type: string
         updatedAt:
           type: string
         value:
           type: string
+      type: object
     model.ProvisioningStatus:
-      type: string
       enum:
         - NEW
         - IN_PROGRESS
         - FINISHED
         - ERROR
         - ACTION_REQUIRED
+      type: string
       x-enum-varnames:
         - ProvisioningStatusNew
         - ProvisioningStatusInProgress
         - ProvisioningStatusFinished
         - ProvisioningStatusError
         - ProvisioningStatusActionRequired
-    model.Region:
+    model.RecordEntry:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
       type: object
+    model.RecordUpdate:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+        primary_keys:
+          additionalProperties: true
+          type: object
+      type: object
+    model.Region:
       properties:
         description:
           type: string
         name:
-          type: string
           description: Name identifies the region and is the primary key
-    model.ReplaceExternalIdDetails:
+          type: string
       type: object
+    model.RegionalHierarchy:
       properties:
-        newExternalID:
+        children:
+          items:
+            $ref: '#/components/schemas/model.RegionalHierarchy'
+          type: array
+        description:
           type: string
-        newRegion:
+        flat_priority:
+          type: integer
+        name:
           type: string
-        oldExternalID:
+        priority:
+          type: integer
+        tier:
+          type: integer
+      type: object
+    model.RevokeAPIResponse:
+      properties:
+        revokedSubscriptions:
+          items:
+            type: string
+          type: array
+      type: object
+    model.SKU:
+      properties:
+        name:
           type: string
-        oldRegion:
-          type: string
-        productName:
-          type: string
+        quantity:
+          type: integer
+      type: object
     model.SKUActionType:
-      type: string
       enum:
         - add
         - modify
         - cancel
         - no_change
         - unknown
+      type: string
       x-enum-varnames:
         - SKUActionTypeAdd
         - SKUActionTypeModify
         - SKUActionTypeCancel
         - SKUActionTypeNoChange
         - SKUActionTypeUnknown
-    model.SbpEaSku:
+    model.SKUInfo:
+      properties:
+        name:
+          type: string
+        productInfo:
+          items:
+            $ref: '#/components/schemas/model.ProductDetails'
+          type: array
       type: object
+    model.SbpEaSku:
       properties:
         fulfillmentSkus:
-          type: array
           items:
             type: string
+          type: array
         quantity:
+          minimum: 1
           type: integer
         skuName:
           type: string
-    model.SbpProvisioningInfoPair:
+      required:
+        - quantity
       type: object
+    model.SbpProvisioningInfoPair:
       properties:
         paramName:
           type: string
         paramValue:
           type: string
-    model.SbpProvisioningRequest:
       type: object
+    model.SbpProvisioningRequest:
       properties:
         provisiningInfo:
-          type: array
           items:
             $ref: '#/components/schemas/model.SbpProvisioningInfoPair'
+          type: array
         provisioningInfo:
-          type: array
           items:
             $ref: '#/components/schemas/model.SbpProvisioningInfoPair'
-        skus:
           type: array
+        skus:
           items:
             $ref: '#/components/schemas/model.SbpEaSku'
-    model.SbpSender:
+          type: array
       type: object
+    model.SbpSender:
       properties:
         applicationName:
           type: string
-    model.SkuConfigUpdate:
-      required:
-        - name
       type: object
+    model.Services:
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+        is_unified_onboarding_supported:
+          type: boolean
+        product_allowed_regions:
+          items:
+            $ref: '#/components/schemas/model.Region'
+          type: array
+      type: object
+    model.SharedEntitlement:
+      properties:
+        assignedEntitlements:
+          type: integer
+        managedOrgId:
+          type: string
+        productsList:
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+          type: array
+      type: object
+    model.SkuConfigUpdate:
       properties:
         canSubmitPaidSubscriptions:
           type: boolean
@@ -1745,37 +1314,24 @@ components:
           type: boolean
         name:
           type: string
-    model.SkusMap:
-      type: object
-      additionalProperties:
-        type: integer
-    model.SmartAccountKey:
       required:
-        - id
         - name
       type: object
+    model.SkusMap:
+      additionalProperties:
+        type: integer
+      type: object
+    model.SmartAccountKey:
       properties:
         id:
           type: integer
         name:
           type: string
-    model.SmartAccountKeysAssociationRecord:
       required:
-        - enterpriseId
-        - smartAccountKeys
-        - userId
+        - id
+        - name
       type: object
-      properties:
-        enterpriseId:
-          type: string
-        smartAccountKeys:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SmartAccountKey'
-        userId:
-          type: string
     model.SmartAccountRecord:
-      type: object
       properties:
         associated:
           type: boolean
@@ -1787,24 +1343,8 @@ components:
           type: string
         status:
           type: string
-    model.SmartAccounts:
       type: object
-      properties:
-        smartAccounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SmartAccountRecord'
-        totalRecords:
-          type: integer
-    model.SmartAccountsUserRole:
-      type: object
-      properties:
-        role:
-          type: string
-        userId:
-          type: string
     model.SmartLicense:
-      type: object
       properties:
         accountDomain:
           type: string
@@ -1820,22 +1360,26 @@ components:
           type: string
         updatedAt:
           type: string
-    model.SmartLicenses:
       type: object
-      properties:
-        smartLicenses:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SmartLicense'
-        totalRecords:
-          type: integer
     model.SourceATO:
-      type: object
       properties:
         sourceATO:
           type: string
-    model.Subscription:
       type: object
+    model.SubnSku:
+      properties:
+        endDate:
+          type: string
+        externalSubscriptionId:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          additionalProperties:
+            $ref: '#/components/schemas/model.MspSku'
+          type: object
+      type: object
+    model.Subscription:
       properties:
         Deleted:
           $ref: '#/components/schemas/gorm.DeletedAt'
@@ -1846,11 +1390,11 @@ components:
         externalId:
           type: string
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
         is_external:
           type: boolean
         is_provisionable:
@@ -1867,52 +1411,28 @@ components:
           type: string
         updatedAt:
           type: string
-    model.MspSubscription:
       type: object
+    model.SubscriptionInfo:
       properties:
-        Deleted:
-          $ref: '#/components/schemas/gorm.DeletedAt'
-        cancelledSkus:
-          $ref: '#/components/schemas/model.SkusMap'
-        createdAt:
-          type: string
-        externalId:
-          type: string
         id:
           type: string
-        is_external:
-          type: boolean
-        is_provisionable:
-          type: boolean
-        is_provisionable_email_sent:
-          type: boolean
-        manager_subscription_id:
-          $ref: '#/components/schemas/uuid.NullUUID'
-        requested_start_date:
-          type: string
-        subscription_end_date:
-          type: string
-        subscription_start_date:
-          type: string
-        updatedAt:
-          type: string
-        msp_manager_org_details:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            name:
-              type: string
-    model.SubscriptionSkusInfo:
-      required:
-        - actionType
-        - name
-        - quantity
+        skus:
+          items:
+            $ref: '#/components/schemas/model.SKUInfo'
+          type: array
       type: object
+    model.SubscriptionProvisioningError:
+      properties:
+        error:
+          type: string
+        subscriptionId:
+          type: string
+      type: object
+    model.SubscriptionSkusInfo:
       properties:
         actionType:
-          $ref: '#/components/schemas/model.SKUActionType'
+          allOf:
+            - $ref: '#/components/schemas/model.SKUActionType'
           enum:
             - add
             - modify
@@ -1923,8 +1443,30 @@ components:
         quantity:
           minimum: 1
           type: integer
-    model.Trial:
+      required:
+        - actionType
+        - name
+        - quantity
       type: object
+    model.TableEntry:
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/model.RecordEntry'
+          type: array
+        table_key:
+          type: string
+      type: object
+    model.TableUpdate:
+      properties:
+        table_key:
+          type: string
+        updates:
+          items:
+            $ref: '#/components/schemas/model.RecordUpdate'
+          type: array
+      type: object
+    model.Trial:
       properties:
         Deleted:
           $ref: '#/components/schemas/gorm.DeletedAt'
@@ -1937,11 +1479,13 @@ components:
         externalId:
           type: string
         id:
-          type: string
           description: |-
             Let PostgreSQL auto-generate UUIDs using gen_random_uuid()
+
             This avoids setting ID manually in code and ensures consistency when using DBResolver.
+
             Previously, missing default caused nil UUID errors with replicas in DBResolver setup.
+          type: string
         product_name:
           type: string
         provisioning_contact_email:
@@ -1954,68 +1498,54 @@ components:
           type: string
         updatedAt:
           type: string
-    model.TrialInfo:
       type: object
-      properties:
-        callbackUrl:
-          type: string
-        createdAt:
-          type: string
-        customerID:
-          type: string
-        endCustomerName:
-          type: string
-        enterpriseID:
-          type: string
-        enterpriseName:
-          type: string
-        externalId:
-          type: string
-          description: key could be any of this `json:"trialId"` or `json:"externalId"`
-        id:
-          type: string
-        metadata:
-          type: array
-          description: '"-" tag ignores this field when writing to DB'
-          items:
-            $ref: '#/components/schemas/model.ProvisioningInfo'
-        productName:
-          type: string
-        provisioningContactEmail:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.TrialsSku'
-        sseTenantID:
-          type: string
-        trialEndDate:
-          type: string
-        trialStartDate:
-          type: string
     model.TrialsSku:
-      type: object
       properties:
         quantity:
           type: integer
         skuName:
           type: string
-    model.UpgradeDetail:
       type: object
+    model.UpdateEnterpriseTypeRequest:
+      properties:
+        enterprise_type:
+          type: string
+      type: object
+    model.UpdateEntitlementResponse:
+      properties:
+        id:
+          type: string
+        provisioningErrors:
+          items:
+            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
+          type: array
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSubscription'
+          type: array
+      type: object
+    model.UpdateEntitlementsRequest:
+      properties:
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.UserSubscription'
+          type: array
+      type: object
+    model.UpgradeDetail:
       properties:
         sourceATOs:
-          type: array
           items:
             $ref: '#/components/schemas/model.SourceATO'
+          type: array
         targetATO:
           type: string
-    model.UpstreamSubscription:
       type: object
+    model.UpstreamSubscription:
       properties:
         activationStatus:
-          type: array
           items:
             $ref: '#/components/schemas/model.ActivationStatus'
+          type: array
         claimStatus:
           $ref: '#/components/schemas/model.ClaimStatus'
         createdAt:
@@ -2038,60 +1568,27 @@ components:
           type: string
         updatedAt:
           type: string
-    model.XSDSupportingDateTime:
       type: object
-      properties:
-        time.Time:
-          type: string
-    model.ManagedOrgProductsList:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Multi cloud defense
-        quantity:
-          type: integer
-          example: 200
-    model.ManagedOrgsList:
-      type: object
+    model.UserSubscription:
       properties:
         id:
           type: string
-          format: uuid
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        name:
-          type: string
-          example: Managed org 1
-        products:
-          type: array
+        skus:
           items:
-            $ref: '#/components/schemas/model.ManagedOrgProductsList'
-    model.RevokeManagedOrgs:
+            $ref: '#/components/schemas/model.SKU'
+          type: array
       type: object
+    model.Version:
       properties:
-        managedOrgs:
-          type: array
-          example:
-            - id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-              name: Managed org 1
-              products:
-                - name: Multi cloud defense
-                  quantity: 200
-                - name: HyperShield
-                  quantity: 100
-                - name: Secure Access
-                  quantity: 200
-            - id: 3c74e892-f39d-47e6-8299-5759d941c053
-              name: Managed org 2
-              products:
-                - name: Secure Access
-                  quantity: 200
-                - name: Firewall
-                  quantity: 200
-          items:
-            $ref: '#/components/schemas/model.ManagedOrgsList'
-    routes.EnterpriseResponse:
+        commitHash:
+          type: string
       type: object
+    model.XSDSupportingDateTime:
+      properties:
+        time.Time:
+          type: string
+      type: object
+    routes.EnterpriseResponse:
       properties:
         country:
           type: string
@@ -2103,52 +1600,17 @@ components:
           type: string
         uid:
           type: string
-    routes.MarketplaceErrorResponse:
       type: object
+    routes.PlatformBootstrapRequest:
       properties:
-        code:
-          type: integer
-        error:
+        enterprise_name:
           type: string
-        message:
+        initial_admin:
           type: string
-    routes.MarketplaceResponse:
+      required:
+        - enterprise_name
       type: object
-      properties:
-        allowedEmailDomains:
-          type: array
-          items:
-            type: string
-        authClients:
-          type: array
-          items:
-            type: string
-        createdAt:
-          type: string
-        description:
-          type: string
-        id:
-          type: string
-        isExplicitCancellationAllowed:
-          type: boolean
-        isImplicitCancellationActivated:
-          type: boolean
-        maximumInitialTermDays:
-          type: integer
-        maximumRemainingTermDays:
-          type: integer
-        maximumTotalTermDays:
-          type: integer
-        name:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/routes.SkuResponse'
-        updatedAt:
-          type: string
     routes.SkuResponse:
-      type: object
       properties:
         canSubmitPaidSubscriptions:
           type: boolean
@@ -2160,45 +1622,837 @@ components:
           type: string
         updatedAt:
           type: string
-    routes.UpstreamSubscriptionCanceled:
       type: object
-      properties:
-        isCancelled:
-          type: boolean
     routes.UpstreamSubscriptionError:
-      type: object
       properties:
         code:
           type: integer
         error:
           type: object
-          properties: {}
         message:
           type: string
-    uuid.NullUUID:
       type: object
+    uuid.NullUUID:
       properties:
         uuid:
           type: string
         valid:
-          type: boolean
           description: Valid is true if UUID is not NULL
+          type: boolean
+      type: object
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-Key
-    OAuth2:
-      type: oauth2
+    EnterpriseAdminBearerAuth:
       flows:
         clientCredentials:
-          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
           scopes:
-            security:global:provisioning-config:write: Global provisioning configuration management
-            security:global:provisioning-subscription:write: Global subscription provisioning operations
-            security:provisioning:subscriptions:read: Read subscription data
-            security:provisioning:subscriptions:write: Write subscription data
-            security:subscription:move: Move subscriptions between enterprises
-            security:provisioning:maintainance:write: Maintenance operations (provisioning, migrations)
-            security:provisioning:global-config:write: Global configuration write access
-x-original-swagger-version: '2.0'
+            security:enterprise:admin:{enterprise_id}: ' "Grants enterprise admin access with dynamic enterprise ID validation"'
+          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
+      type: oauth2
+    ServiceTokenBearerAuth:
+      flows:
+        clientCredentials:
+          scopes:
+            provisioning:subscriptions:write: ' "Grants write access to subscriptions"'
+            provisioning:trials:write: ' "Grants write access to trials"'
+            security:global:provisioning-config:write: ' "Grants write access to global provisioning configuration"'
+            security:global:provisioning-maintenance:write: ' "Grants write access to global provisioning maintenance"'
+            security:global:provisioning-status:write: ' "Grants write access to global provisioning status"'
+            security:global:provisioning-subscription:write: ' "Grants write access to global provisioning subscriptions"'
+            security:global:provisioning:tenants-attach: ' "Grants attach access to global provisioning tenants"'
+            security:global:provisioning:tenants-write: ' "Grants write access to global provisioning tenants"'
+            security:global:provisioning:tenants:write: ' "Grants write access to global provisioning tenants"'
+            security:global:provisioning:trials:read: ' "Grants read access to global provisioning trials"'
+            security:provisioning:brownfield-subscriptions:write: ' "Grants write access to brownfield subscriptions"'
+            security:provisioning:config:read: ' "Grants read access to provisioning configuration"'
+            security:provisioning:config:write: ' "Grants write access to provisioning configuration"'
+            security:provisioning:data-sync: ' "Grants access to provisioning data synchronization"'
+            security:provisioning:maintenance:write: ' "Grants write access to provisioning maintenance"'
+            security:provisioning:metrics:read: ' "Grants read access to provisioning metrics"'
+            security:provisioning:smart-licences:write: ' "Grants write access to smart licenses provisioning"'
+            security:provisioning:subscriptions:read: ' "Grants read access to provisioning subscriptions"'
+            security:provisioning:subscriptions:write: ' "Grants write access to provisioning subscriptions"'
+            security:provisioning:tenants:read: ' "Grants read access to provisioning tenants"'
+            security:subscription:move: ' "Grants permission to move subscriptions between enterprises"'
+            security:{product_id}:provisioning:tenants-attach: ' "Grants product-specific tenant attachment permissions"'
+            testing:provisioning:write: ' "Grants write access for testing provisioning operations"'
+          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
+      type: oauth2
+info:
+  contact: {}
+  description: Provisioning microservice for activating and managing entitlements, subscriptions, and claim codes
+  title: Provisioning Microservice API
+  version: 1.0.1
+openapi: 3.0.0
+paths:
+  /claim-code/claim:
+    post:
+      description: Process claim code to provision subscriptions and product instances for an enterprise
+      operationId: claim-code-subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ClaimSubscription'
+        description: Claim code subscription details for processing
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Successfully claimed and provisioned product instances
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad request - invalid input data, missing enterprise ID, or validation errors
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - invalid or missing authentication token
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - user is not admin of the enterprise or claim is blocked
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Not found - claim code or enterprise not found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Conflict - claim code already used or provisioning conflicts
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error during provisioning
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Claim Code for Subscription
+      tags:
+        - Claim Code
+  /claim-code/read:
+    post:
+      description: Retrieve product instances associated with a specific claim code for an enterprise
+      operationId: get-product-instances-by-claim-code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ClaimCodeReadRequest'
+        description: Claim code read request containing claim_code and enterprise_id
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstancesAndRegionsAndServices'
+          description: Successfully retrieved product instances
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad request - invalid input data
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - invalid or missing authentication token
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - user is not admin of the enterprise
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Not found - claim code or enterprise not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Get Product Instances by Claim Code
+      tags:
+        - Claim Code
+  /customers:
+    get:
+      description: Get all active Product Instance for a customer by Enterprise Id
+      operationId: GetCustomerProductInstances
+      parameters:
+        - description: Enterprise Id
+          in: query
+          name: enterprise_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstanceWithMetadata'
+          description: Product instances for the enterprise
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Invalid enterprise ID
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - User is not admin of the enterprise
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Get Customer's Product Instance By Enterprise Id
+      tags:
+        - Enterprise
+  /enterprise/region-hierarchy:
+    get:
+      description: API returns the regional hierarchy details of the enterprise
+      operationId: GetEnterpriseRegionHierarchy
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.RegionalHierarchy'
+          description: Regional hierarchy details
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - Invalid scope
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Get Regional Hierarchy
+      tags:
+        - Enterprise
+  /enterprise/{enterpriseId}/platform-subscription:
+    post:
+      description: Creates Customer Enterprise Record, Platform Bootstrap Subscription and provision Platform Bootstrap Products for given enterpriseId
+      operationId: PostPlatformRoute
+      parameters:
+        - description: enterprise Id(uuid)
+          in: path
+          name: enterpriseId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/routes.PlatformBootstrapRequest'
+        description: Platform Bootstrap Payload
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success message
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Invalid request payload
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - Authentication credentials were missing or incorrect
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error
+      security:
+        - ServiceTokenBearerAuth:
+            - security:provisioning:tenants:read
+      summary: Creates Platform Bootstrap Subscription and provision Platform Bootstrap Products for given enterpriseId
+      tags:
+        - Enterprise
+  /msp-claim-code/claim:
+    post:
+      description: Process MSP-specific claim code to provision subscriptions and product instances for managed service provider environments
+      operationId: msp-claim-code-subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ClaimSubscription'
+        description: MSP claim code subscription details for processing
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Successfully claimed and provisioned MSP product instances
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad request - validation errors, client-side errors, or invalid MSP configuration
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - token issues or admin permission denied
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - rate limits, trials, or SKU restrictions for MSP
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Not found - MSP claim code or enterprise not found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Conflict - MSP claim code already used or provisioning conflicts
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error - database or provisioning failure
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: MSP Claim Code for Subscription
+      tags:
+        - Claim Code
+  /organizations/{managerId}/entitlements:
+    get:
+      description: Retrieves entitlements for a specific managed organization. User must be admin of the organization. Supports pagination and search.
+      operationId: GetOrgEntitlements
+      parameters:
+        - description: Manager Organization ID (UUID)
+          in: path
+          name: managerId
+          required: true
+          schema:
+            type: string
+        - description: 'Number of records to return (default: 10)'
+          in: query
+          name: limit
+          schema:
+            type: integer
+        - description: 'Number of records to skip (default: 0)'
+          in: query
+          name: offset
+          schema:
+            type: integer
+        - description: Search term for filtering entitlements
+          in: query
+          name: search
+          schema:
+            type: string
+        - description: Managed organization ID for filtering
+          in: query
+          name: managedOrgId
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.OrgEntitlements'
+          description: Organization entitlements
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad request - Invalid parameters
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - User not admin of organization
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Get organization entitlements
+      tags:
+        - MSP Entitlements Management
+  /organizations/{managerId}/managed/{managedId}/entitlements:
+    get:
+      description: List all active entitlements at the SKU level between a manager and managed organization
+      operationId: get-managed-entitlements
+      parameters:
+        - description: Manager organization ID (UUID format)
+          in: path
+          name: managerId
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Managed organization ID (UUID format)
+          in: path
+          name: managedId
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Number of results per page (default 10)
+          in: query
+          name: limit
+          schema:
+            default: 10
+            minimum: 1
+            type: integer
+        - description: Pagination offset (default 0)
+          in: query
+          name: offset
+          schema:
+            default: 0
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.OrgEntitlements'
+          description: Successfully retrieved organization entitlements
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad request - invalid enterprise ID, limit, or offset value
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - user is not admin of the organization
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - access to entitlements is not allowed
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Not found - manager or managed organization not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Get Entitlements for Managed Organization
+      tags:
+        - MSP Entitlements Management
+    patch:
+      description: Updates the quantity of entitlements shared from a manager organization to a managed organization
+      operationId: update-managed-entitlements
+      parameters:
+        - description: Manager Organization ID (UUID)
+          in: path
+          name: managerId
+          required: true
+          schema:
+            type: string
+        - description: Managed Organization ID (UUID)
+          in: path
+          name: managedId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
+        description: Request body containing subscription and SKU details to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
+          description: Successfully updated entitlements
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: User is not an admin of manager or managed org
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Update entitlements between manager and managed organizations
+      tags:
+        - MSP Entitlements Management
+  /productInstance/{instanceId}/applyLicenses:
+    post:
+      description: Applies licenses from a source product instance to a target product instance
+      operationId: apply-product-instance-licenses
+      parameters:
+        - description: ID of the product instance to apply licenses to
+          in: path
+          name: instanceId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ProductInstanceApplyLicensesRequest'
+        description: Apply licenses request details
+        required: true
+      responses:
+        '200':
+          description: OK - Licenses applied successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Invalid instance ID, customer mismatch, or product mismatch
+        '412':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Precondition Required - Customers do not match
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error - Error applying licenses
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Apply licenses from a source product instance to a target product instance
+      tags:
+        - Product Instance
+  /productInstance/{instanceId}/provision:
+    post:
+      description: Provisions a product instance with the given ID
+      operationId: provision-product-instance
+      parameters:
+        - description: ID of the product instance to provision
+          in: path
+          name: instanceId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ProductInstanceProvisionRequest'
+        description: Provisioning request details
+        required: true
+      responses:
+        '200':
+          description: OK - Provisioning completed successfully
+        '202':
+          description: Accepted - Provisioning is in progress
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Invalid instance ID or request payload
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - User is not an admin of the associated enterprise
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Forbidden - Product is not provisionable via API
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Conflict - Product already exists for enterprise
+        '424':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Failed Dependency - Error during provisioning
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error - Unexpected error during provisioning
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      summary: Provision a product instance
+      tags:
+        - Product Instance
+  /productInstanceInvitation:
+    post:
+      description: Creates a new legacy product invitation and sends email invitations to specified users
+      operationId: create-product-instance-invitation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.LegacyProductInviteRequest'
+        description: Legacy Product Invitation Request
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  invitationId:
+                    type: string
+                  productExternalTenantId:
+                    type: string
+                  region:
+                    type: string
+                  users:
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: Successfully created invitation with invitation ID, region, product external tenant ID, and users
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Invalid request body, region not defined, users array empty, or invalid external tenant ID
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - Invalid scope
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error - Error creating legacy product invitation
+      security:
+        - ServiceTokenBearerAuth:
+            - security:{product_id}:provisioning:tenants-attach
+      summary: Create legacy product invitation
+      tags:
+        - Product Instance Invitation
+  /productInstanceInvitation/{id}/accept:
+    post:
+      description: Accepts a legacy product invitation and associates it with the specified enterprise
+      operationId: accept-product-instance-invitation
+      parameters:
+        - description: Invitation ID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.AcceptLegacyProductInvitationRequest'
+        description: Accept Invitation Request
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.LegacyProductInvite'
+          description: Successfully accepted the invitation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Bad Request - Not a valid UUID or invalid request body
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - User is not an admin of the given enterprise
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Not Found - Invitation not found for the user
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Conflict - Invitation already associated to enterprise
+        '412':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Precondition Failed - Invitation already accepted, not in pending state, or already associated to product instance
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal Server Error - Error accepting legacy product invitation
+      security:
+        - ServiceTokenBearerAuth:
+            - security:provisioning:subscriptions:write
+      summary: Accept legacy product invitation
+      tags:
+        - Product Instance Invitation
+servers:
+  - url: https://api.int.security.cisco.com/provisioning
+tags:
+  - description: Operations related to claim codes for subscriptions and trials
+    name: Claim Code
+  - description: Operations related to enterprise management and configuration
+    name: Enterprise
+  - description: Operations related to marketplace integrations and management
+    name: Marketplaces
+  - description: Operations for managing subscriptions and subscription lifecycle
+    name: Subscriptions
+  - description: Operations for managing trial subscriptions and trial lifecycle
+    name: Trials
+  - description: Health check and system status endpoints (no authentication required)
+    name: Health
+  - description: Internal API operations for system maintenance and monitoring
+    name: Internal
+  - description: Configuration table operations and data management
+    name: Configuration
+  - description: MSP (Managed Service Provider) organization management operations
+    name: MSP Organizations Management
+  - description: MSP entitlements management and allocation operations
+    name: MSP Entitlements Management
+  - description: Platform-related operations and infrastructure management
+    name: Platform
+  - description: Migration operations for CDO and other services
+    name: Migration
+  - description: Product enablement operations and feature activation
+    name: Product Enablement
+  - description: Product instance management, provisioning, and lifecycle operations
+    name: Product Instance
+  - description: Product instance invitation management and processing
+    name: Product Instance Invitation
+  - description: Tenant onboarding operations and external tenant management
+    name: Onboard Tenant
+  - description: Cisco Commerce (CCW) operations and order processing
+    name: Cisco Commerce (CCW)
+  - description: Scheduled cron job operations and background tasks
+    name: Cron Jobs
+  - description: Service operations, backfill, and on-demand provisioning
+    name: Services
+  - description: Smart account operations and license management
+    name: SmartAccounts

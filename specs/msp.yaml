@@ -1,2287 +1,509 @@
-openapi: 3.0.3
-info:
-  version: 1.4.0
-  title: MSP APIs
-  description: MSP APIs for viewing, creating and updating the manager and managed organizations
-servers:
-  - url: https://api.int.security.cisco.com/identity
-    variables:
-      baseUrl:
-        default: https://api.int.security.cisco.com/identity
-      domain:
-        default: https://sso-apps-preview.myverysecuresignon.name/api
-security:
-  - OpenID: []
-  - bearerAuth: []
-paths:
-  /enterprises/{id}/manager:
-    get:
-      summary: Get all management relationships of managed organization
-      operationId: getEnterpriseManagementRelationshipManager
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the manager org or the managed org
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: page
-          in: query
-          required: false
-          description: offset to paginated results
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: limit
-          in: query
-          required: false
-          description: to limit the management relationship array response
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: filter
-          in: query
-          required: false
-          description: |
-            filter or search on fields such as organizations or subscriptions.
-            For example, `filter="cdk"` will return all organizations where Enterprise name like "cdkLimited", as well as subscription IDs like "subs_cdk123" and product names like  "prod_cdk123".
-          content:
-            application/json:
-              schema:
-                type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                properties:
-                  page:
-                    type: integer
-                    example: 1
-                  limit:
-                    type: integer
-                    example: 10
-                  totalItems:
-                    type: integer
-                    example: 100
-                  relationshipType:
-                    type: string
-                    example: manager
-                  organizations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/organizationsRelationship'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Management Relationships
-  /enterprises/{id}/managed:
-    get:
-      summary: Get all management relationship for the manager organization
-      operationId: getEnterpriseManagementRelationshipManaged
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the manager org or the managed org
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: page
-          in: query
-          required: false
-          description: offset to paginated results
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: limit
-          in: query
-          required: false
-          description: to limit the management relationship array response
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: filter
-          in: query
-          required: false
-          description: |
-            filter or search on fields such as organizations or subscriptions.
-            For example, `filter="oyo"` will return all organizations where Enterprise name like "Toyota", as well as subscription IDs like "subs_oyo123" and product names like  "prod_oyo123".
-          content:
-            application/json:
-              schema:
-                type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                properties:
-                  page:
-                    type: integer
-                    example: 1
-                  limit:
-                    type: integer
-                    example: 10
-                  totalItems:
-                    type: integer
-                    example: 100
-                  relationshipType:
-                    type: string
-                    example: managed
-                  organizations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/organizationsRelationship'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Management Relationships
-    post:
-      summary: create relationship between manager org and managed orgs. And then share entitlements with managed org
-      description: create relationship between manager org and managed orgs. And then share entitlements with managed org
-      operationId: createEnterpriseManagementRelationship
-      parameters:
-        - description: manager enterprise id. This API works only for the manager enterprise
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EntitlementShareRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  managedOrgs:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/PostManagedRelationshipResponse'
-                  provisioningErrors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        managedOrgId:
-                          type: string
-                          example: be58b7ce-1dc0-43f6-8fac-31cae02e4510
-                        error:
-                          type: string
-                          example: 'Product tenant: Cisco Secure Access already exists on the enterprise'
-        '400':
-          description: Bad Request - Entitlement Quantities exceeds available or Product already exists or Quantity is less than minimum for the product
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ValidationError'
-        '401':
-          description: Unauthorized - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Multi-Org not found or sub-org not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/NotFoundError'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/GeneralError'
-      tags:
-        - Management Relationships
-  /enterprises/{id}/createManaged:
-    post:
-      summary: Create a new managed organization
-      description: Creates a new organization and establishes it as managed by the specified manager organization. This forms a management relationship between the two organizations.
-      operationId: createEnterpriseManagementRelationship
-      parameters:
-        - description: manager enterprise id. This API works only for the manager enterprise
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - displayName
-                - region
-              properties:
-                name:
-                  type: string
-                displayName:
-                  type: string
-                region:
-                  type: object
-                  properties:
-                    label:
-                      type: string
-                    value:
-                      type: string
-                country:
-                  type: object
-                  properties:
-                    label:
-                      type: string
-                    value:
-                      type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  managedOrgs:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/PostManagedRelationshipResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: Forbidden - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      tags:
-        - Management Relationships
-  /enterprises/{id}/addManaged:
-    post:
-      summary: Add management relationships to existing organizations
-      description: Establishes management relationships between the specified manager organization and one or more existing organizations. All organizations must exist before creating relationships.
-      operationId: addEnterpriseManagementRelationship
-      parameters:
-        - description: manager enterprise id. This API works only for the manager enterprise
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EntitlementShareRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  managedOrgs:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/PostManagedRelationshipResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: Forbidden - User is not an admin of the associated enterprise
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      tags:
-        - Management Relationships
-  /enterprises/{managerId}/managed/{managedId}:
-    delete:
-      summary: revokes management relationship of an org
-      operationId: deleteEnterpriseManagementRelationship
-      parameters:
-        - name: managerId
-          in: path
-          required: true
-          description: ID of the manager org
-          content:
-            application/json:
-              schema:
-                type: string
-        - name: managedId
-          in: path
-          required: true
-          description: ID of the managed org
-          content:
-            application/json:
-              schema:
-                type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '204':
-          description: ok
-          content:
-            NoContent: {}
-      tags:
-        - Management Relationships
-    get:
-      summary: get management relationship details of an associated org
-      operationId: getEnterpriseManagementRelationshipManagedDetails
-      parameters:
-        - description: ID of the manager org
-          in: path
-          name: managerId
-          required: true
-          schema:
-            type: string
-        - description: ID of the managed org
-          in: path
-          name: managedId
-          required: true
-          schema:
-            type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                properties:
-                  relationshipType:
-                    type: string
-                    enum:
-                      - managed
-                  organizations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/organizationsRelationship'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Management Relationships
-  /enterprises/{managedId}/manager/{managerId}:
-    get:
-      summary: get management relationship details of an associated org
-      operationId: getEnterpriseManagementRelationshipManagerDetails
-      parameters:
-        - description: ID of the manager org
-          in: path
-          name: managerId
-          required: true
-          schema:
-            type: string
-        - description: ID of the managed org
-          in: path
-          name: managedId
-          required: true
-          schema:
-            type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                properties:
-                  relationshipType:
-                    type: string
-                    example: manager
-                  organizations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/organizationsRelationship'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Management Relationships
-  /enterprises/{managerId}/manageEntitlements/{managedOrgId}:
-    patch:
-      tags:
-        - Manage Entitlements
-      summary: Update shared entitlements between organizations
-      description: Modifies the quantity of entitlements shared from a manager organization to a managed organization. Requires admin access to both organizations.
-      operationId: updateEntitlements
-      parameters:
-        - description: Manager Organization ID (UUID)
-          name: managerId
-          in: path
-          required: true
-          schema:
-            type: string
-        - description: Managed Organization ID (UUID)
-          name: managedOrgId
-          in: path
-          required: true
-          schema:
-            type: string
-        - description: Authorization token (user must be admin of both manager and managed orgs)
-          name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
-        description: Request body containing subscription and SKU details to update
-        required: true
-      responses:
-        '200':
-          description: Successfully updated entitlements
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
-        '400':
-          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: User is not an admin of manager or managed org
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-  /enterprises/{managerOrgID}/manageEntitlements/{managedOrgID}:
-    get:
-      summary: Get entitlements for an organization
-      description: List all the active entitlements at the SKU level between a manager and managed org. User has to be a member of the enterprise to be able to get list of entitlements info.
-      tags:
-        - Manage Entitlements
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      parameters:
-        - description: ManagerOrgID(UUID)
-          name: managerOrgID
-          in: path
-          required: true
-          schema:
-            type: string
-        - description: ManagedOrgID(UUID)
-          name: managedOrgID
-          in: path
-          required: true
-          schema:
-            type: string
-        - description: Number of results per page (default 10)
-          name: limit
-          in: query
-          schema:
-            type: integer
-            default: 10
-        - description: Pagination offset (default 0)
-          name: offset
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - description: Filter results by subscription name/SKU
-          name: search
-          in: query
-          schema:
-            type: string
-        - description: Okta access token (user must be an admin of the specified organization)
-          name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.OrgEntitlements'
-        '400':
-          description: Invalid enterprise ID, limit, or offset value
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - User is not admin of the organization
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-  /enterprises/{managerId}/rbac/{managedID}/sharedgroups/{groupID}:
-    delete:
-      summary: Remove shared group assignment
-      description: Removes a shared RBAC group assignment between a manager and managed organization. This revokes the managed organization's access to the shared group.
-      operationId: DeleteSharedRBACUserGroupAssignment
-      parameters:
-        - name: managerId
-          in: path
-          description: managerOrgId ID of the enterprise
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: managedID
-          in: path
-          description: managedOrgId ID of the enterprise
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: groupID
-          in: path
-          description: groupID ID of the enterprise
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      tags:
-        - Manage Access
-  /enterprises/{id}/rbac/sharedGroups/{groupId}:
-    get:
-      summary: Get shared group assignments across organizations
-      description: Retrieves the mapping of RBAC shared groups between manager and managed organizations. Shows which organizations can access the specified group.
-      operationId: GetRBACSharedGroupEnterpriseAssignments
-      parameters:
-        - name: id
-          in: path
-          description: ID of the managed org or manager org
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: groupId
-          in: path
-          description: ID of the RBAC group
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RBACSharedGroupEnterpriseAssignment'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Manage Access
-  /enterprises/{managerId}/rbac/sharedgroups:
-    put:
-      summary: Assign shared RBAC groups to managed organizations
-      description: Creates assignments for RBAC shared groups from a manager organization to its managed organizations. Enables centralized access control across organizations.
-      operationId: SharedRBACUserGroupAssignment
-      parameters:
-        - name: managerId
-          in: path
-          description: The ID of the manager org
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        description: ''
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SharedGroupAccessInput'
-      responses:
-        '200':
-          description: Successfully added group to the managed org
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  successfulGroupIDs:
-                    type: array
-                    items:
-                      type: string
-                    example:
-                      - 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-                  failedGroupIDs:
-                    type: array
-                    items:
-                      type: string
-                    example:
-                      - 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        default:
-          $ref: '#/components/responses/GeneralError'
-      tags:
-        - Manage Access
-  /marketplaces/{marketplace_id}/subscriptions/{external_id}:
-    get:
-      tags:
-        - Subscriptions
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Get subscription by external ID
-      description: Retrieves a subscription by its external ID.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-        - name: external_id
-          in: path
-          description: External ID of the subscription
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Active subscription data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '404':
-          description: Not Found - No subscription found by requested external ID
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-    patch:
-      tags:
-        - Subscriptions
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Update subscription
-      description: Update subscription for marketplace.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-        - name: external_id
-          in: path
-          description: External ID of the subscription
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Subscription update data
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/model.PatchUpdateSubscription'
-        required: true
-      responses:
-        '200':
-          description: Successfully updated subscription
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpstreamSubscription'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-      x-codegen-request-body-name: UpdateSubscription
-  /marketplaces/{marketplace_id}/subscriptions/{external_id}/resendclaimcode:
-    post:
-      tags:
-        - Subscriptions
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Resend claim code
-      description: Re-send welcome email with claim code for the given subscription. Cannot be re-sent if subscription was already claimed.  Specific scopes are required to access the API `security:global:provisioning-subscription:write`. Client credentials are issued by IAM team individually.
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN
-          required: true
-          schema:
-            type: string
-        - name: marketplace_id
-          in: path
-          description: Marketplace ID
-          required: true
-          schema:
-            type: string
-        - name: external_id
-          in: path
-          description: External ID of the subscription
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Email with claim code sent successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-        '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '404':
-          description: Not Found - The URI requested is invalid or the resource requested does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/routes.UpstreamSubscriptionError'
-  /organizations/{managerId}/managed/{managedId}/entitlements:
-    get:
-      tags:
-        - ManageEntitlements
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Get entitlements for an organization
-      description: List all the active entitlements at the SKU level between a manager and managed org. User has to be a member of the enterprise to be able to get list of entitlements info.
-      parameters:
-        - name: managerId
-          in: path
-          description: ManagerID(UUID)
-          required: true
-          schema:
-            type: string
-        - name: managedId
-          in: path
-          description: ManagedID(UUID)
-          required: true
-          schema:
-            type: string
-        - name: limit
-          in: query
-          description: Number of results per page (default 10)
-          required: false
-          schema:
-            type: integer
-            default: 10
-        - name: offset
-          in: query
-          description: Pagination offset (default 0)
-          required: false
-          schema:
-            minimum: 0
-            type: integer
-            default: 0
-        - name: Authorization
-          in: header
-          description: Okta access token (user must be an admin of the specified organization)
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.OrgEntitlements'
-        '400':
-          description: Invalid enterprise ID, limit, or offset value
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - User is not admin of the organization
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-    delete:
-      tags:
-        - ManageEntitlements
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Revoke entitlements for an organization
-      description: Revoke all entitlemendts shared from a manager organization to a managed organization.
-      parameters:
-        - name: managerId
-          in: path
-          description: ManagerID(UUID)
-          required: true
-          schema:
-            type: string
-        - name: managedId
-          in: path
-          description: ManagedID(UUID)
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Okta access token (user must be an admin of the manager organization)
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.RevokeAPIResponse'
-        '400':
-          description: Invalid Org ID
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - User is not admin of the manager organization
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-    patch:
-      tags:
-        - ManageEntitlements
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Update entitlements between manager and managed organizations
-      description: Updates the quantity of entitlements shared from a manager organization to a managed organization
-      parameters:
-        - name: managerId
-          in: path
-          description: Manager Organization ID (UUID)
-          required: true
-          schema:
-            type: string
-        - name: managedId
-          in: path
-          description: Managed Organization ID (UUID)
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Authorization token (user must be admin of both manager and managed orgs)
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Request body containing subscription and SKU details to update
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
-        required: true
-      responses:
-        '200':
-          description: Successfully updated entitlements
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
-        '400':
-          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: User is not an admin of manager or managed org
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: body
-  /move-subscription:
-    post:
-      tags:
-        - Subscriptions
-      servers:
-        - url: https://api.int.security.cisco.com/provisioning
-      summary: Move a subscription from an enterprise to another enterprise
-      description: Checks for existence of both enterprises and if user is admin of both, allows to move subscription between them. Also updates license and correspondingly platform services for both enterprises. Also leads to outbox events to let prometheus update this info in its dynamoDB. Also makes downstream calls to produce topics for product instances of concerned subscription to be know of the change in enterprise
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer TOKEN (security:subscription:move scope required)
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Subscription move request data
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/gin.H'
-        required: true
-      responses:
-        '200':
-          description: Subscription moved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/gin.H'
-        '400':
-          description: Bad request - Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/gin.H'
-        '401':
-          description: Unauthorized - Invalid scope
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/gin.H'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/gin.H'
-      x-codegen-request-body-name: subscriptionMoveRequest
 components:
+  headers:
+    Date:
+      schema:
+        pattern: ^.*$
+        type: string
+    Location:
+      schema:
+        format: uri
+        type: string
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Insufficient permissions to complete the request
+    GeneralError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: An unknown error occurred
+      headers:
+        Date:
+          $ref: '#/components/headers/Date'
+    InternalServerError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Internal Server Error - The server encountered an unexpected condition which prevented it from fulfilling the request.
+    NoContent:
+      description: No content
+    NotFoundError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Not Found
+      headers:
+        Date:
+          $ref: '#/components/headers/Date'
+    PredefinedFailed:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Predefined Failed - if group role exit for user. it will be returned
+    UnableToCreateResource:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The request is not able to be authorized
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The request is not able to be authorized
+    ValidationError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The request was invalid
+      headers:
+        Date:
+          $ref: '#/components/headers/Date'
   schemas:
-    gin.H:
-      type: object
-      additionalProperties:
-        type: object
-    model.UpstreamSubscription:
-      type: object
+    AddEnterpriseAdminRequestBody:
+      description: Represent request body for adding enterprise admin
       properties:
-        activationStatus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ActivationStatus'
-        claimStatus:
-          $ref: '#/components/schemas/model.ClaimStatus'
-        createdAt:
+        userId:
+          format: uuid
           type: string
-        endDate:
-          type: string
-        id:
-          type: string
-        isCancelled:
-          type: boolean
-        isProvisionable:
-          type: boolean
-        isTrial:
-          type: boolean
-        sendClaimCodeTo:
-          type: string
-        skus:
-          $ref: '#/components/schemas/model.SkusMap'
-        startDate:
-          type: string
-        updatedAt:
-          type: string
-    model.ActivationStatus:
-      type: object
-      properties:
-        activationStatus:
-          $ref: '#/components/schemas/model.ProvisioningStatus'
-        activationTime:
-          type: string
-        isActive:
-          type: boolean
-        productInstanceId:
-          type: string
-        productName:
-          type: string
-        tenantId:
-          type: string
-    model.ProvisioningStatus:
-      type: string
-      enum:
-        - NEW
-        - IN_PROGRESS
-        - FINISHED
-        - ERROR
-        - ACTION_REQUIRED
-      x-enum-varnames:
-        - ProvisioningStatusNew
-        - ProvisioningStatusInProgress
-        - ProvisioningStatusFinished
-        - ProvisioningStatusError
-        - ProvisioningStatusActionRequired
-    model.ClaimStatus:
-      type: object
-      properties:
-        claimCode:
-          type: string
-        claimedAt:
-          type: string
-        claimedByEmail:
-          type: string
-        enterpriseId:
-          type: string
-        enterpriseName:
-          type: string
-        isClaimable:
-          type: boolean
-        isClaimed:
-          type: boolean
-    model.SkusMap:
-      type: object
-      additionalProperties:
-        type: integer
-    routes.UpstreamSubscriptionError:
-      type: object
-      properties:
-        code:
-          type: integer
-        error:
-          type: object
-          properties: {}
-        message:
-          type: string
-    model.PatchUpdateSubscription:
-      type: object
-      properties:
-        endDate:
-          type: string
-        sendClaimCodeTo:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SubscriptionSkusInfo'
-        startDate:
-          type: string
-    model.SubscriptionSkusInfo:
       required:
-        - actionType
-        - name
-        - quantity
+        - userId
       type: object
+    AssignedAdmins:
       properties:
-        actionType:
+        email:
+          description: email of the assigned admin
+          example: john.doe@xyz.com
+          type: string
+        id:
+          description: id of the admin
+          example: 00u251alpxbbASGcC0h8
+          type: string
+        name:
+          description: name of the assigned admin
+          example: John Doe
+          type: string
+    AssignedGroups:
+      properties:
+        id:
+          description: id of the group
+          example: 6280494d-dd0f-4655-b558-d36ce9a10655
+          type: string
+        name:
+          description: name of the assigned group
+          example: Group A
+          type: string
+    AssignedSubscriptions:
+      properties:
+        id:
+          description: id of the subscription
+          example: subs20251011
+          type: string
+        skus:
+          items:
+            properties:
+              key:
+                example: XDR-ESS
+                type: string
+              productsInfo:
+                description: products on the subscription
+                items:
+                  properties:
+                    assignedEntitlements:
+                      description: entitlement quantity shared with the managed org
+                      example: 200
+                      type: integer
+                    product:
+                      example: Secure Access
+                      type: string
+                    productRegion:
+                      example: US WEST 2
+                      type: string
+                  type: object
+                type: array
+            type: object
+          type: array
+    AuditLog:
+      properties:
+        description:
+          example: User John doe logged in succesfully
+          type: string
+        deviceOs:
+          example: Windows 11
+          type: string
+        eventDetails:
+          example: John Doe successfully logged in from 192.168.0.1
+          type: string
+        eventType:
+          enum:
+            - user_login_success
+            - user_login_failure
+            - idp_user_created
+          example: user_login_success
+          type: string
+        id:
+          example: 9a13c96f-efcd-437f-9447-10ab50c4e9e2
+          format: uuid
+          type: string
+        timestamp:
+          description: ISO 8601 timestamp
+          example: '2024-01-15T12:00:00Z'
+          format: date-time
+          type: string
+        user:
+          example: john_doe@cisco.com
+          type: string
+      type: object
+    AuditLogRequest:
+      properties:
+        filters:
+          properties:
+            endDate:
+              description: Filter for events before this date (ISO 8601 format)
+              example: '2024-01-31T23:59:59Z'
+              format: date-time
+              type: string
+            eventType:
+              description: Filter by specific event types
+              example:
+                - user_login_success
+                - user_login_failure
+              items:
+                enum:
+                  - user_login_success
+                  - user_login_failure
+                  - idp_user_created
+                type: string
+              type: array
+            startDate:
+              description: Filter for events after this date (ISO 8601 format)
+              example: '2024-01-01T00:00:00Z'
+              format: date-time
+              type: string
+            user:
+              description: Filter by specific users
+              example:
+                - user1
+                - user2
+              items:
+                type: string
+              type: array
           type: object
-          allOf:
-            - $ref: '#/components/schemas/model.SKUActionType'
-        name:
-          type: string
-        quantity:
-          minimum: 1
-          type: integer
-    model.SKUActionType:
-      type: string
-      enum:
-        - add
-        - modify
-        - cancel
-        - no_change
-        - unknown
-      x-enum-varnames:
-        - SKUActionTypeAdd
-        - SKUActionTypeModify
-        - SKUActionTypeCancel
-        - SKUActionTypeNoChange
-        - SKUActionTypeUnknown
-    model.UpdateEntitlementsRequest:
-      type: object
-      properties:
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.UserSubscription'
-    model.UserSubscription:
-      type: object
-      properties:
-        id:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SKU'
-    model.SKU:
-      type: object
-      properties:
-        name:
-          type: string
-        quantity:
-          type: integer
-    model.UpdateEntitlementResponse:
-      type: object
-      properties:
-        endDate:
-          type: string
-        id:
-          type: string
-        licenseType:
-          type: string
-        provisioningErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProvisionedSubscription'
-    model.SubscriptionProvisioningError:
-      type: object
-      properties:
-        error:
-          type: string
-        subscriptionId:
-          type: string
-    model.ProvisionedSubscription:
-      type: object
-      properties:
-        id:
-          type: string
-        skus:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProvisionedSKU'
-    model.ProvisionedSKU:
-      type: object
-      properties:
-        name:
-          type: string
-        productInfo:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductInfo'
-    model.ProductInfo:
-      type: object
-      properties:
-        assignedEntitlements:
-          type: integer
-        product:
-          type: string
-        productRegion:
-          type: string
-    model.Error:
-      type: object
-      properties:
-        error:
-          type: string
-        message:
-          type: string
-    model.OrgEntitlements:
-      type: object
-      properties:
-        pagination:
-          $ref: '#/components/schemas/model.PaginationInfo'
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SubnSku'
-    model.PaginationInfo:
-      type: object
-      properties:
         limit:
+          default: 30
+          example: 30
           type: integer
-        offset:
+        page:
+          example: 1
           type: integer
-        totalRecords:
-          type: integer
-    model.SubnSku:
+        searchTerm:
+          example: find this string
+          type: string
+        sortBy:
+          default: timestamp:desc
+          example: timestamp:desc
+          type: string
       type: object
+    BulkInviteUsersRequestBody:
+      description: Represent request body for bulk invite operation
       properties:
-        endDate:
+        groupIds:
+          items:
+            type: string
+          type: array
+        roles:
+          items:
+            properties:
+              roleId:
+                type: string
+              tenantId:
+                type: string
+            type: object
+          type: array
+        users:
+          items:
+            properties:
+              email:
+                type: string
+              enterpriseRole:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
+              login:
+                type: string
+            required:
+              - firstname
+              - lastname
+              - email
+              - login
+            type: object
+          type: array
+      required:
+        - users
+        - groupIds
+        - roleIds
+      type: object
+    DefaultEnterprise:
+      properties:
+        createdAt:
+          format: date-time
           type: string
-        externalSubscriptionId:
+        enterpriseID:
+          format: uuid
           type: string
-        licenseType:
+        userID:
           type: string
-        skus:
+      type: object
+    DetailedEnterprise:
+      allOf:
+        - $ref: '#/components/schemas/Enterprise'
+        - properties:
+            country:
+              properties:
+                label:
+                  type: string
+                value:
+                  type: string
+              type: object
+            createdAt:
+              format: date-time
+              type: string
+            domains:
+              items:
+                $ref: '#/components/schemas/Domain'
+              type: array
+            id:
+              format: uuid
+              type: string
+            idps:
+              items:
+                $ref: '#/components/schemas/Idp'
+              type: array
+            name:
+              type: string
+            region:
+              properties:
+                label:
+                  type: string
+                value:
+                  type: string
+              type: object
+          required:
+            - id
+            - name
           type: object
-          additionalProperties:
-            $ref: '#/components/schemas/model.MspSku'
-    model.MspSku:
+      description: An extension of enterprise that contains more sensitive metadata that only an admin would be permitted to see.
       type: object
+    Domain:
       properties:
-        availableEntitlements:
-          type: integer
-        minEntitlementsQuantity:
-          type: integer
-        productsList:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductConf'
-        reservedEntitlements:
-          type: integer
-        sharedEntitlements:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.SharedEntitlement'
-        skuName:
+        domain:
+          $ref: '#/components/schemas/DomainName'
+        status:
+          $ref: '#/components/schemas/DomainStatus'
+      required:
+        - domain
+        - status
+      type: object
+    DomainName:
+      example: cisco.com
+      pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$
+      type: string
+    DomainStatus:
+      enum:
+        - pending
+        - verified
+      type: string
+    DomainValidationRequest:
+      properties:
+        domain:
+          $ref: '#/components/schemas/DomainName'
+        status:
+          $ref: '#/components/schemas/DomainStatus'
+        txtRecordValue:
+          format: uuid
           type: string
-    model.ProductConf:
+        txtRecrod:
+          example: _ciscosxsoverification.acme.com
+          type: string
+      required:
+        - domain
+        - txtRecord
+        - txtRecordValue
+        - status
       type: object
+    Enterprise:
+      description: Represents a specific enterprise, includes metadata all users associated with the enterprise would be permitted to see.
       properties:
-        activationStatus:
+        ManagedOrgIDs:
+          items:
+            format: uuid
+            type: string
+          type: array
+        ManagerOrgIDs:
+          items:
+            format: uuid
+            type: string
+          type: array
+        country:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        displayName:
+          type: string
+        id:
+          format: uuid
           type: string
         name:
-          type: string
-        operand:
-          type: integer
-        operator:
           type: string
         region:
-          type: string
-    model.SharedEntitlement:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+      required:
+        - id
+        - name
+        - displayName
+        - region
       type: object
+    EnterpriseCreation:
       properties:
-        assignedEntitlements:
-          type: integer
-        managedOrgId:
+        domain:
+          $ref: '#/components/schemas/DomainName'
+        name:
           type: string
-        productsList:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ProductConf'
-    EnterpriseSupportAccessStatusResponse:
+      required:
+        - name
+        - domain
       type: object
+    EnterpriseDomain:
       properties:
-        supportAccessAllowed:
-          type: boolean
-          default: false
-        supportAccessUntil:
+        domain:
+          $ref: '#/components/schemas/DomainName'
+        enterpriseId:
+          format: uuid
           type: string
-          format: date-time
-          default: '2024-07-10T16:04:03Z'
-    EnterpriseSupportAccessStatusRequest:
+      required:
+        - enterpriseId
+        - domain
       type: object
-      properties:
-        supportAccessUntil:
-          type: string
-          format: date-time
-          default: '2024-07-10T16:04:03Z'
     EnterpriseProduct:
-      type: object
       properties:
         productKey:
           type: string
         productName:
           type: string
         tenants:
-          type: array
           items:
-            type: object
+            properties:
+              productLaunchURL:
+                type: string
+              region:
+                type: string
+              tenantId:
+                format: uuid
+                type: string
             required:
               - tenantId
               - region
               - productLaunchURL
-            properties:
-              tenantId:
-                type: string
-                format: uuid
-              region:
-                type: string
-              productLaunchURL:
-                type: string
-    IDPGroupMapping:
-      type: object
-      properties:
-        enterpriseId:
-          type: string
-          format: uuid
-        idpId:
-          type: string
-          format: uuid
-        groupMappings:
-          type: array
-          items:
             type: object
-            required:
-              - idpGroupName
-              - rbacGroupId
-            properties:
-              idpGroupName:
-                type: string
-              rbacGroupId:
-                type: string
-                format: uuid
-    UpdatedIDPGroupMapping:
-      type: object
-      properties:
-        enterpriseId:
-          type: string
-          format: uuid
-        groupMappings:
           type: array
-          items:
-            type: object
-            required:
-              - idpGroupName
-              - rbacGroupId
-            properties:
-              idpGroupName:
-                type: string
-              idpId:
-                type: string
-                format: uuid
-              rbacGroupId:
-                type: string
-                format: uuid
-    IDPGroupMappingInput:
       type: object
-      description: Represent request body for idp group operation
-      required:
-        - groupMappings
+    EnterpriseSupportAccessStatusRequest:
       properties:
-        groupMappings:
-          type: array
-          items:
-            type: object
-            required:
-              - idpGroupName
-              - rbacGroupId
-            properties:
-              isExternalIdp:
-                type: boolean
-                default: false
-              idpGroupName:
-                type: string
-              idpId:
-                type: string
-                format: uuid
-              rbacGroupId:
-                type: string
-                format: uuid
-    ExternalIdpGroupMappingInput:
+        supportAccessUntil:
+          default: '2024-07-10T16:04:03Z'
+          format: date-time
+          type: string
       type: object
-      description: Request body for authorizedExternalIdps endpoint
+    EnterpriseSupportAccessStatusResponse:
       properties:
-        idpId:
+        supportAccessAllowed:
+          default: false
+          type: boolean
+        supportAccessUntil:
+          default: '2024-07-10T16:04:03Z'
+          format: date-time
           type: string
-          format: uuid
-    ExternalIdpGroupMappingCreateResponse:
       type: object
+    EnterpriseUser:
       properties:
-        idpId:
+        activated:
+          format: date-time
           type: string
-          format: uuid
-        enterpriseId:
+        cdoUserId:
           type: string
-          format: uuid
-        samlIdpIssuer:
+        created:
+          format: date-time
           type: string
-    ExternalIdpGroupMappingListResponse:
-      type: object
-      properties:
-        idpName:
-          type: string
-        idpId:
-          type: string
-          format: uuid
-        enterpriseId:
-          type: string
-          format: uuid
-        groupMappings:
-          type: array
-          items:
-            type: object
-            required:
-              - idpGroupName
-              - rbacGroupId
-            properties:
-              idpGroupName:
-                type: string
-              rbacGroupId:
-                type: string
-                format: uuid
-    RBACGroup:
-      type: object
-      description: RBAC user group
-      required:
-        - id
-        - name
-        - description
-        - enterpriseId
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        enterpriseId:
-          type: string
-          format: uuid
-        type:
-          type: string
+        credentialProviderType:
+          description: it is referencing same type as [provider object's type](https://developer.okta.com/docs/reference/api/users/#provider-object)
           enum:
-            - Local
-            - Federated
-          description: Specifies whether the group is local or federated
-    DefaultEnterprise:
-      type: object
-      properties:
-        userID:
+            - OKTA
+            - ACTIVE_DIRECTORY
+            - LDAP
+            - FEDERATION
+            - SOCIAL
+            - IMPORT
           type: string
-        enterpriseID:
-          type: string
-          format: uuid
-        createdAt:
-          format: date-time
-          type: string
-    AddEnterpriseAdminRequestBody:
-      type: object
-      description: Represent request body for adding enterprise admin
-      required:
-        - userId
-      properties:
-        userId:
-          type: string
-          format: uuid
-    UpdateEnterpriseRequestBody:
-      type: object
-      description: Represent request body for updating enterprise name, displayName and region, required to have at least one param
-      properties:
-        name:
-          type: string
-        displayName:
-          type: string
-        region:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        country:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-    DomainName:
-      type: string
-      pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$
-      example: cisco.com
-    DomainStatus:
-      type: string
-      enum:
-        - pending
-        - verified
-    Enterprise:
-      type: object
-      description: Represents a specific enterprise, includes metadata all users associated with the enterprise would be permitted to see.
-      required:
-        - id
-        - name
-        - displayName
-        - region
-      properties:
+        disabledBy:
+          $ref: '#/components/schemas/ResponsibleActor'
         id:
           type: string
-          format: uuid
-        name:
-          type: string
-        displayName:
-          type: string
-        region:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        country:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        createdAt:
-          format: date-time
-          type: string
-        ManagerOrgIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-        ManagedOrgIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-    UserEnterprise:
-      type: object
-      description: Represents an enterprise and the requesting users role in it
-      required:
-        - id
-        - name
-        - userRole
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        displayName:
-          type: string
-        userRole:
-          type: string
-        region:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        country:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        createdAt:
-          format: date-time
-          type: string
-        managerOrgIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-        managedOrgIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-        isManager:
+        isAdmin:
+          default: false
           type: boolean
-    DetailedEnterprise:
-      type: object
-      description: An extension of enterprise that contains more sensitive metadata that only an admin would be permitted to see.
-      allOf:
-        - $ref: '#/components/schemas/Enterprise'
-        - type: object
-          required:
-            - id
-            - name
-          properties:
-            id:
-              type: string
-              format: uuid
-            name:
-              type: string
-            domains:
-              type: array
-              items:
-                $ref: '#/components/schemas/Domain'
-            idps:
-              type: array
-              items:
-                $ref: '#/components/schemas/Idp'
-            region:
-              type: object
-              properties:
-                label:
-                  type: string
-                value:
-                  type: string
-            country:
-              type: object
-              properties:
-                label:
-                  type: string
-                value:
-                  type: string
-            createdAt:
-              format: date-time
-              type: string
-    EnterpriseCreation:
-      type: object
-      required:
-        - name
-        - domain
-      properties:
-        name:
+        lastLogin:
+          format: date-time
           type: string
-        domain:
-          $ref: '#/components/schemas/DomainName'
-    Domain:
-      type: object
+        lastUpdated:
+          format: date-time
+          type: string
+        passwordChanged:
+          format: date-time
+          type: string
+        profile:
+          $ref: '#/components/schemas/EnterpriseUserProfile'
+        status:
+          enum:
+            - STAGED
+            - PROVISIONED
+            - ACTIVE
+            - RECOVERY
+            - PASSWORD_EXPIRED
+            - LOCKED_OUT
+            - SUSPENDED
+            - DEPROVISIONED
+            - ENTERPRISE_DISABLED
+          type: string
+        statusChanged:
+          format: date-time
+          type: string
       required:
-        - domain
+        - id
         - status
-      properties:
-        domain:
-          $ref: '#/components/schemas/DomainName'
-        status:
-          $ref: '#/components/schemas/DomainStatus'
-    DomainValidationRequest:
+        - profile
       type: object
-      required:
-        - domain
-        - txtRecord
-        - txtRecordValue
-        - status
-      properties:
-        domain:
-          $ref: '#/components/schemas/DomainName'
-        status:
-          $ref: '#/components/schemas/DomainStatus'
-        txtRecrod:
-          type: string
-          example: _ciscosxsoverification.acme.com
-        txtRecordValue:
-          type: string
-          format: uuid
-    EnterpriseDomain:
-      type: object
-      required:
-        - enterpriseId
-        - domain
-      properties:
-        enterpriseId:
-          type: string
-          format: uuid
-        domain:
-          $ref: '#/components/schemas/DomainName'
-    MappingsIdPMigrationRequestBody:
-      type: object
-      required:
-        - productInstanceId
-        - groupMappings
-      properties:
-        productInstanceId:
-          type: string
-          format: uuid
-          description: This product instance must exist for the enterprise being requested and be for the product mention in the scope.
-        idPId:
-          type: string
-          format: uuid
-          description: If this IdP belongs the enterprise being requested then the groups are construed to be internal or else external.
-        groupMappings:
-          type: array
-          items:
-            type: object
-            required:
-              - idpGroupName
-              - samlIdPIssuer
-              - roles
-            properties:
-              idpGroupName:
-                type: string
-                description: Group name must be within 128 characters and may allow specialy characters like hyphens, comma, and underscores but not others.
-              adIdpGroupId:
-                type: string
-                format: uuid
-              samlIdPIssuer:
-                type: string
-              roles:
-                type: array
-                items:
-                  type: string
-                  description: Role name that's actually a scope in CDO that the user will be recognized for in CDO. A static role for CDO with this scope needs to exist in Prometheus DB.
-    MappingsIdPMigrationResponseBody:
-      type: object
-      required:
-        - enterpriseId
-        - productInstanceId
-        - groupMappings
-      properties:
-        enterpriseId:
-          type: string
-          format: uuid
-        productInstanceId:
-          type: string
-          format: uuid
-        idpId:
-          type: string
-          format: uuid
-        groupMappings:
-          type: array
-          items:
-            type: object
-            required:
-              - idpGroupName
-              - rbacGroupId
-              - roles
-            properties:
-              idpGroupName:
-                type: string
-              samlIdpIssuer:
-                type: string
-              rbacGroupId:
-                type: string
-                format: uuid
-              rbacGroupName:
-                type: string
-              roles:
-                type: array
-                items:
-                  type: string
-    Idp:
-      type: object
-      required:
-        - id
-        - inputs
-        - outputs
-      properties:
-        id:
-          type: string
-          format: uuid
-        inputs:
-          $ref: '#/components/schemas/IdpInputs'
-        outputs:
-          $ref: '#/components/schemas/IdpOutputs'
-    IdpInputs:
-      type: object
-      required:
-        - idpName
-        - idpType
-        - requireMfa
-        - domain
-      properties:
-        idpName:
-          type: string
-        idpType:
-          type: string
-        requireMfa:
-          type: boolean
-        domain:
-          $ref: '#/components/schemas/DomainName'
-        metadataFile:
-          type: string
-        acsUrl:
-          type: string
-        audienceUrl:
-          type: string
-        cert:
-          type: string
-    IdpOutputs:
-      type: object
-      required:
-        - acsUrl
-        - audienceUrl
-        - cert
-        - metadataUrl
-        - isEnabled
-      properties:
-        acsUrl:
-          type: string
-        audienceUrl:
-          type: string
-        cert:
-          type: string
-        metadataUrl:
-          type: string
-        isEnabled:
-          type: boolean
-    IdpStatus:
-      type: object
-      required:
-        - id
-        - isEnabled
-      properties:
-        id:
-          type: string
-          format: uuid
-        isEnabled:
-          type: boolean
-    InitialUser:
-      properties:
-        id:
-          type: string
-        pendingDomains:
-          items:
-            $ref: '#/components/schemas/PendingDomain'
-          type: array
-      required:
-        - id
-      type: object
-    PendingDomain:
-      properties:
-        createdAt:
-          format: date-time
-          type: string
-        domain:
-          type: string
-        entityID:
-          type: string
-        expiresAt:
-          format: date-time
-          type: string
-        status:
-          $ref: '#/components/schemas/DomainStatus'
-        txtRecord:
-          example: _ciscosxsoverification.acme.com
-          type: string
-        txtRecordValue:
-          format: uuid
-          type: string
-      required:
-        - entityID
-        - domain
-      type: object
-    User:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          format: email
-        domains:
-          type: array
-          items:
-            $ref: '#/components/schemas/Domain'
-        managedBy:
-          description: if the user is managed by an enterprise, this will be populated with that enterprise reference
-          oneOf:
-            - type: object
-              nullable: true
-            - $ref: '#/components/schemas/Enterprise'
-        adminOf:
-          description: Enterprises that user is authorized to administer
-          type: array
-          items:
-            $ref: '#/components/schemas/DetailedEnterprise'
-    ManagerRelationship:
-      properties:
-        id:
-          type: string
-          description: id of the org
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        name:
-          type: string
-          description: name of the org
-          example: CDk Ltd
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedSubscriptions'
-          example:
-            - id: subs20251011
-              skus:
-                - key: BPT-SEC-ESS
-                  productInfo:
-                    - product: Cisco XDR
-                      productRegion: US-WEST-2
-                      assignedEntitlements: 200
-                    - product: Cisco Secure Endpoint
-                      productRegion: GLOBAL
-                      assignedEntitlements: 200
-                    - product: Cisco Secure Email Threat Defense
-                      productRegion: GLOBAL
-                      assignedEntitlements: 200
-        assigned_admins:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedAdmins'
-        assigned_groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedGroups'
-          example:
-            - id: 6280494d-dd0f-4655-b558-d36ce9a10655
-              name: Group A
-    organizationsRelationship:
-      properties:
-        id:
-          type: string
-          description: id of the org
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        name:
-          type: string
-          description: name of the org
-          example: Test Enterprise
-        region:
-          type: object
-          properties:
-            label:
-              type: string
-              example: North America
-            value:
-              type: string
-              example: NAM
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedSubscriptions'
-          example:
-            - id: subs20251011
-              skus:
-                - key: BPT-SEC-ESS
-                  productInfo:
-                    - product: Cisco XDR
-                      productRegion: US-WEST-2
-                      assignedEntitlements: 200
-                    - product: Cisco Secure Endpoint
-                      productRegion: GLOBAL
-                      assignedEntitlements: 200
-                    - product: Cisco Secure Email Threat Defense
-                      productRegion: GLOBAL
-                      assignedEntitlements: 200
-        assigned_admins:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedAdmins'
-        assigned_groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedGroups'
-          example:
-            - id: 6280494d-dd0f-4655-b558-d36ce9a10655
-              name: Group A
-    PostManagedRelationshipResponse:
-      properties:
-        id:
-          type: string
-          description: id of the org
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        name:
-          type: string
-          description: name of the org
-          example: Test Enterprise
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssignedSubscriptions'
-    OrgDetails:
-      properties:
-        id:
-          type: string
-          description: id of the org
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        name:
-          type: string
-          description: name of the org
-          example: Test Enterprise
-    AssignedSubscriptions:
-      properties:
-        id:
-          type: string
-          description: id of the subscription
-          example: subs20251011
-        skus:
-          type: array
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                example: XDR-ESS
-              productsInfo:
-                type: array
-                description: products on the subscription
-                items:
-                  type: object
-                  properties:
-                    product:
-                      type: string
-                      example: Secure Access
-                    productRegion:
-                      type: string
-                      example: US WEST 2
-                    assignedEntitlements:
-                      type: integer
-                      description: entitlement quantity shared with the managed org
-                      example: 200
-    AssignedAdmins:
-      properties:
-        id:
-          type: string
-          description: id of the admin
-          example: 00u251alpxbbASGcC0h8
-        name:
-          type: string
-          description: name of the assigned admin
-          example: John Doe
-        email:
-          type: string
-          description: email of the assigned admin
-          example: john.doe@xyz.com
-    AssignedGroups:
-      properties:
-        id:
-          type: string
-          description: id of the group
-          example: 6280494d-dd0f-4655-b558-d36ce9a10655
-        name:
-          type: string
-          description: name of the assigned group
-          example: Group A
-    EntitlementShareRequest:
-      properties:
-        managed_orgs:
-          type: array
-          items:
-            $ref: '#/components/schemas/EntitlementManagedOrg'
-          example:
-            - id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-              subscriptions:
-                - id: subs20250110
-                  skus:
-                    - key: BPT-SEC
-                      quantity: 200
-                    - key: XDR-ESS
-                      quantity: 200
-                - id: subs20250111
-                  skus: []
-            - id: 3c74e892-f39d-47e6-8299-5759d941c053
-              subscriptions:
-                - id: subs20250110
-                  skus:
-                    - key: BPT-SEC
-                      quantity: 200
-                    - key: XDR-ESS
-                      quantity: 100
-                - id: subs20250113
-                  skus:
-                    - key: UPT-SEC-ESS
-                      quantity: 200
-      type: object
-    EntitlementManagedOrg:
-      properties:
-        id:
-          type: string
-          description: id of the managed org
-          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/EntitlementSubscription'
-      example:
-        id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
-        subscriptions:
-          - id: subs20250110
-            skus:
-              - key: BPT-SEC
-                quantity: 200
-              - key: XDR-ESS
-                quantity: 100
-          - id: subs20250111
-            skus:
-              - key: UPT-SEC-ESS
-                quantity: 200
-      required:
-        - id
-    EntitlementSubscription:
-      properties:
-        id:
-          type: string
-          description: subscription id
-          example: subs20250110
-        skus:
-          type: array
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                example: XDR-ESS
-              quantity:
-                type: integer
-                example: 200
-      type: object
-    ResponsibleActor:
-      type: object
-      required:
-        - id
-        - disabledAt
-        - firstName
-        - lastName
-      properties:
-        id:
-          type: string
-          format: uuid
-        disabledAt:
-          type: string
-          format: date-time
-        firstName:
-          type: string
-        lastName:
-          type: string
     EnterpriseUserFactor:
       properties:
         created:
@@ -2307,708 +529,1839 @@ components:
         - lastUpdated
       type: object
     EnterpriseUserProfile:
-      type: object
-      required:
-        - firstName
-        - lastName
-        - login
-        - email
       properties:
+        email:
+          type: string
         firstName:
           type: string
         lastName:
           type: string
         login:
           type: string
-        email:
-          type: string
         mobilePhone:
           type: string
         secondEmail:
           type: string
-    AuditLogRequest:
+      required:
+        - firstName
+        - lastName
+        - login
+        - email
       type: object
-      properties:
-        page:
-          type: integer
-          example: 1
-        limit:
-          type: integer
-          default: 30
-          example: 30
-        searchTerm:
-          type: string
-          example: find this string
-        filters:
-          type: object
-          properties:
-            eventType:
-              type: array
-              items:
-                type: string
-                enum:
-                  - user_login_success
-                  - user_login_failure
-                  - idp_user_created
-              description: Filter by specific event types
-              example:
-                - user_login_success
-                - user_login_failure
-            user:
-              type: array
-              items:
-                type: string
-              description: Filter by specific users
-              example:
-                - user1
-                - user2
-            startDate:
-              type: string
-              format: date-time
-              description: Filter for events after this date (ISO 8601 format)
-              example: '2024-01-01T00:00:00Z'
-            endDate:
-              type: string
-              format: date-time
-              description: Filter for events before this date (ISO 8601 format)
-              example: '2024-01-31T23:59:59Z'
-        sortBy:
-          type: string
-          default: timestamp:desc
-          example: timestamp:desc
-    AuditLog:
-      type: object
+    EntitlementManagedOrg:
+      example:
+        id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+        subscriptions:
+          - id: subs20250110
+            skus:
+              - key: BPT-SEC
+                quantity: 200
+              - key: XDR-ESS
+                quantity: 100
+          - id: subs20250111
+            skus:
+              - key: UPT-SEC-ESS
+                quantity: 200
       properties:
         id:
+          description: id of the managed org
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
           type: string
-          format: uuid
-          example: 9a13c96f-efcd-437f-9447-10ab50c4e9e2
-        eventType:
-          type: string
-          enum:
-            - user_login_success
-            - user_login_failure
-            - idp_user_created
-          example: user_login_success
-        timestamp:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp
-          example: '2024-01-15T12:00:00Z'
-        user:
-          type: string
-          example: john_doe@cisco.com
-        description:
-          type: string
-          example: User John doe logged in succesfully
-        eventDetails:
-          type: string
-          example: John Doe successfully logged in from 192.168.0.1
-        deviceOs:
-          type: string
-          example: Windows 11
-    LogoutEvent:
-      type: object
-      properties:
-        ipaddress:
-          type: string
-          format: ipv4
-          description: IP address of the user
-      required:
-        - ipaddress
-    UIAppScopeRepresentation:
-      type: object
-      description: Description for UIAppScopeRepresentation
-      required:
-        - applicationScope
-      properties:
-        applicationScope:
-          type: string
-    UpdateApplicationScopeForAllCustomRolesInput:
-      type: object
-      description: The payload for the update CSW custom role application scope
-      required:
-        - applicationScope
-      properties:
-        applicationScope:
-          type: string
-    RBACCustomRoleHttpGetResp:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        enterpriseId:
-          type: string
-          format: uuid
-        productId:
-          type: integer
-        product:
-          type: string
-          description: The name of the product
-        productKey:
-          type: string
-        roleDisplayName:
-          type: string
-        roleDescription:
-          type: string
-        scopes:
-          type: array
+        subscriptions:
           items:
-            type: string
-    RBACCustomRole:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        enterpriseId:
-          type: string
-          format: uuid
-        productId:
-          type: integer
-        roleDisplayName:
-          type: string
-        roleDescription:
-          type: string
-        scopes:
+            $ref: '#/components/schemas/EntitlementSubscription'
           type: array
-          items:
-            type: string
-    RBACCustomRoleInput:
-      type: object
-      properties:
-        product:
-          type: string
-        roleDisplayName:
-          type: string
-        roleDescription:
-          type: string
-        scopes:
-          type: array
-          items:
-            type: string
-        applicationScopeIdToScope:
-          type: object
-          properties:
-            applicationScope:
-              type: string
-            scopes:
-              type: array
-              items:
-                type: string
-    RBACCustomRoleProductPermission:
-      type: object
-      properties:
-        productId:
-          type: integer
-        scope:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-    RBACCustomRoleProductPermissionCreateInput:
-      type: object
-      properties:
-        scope:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-    RBACCustomRoleProductPermissionPutInput:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-    RBACCustomRoleProduct:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        productKey:
-          type: string
-    RBACUserRole:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        product:
-          type: string
-        productKey:
-          type: string
-        roleDisplayName:
-          type: string
-        roleDescription:
-          type: string
-        delegatable:
-          type: boolean
-    RBACGroupInputRequestBody:
-      type: object
-      description: Represent request body for RBAC user group
-      required:
-        - name
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        type:
-          type: string
-          enum:
-            - Local
-            - Federated
-          description: Specifies whether the group is local or federated. Defaults to Local
-    RBACUserAssignmentGroup:
-      type: object
-      description: Represent entity of RBAC user group assignment
       required:
         - id
-        - userId
-        - enterpriseId
-        - groupId
+    EntitlementShareRequest:
+      properties:
+        managed_orgs:
+          example:
+            - id: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+              subscriptions:
+                - id: subs20250110
+                  skus:
+                    - key: BPT-SEC
+                      quantity: 200
+                    - key: XDR-ESS
+                      quantity: 200
+                - id: subs20250111
+                  skus: []
+            - id: 3c74e892-f39d-47e6-8299-5759d941c053
+              subscriptions:
+                - id: subs20250110
+                  skus:
+                    - key: BPT-SEC
+                      quantity: 200
+                    - key: XDR-ESS
+                      quantity: 100
+                - id: subs20250113
+                  skus:
+                    - key: UPT-SEC-ESS
+                      quantity: 200
+          items:
+            $ref: '#/components/schemas/EntitlementManagedOrg'
+          type: array
+      type: object
+    EntitlementSubscription:
       properties:
         id:
+          description: subscription id
+          example: subs20250110
           type: string
-          format: uuid
-        userId:
-          type: string
-        enterpriseId:
-          type: string
-          format: uuid
-        groupId:
-          type: string
-          format: uuid
-    GroupAssignmentIdInput:
-      type: string
-      format: uuid
-    RBACUserAssignmentRole:
-      type: object
-      description: Represent entity of RBAC user role assignment
-      required:
-        - id
-        - userId
-        - enterpriseId
-        - tenantId
-        - roleId
-      properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-        enterpriseId:
-          type: string
-          format: uuid
-        tenantId:
-          type: string
-          format: uuid
-        roleId:
-          type: string
-          format: uuid
-    RoleAssignmentIdInput:
-      type: object
-      description: role and its tenant id input
-      required:
-        - roleId
-        - tenantId
-      properties:
-        roleId:
-          type: string
-          format: uuid
-        tenantId:
-          type: string
-          format: uuid
-    RBACGroupAssignmentRole:
-      type: object
-      description: Represent entity of RBAC group role assignment
-      required:
-        - id
-        - groupId
-        - roleId
-        - tenantId
-      properties:
-        id:
-          type: string
-          format: uuid
-        groupId:
-          type: string
-          format: uuid
-        roleId:
-          type: string
-          format: uuid
-        tenantId:
-          type: string
-          format: uuid
-    RBACListGroupsWithRelations:
-      type: array
-      items:
-        type: object
-        properties:
-          rbacGroup:
-            type: object
+        skus:
+          items:
             properties:
-              id:
+              key:
+                example: XDR-ESS
                 type: string
-              name:
-                type: string
-              description:
-                type: string
-              enterpriseId:
-                type: string
-          mappedRoles:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  type: string
-                groupId:
-                  type: string
-                roleId:
-                  type: string
-    BulkInviteUsersRequestBody:
-      type: object
-      description: Represent request body for bulk invite operation
-      required:
-        - users
-        - groupIds
-        - roleIds
-      properties:
-        users:
-          type: array
-          items:
+              quantity:
+                example: 200
+                type: integer
             type: object
+          type: array
+      type: object
+    Error:
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+      type: object
+    ExternalIdpGroupMappingCreateResponse:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        idpId:
+          format: uuid
+          type: string
+        samlIdpIssuer:
+          type: string
+      type: object
+    ExternalIdpGroupMappingInput:
+      description: Request body for authorizedExternalIdps endpoint
+      properties:
+        idpId:
+          format: uuid
+          type: string
+      type: object
+    ExternalIdpGroupMappingListResponse:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        groupMappings:
+          items:
+            properties:
+              idpGroupName:
+                type: string
+              rbacGroupId:
+                format: uuid
+                type: string
             required:
-              - firstname
-              - lastname
-              - email
-              - login
-            properties:
-              firstName:
-                type: string
-              lastName:
-                type: string
-              email:
-                type: string
-              login:
-                type: string
-              enterpriseRole:
-                type: string
-        groupIds:
+              - idpGroupName
+              - rbacGroupId
+            type: object
           type: array
+        idpId:
+          format: uuid
+          type: string
+        idpName:
+          type: string
+      type: object
+    GroupAssignmentIdInput:
+      format: uuid
+      type: string
+    IDPGroupMapping:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        groupMappings:
+          items:
+            properties:
+              idpGroupName:
+                type: string
+              rbacGroupId:
+                format: uuid
+                type: string
+            required:
+              - idpGroupName
+              - rbacGroupId
+            type: object
+          type: array
+        idpId:
+          format: uuid
+          type: string
+      type: object
+    IDPGroupMappingInput:
+      description: Represent request body for idp group operation
+      properties:
+        groupMappings:
+          items:
+            properties:
+              idpGroupName:
+                type: string
+              idpId:
+                format: uuid
+                type: string
+              isExternalIdp:
+                default: false
+                type: boolean
+              rbacGroupId:
+                format: uuid
+                type: string
+            required:
+              - idpGroupName
+              - rbacGroupId
+            type: object
+          type: array
+      required:
+        - groupMappings
+      type: object
+    Idp:
+      properties:
+        id:
+          format: uuid
+          type: string
+        inputs:
+          $ref: '#/components/schemas/IdpInputs'
+        outputs:
+          $ref: '#/components/schemas/IdpOutputs'
+      required:
+        - id
+        - inputs
+        - outputs
+      type: object
+    IdpInputs:
+      properties:
+        acsUrl:
+          type: string
+        audienceUrl:
+          type: string
+        cert:
+          type: string
+        domain:
+          $ref: '#/components/schemas/DomainName'
+        idpName:
+          type: string
+        idpType:
+          type: string
+        metadataFile:
+          type: string
+        requireMfa:
+          type: boolean
+      required:
+        - idpName
+        - idpType
+        - requireMfa
+        - domain
+      type: object
+    IdpOutputs:
+      properties:
+        acsUrl:
+          type: string
+        audienceUrl:
+          type: string
+        cert:
+          type: string
+        isEnabled:
+          type: boolean
+        metadataUrl:
+          type: string
+      required:
+        - acsUrl
+        - audienceUrl
+        - cert
+        - metadataUrl
+        - isEnabled
+      type: object
+    IdpStatus:
+      properties:
+        id:
+          format: uuid
+          type: string
+        isEnabled:
+          type: boolean
+      required:
+        - id
+        - isEnabled
+      type: object
+    InitialUser:
+      properties:
+        id:
+          type: string
+        pendingDomains:
+          items:
+            $ref: '#/components/schemas/PendingDomain'
+          type: array
+      required:
+        - id
+      type: object
+    InviteUsersResponseBody:
+      description: Represent response body for bulk invite or invite via file operation
+      properties:
+        errors:
           items:
             type: string
-        roles:
           type: array
-          items:
-            type: object
-            properties:
-              roleId:
-                type: string
-              tenantId:
-                type: string
-    InviteUsersResponseBody:
-      type: object
-      description: Represent response body for bulk invite or invite via file operation
-      required:
-        - invitedUsersCount
-      properties:
         invitedUsersCount:
           type: integer
-        errors:
-          type: array
-          items:
-            type: string
-    EnterpriseUser:
-      type: object
       required:
-        - id
-        - status
-        - profile
+        - invitedUsersCount
+      type: object
+    LogoutEvent:
+      properties:
+        ipaddress:
+          description: IP address of the user
+          format: ipv4
+          type: string
+      required:
+        - ipaddress
+      type: object
+    ManagerRelationship:
+      properties:
+        assigned_admins:
+          items:
+            $ref: '#/components/schemas/AssignedAdmins'
+          type: array
+        assigned_groups:
+          example:
+            - id: 6280494d-dd0f-4655-b558-d36ce9a10655
+              name: Group A
+          items:
+            $ref: '#/components/schemas/AssignedGroups'
+          type: array
+        id:
+          description: id of the org
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+          type: string
+        name:
+          description: name of the org
+          example: CDk Ltd
+          type: string
+        subscriptions:
+          example:
+            - id: subs20251011
+              skus:
+                - key: BPT-SEC-ESS
+                  productInfo:
+                    - assignedEntitlements: 200
+                      product: Cisco XDR
+                      productRegion: US-WEST-2
+                    - assignedEntitlements: 200
+                      product: Cisco Secure Endpoint
+                      productRegion: GLOBAL
+                    - assignedEntitlements: 200
+                      product: Cisco Secure Email Threat Defense
+                      productRegion: GLOBAL
+          items:
+            $ref: '#/components/schemas/AssignedSubscriptions'
+          type: array
+    MappingsIdPMigrationRequestBody:
+      properties:
+        groupMappings:
+          items:
+            properties:
+              adIdpGroupId:
+                format: uuid
+                type: string
+              idpGroupName:
+                description: Group name must be within 128 characters and may allow specialy characters like hyphens, comma, and underscores but not others.
+                type: string
+              roles:
+                items:
+                  description: Role name that's actually a scope in CDO that the user will be recognized for in CDO. A static role for CDO with this scope needs to exist in Prometheus DB.
+                  type: string
+                type: array
+              samlIdPIssuer:
+                type: string
+            required:
+              - idpGroupName
+              - samlIdPIssuer
+              - roles
+            type: object
+          type: array
+        idPId:
+          description: If this IdP belongs the enterprise being requested then the groups are construed to be internal or else external.
+          format: uuid
+          type: string
+        productInstanceId:
+          description: This product instance must exist for the enterprise being requested and be for the product mention in the scope.
+          format: uuid
+          type: string
+      required:
+        - productInstanceId
+        - groupMappings
+      type: object
+    MappingsIdPMigrationResponseBody:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        groupMappings:
+          items:
+            properties:
+              idpGroupName:
+                type: string
+              rbacGroupId:
+                format: uuid
+                type: string
+              rbacGroupName:
+                type: string
+              roles:
+                items:
+                  type: string
+                type: array
+              samlIdpIssuer:
+                type: string
+            required:
+              - idpGroupName
+              - rbacGroupId
+              - roles
+            type: object
+          type: array
+        idpId:
+          format: uuid
+          type: string
+        productInstanceId:
+          format: uuid
+          type: string
+      required:
+        - enterpriseId
+        - productInstanceId
+        - groupMappings
+      type: object
+    OrgDetails:
       properties:
         id:
+          description: id of the org
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
           type: string
-        cdoUserId:
+        name:
+          description: name of the org
+          example: Test Enterprise
           type: string
-        status:
-          type: string
-          enum:
-            - STAGED
-            - PROVISIONED
-            - ACTIVE
-            - RECOVERY
-            - PASSWORD_EXPIRED
-            - LOCKED_OUT
-            - SUSPENDED
-            - DEPROVISIONED
-            - ENTERPRISE_DISABLED
-        created:
-          type: string
-          format: date-time
-        activated:
-          type: string
-          format: date-time
-        statusChanged:
-          type: string
-          format: date-time
-        lastLogin:
-          type: string
-          format: date-time
-        lastUpdated:
-          type: string
-          format: date-time
-        passwordChanged:
-          type: string
-          format: date-time
-        isAdmin:
-          type: boolean
-          default: false
-        disabledBy:
-          $ref: '#/components/schemas/ResponsibleActor'
-        credentialProviderType:
-          type: string
-          enum:
-            - OKTA
-            - ACTIVE_DIRECTORY
-            - LDAP
-            - FEDERATION
-            - SOCIAL
-            - IMPORT
-          description: it is referencing same type as [provider object's type](https://developer.okta.com/docs/reference/api/users/#provider-object)
-        profile:
-          $ref: '#/components/schemas/EnterpriseUserProfile'
-    UserEnumerationRepsBody:
-      type: object
-      required:
-        - user
-        - securityCloud
-      properties:
-        user:
-          $ref: '#/components/schemas/EnterpriseUser'
-        securityCloud:
-          type: array
-          items:
-            type: string
     PaginationSegment:
-      type: object
       description: General pagination segment
+      properties:
+        currentPage:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
       required:
         - pageSize
         - currentPage
         - totalPages
         - totalItems
-      properties:
-        pageSize:
-          type: integer
-        currentPage:
-          type: integer
-        totalPages:
-          type: integer
-        totalItems:
-          type: integer
-    UserSettings:
       type: object
+    PendingDomain:
       properties:
-        visualMode:
+        createdAt:
+          format: date-time
           type: string
+        domain:
+          type: string
+        entityID:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/DomainStatus'
+        txtRecord:
+          example: _ciscosxsoverification.acme.com
+          type: string
+        txtRecordValue:
+          format: uuid
+          type: string
+      required:
+        - entityID
+        - domain
+      type: object
+    PostManagedRelationshipResponse:
+      properties:
+        id:
+          description: id of the org
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+          type: string
+        name:
+          description: name of the org
+          example: Test Enterprise
+          type: string
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/AssignedSubscriptions'
+          type: array
+    RBACCustomRole:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        productId:
+          type: integer
+        roleDescription:
+          type: string
+        roleDisplayName:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      type: object
+    RBACCustomRoleHttpGetResp:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        product:
+          description: The name of the product
+          type: string
+        productId:
+          type: integer
+        productKey:
+          type: string
+        roleDescription:
+          type: string
+        roleDisplayName:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      type: object
+    RBACCustomRoleInput:
+      properties:
+        applicationScopeIdToScope:
+          properties:
+            applicationScope:
+              type: string
+            scopes:
+              items:
+                type: string
+              type: array
+          type: object
+        product:
+          type: string
+        roleDescription:
+          type: string
+        roleDisplayName:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      type: object
+    RBACCustomRoleProduct:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        productKey:
+          type: string
+      type: object
+    RBACCustomRoleProductPermission:
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        productId:
+          type: integer
+        scope:
+          type: string
+      type: object
+    RBACCustomRoleProductPermissionCreateInput:
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        scope:
+          type: string
+      type: object
+    RBACCustomRoleProductPermissionPutInput:
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+      type: object
+    RBACGroup:
+      description: RBAC user group
+      properties:
+        description:
+          type: string
+        enterpriseId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        name:
+          type: string
+        type:
+          description: Specifies whether the group is local or federated
           enum:
-            - light
-            - dark
-          description: Defines if the UI should display light or dark mode
-        timeZone:
+            - Local
+            - Federated
           type: string
-          description: The preferred time zone for displaying times in the UI
+      required:
+        - id
+        - name
+        - description
+        - enterpriseId
+      type: object
+    RBACGroupAssignmentRole:
+      description: Represent entity of RBAC group role assignment
+      properties:
+        groupId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        roleId:
+          format: uuid
+          type: string
+        tenantId:
+          format: uuid
+          type: string
+      required:
+        - id
+        - groupId
+        - roleId
+        - tenantId
+      type: object
+    RBACGroupInputRequestBody:
+      description: Represent request body for RBAC user group
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        type:
+          description: Specifies whether the group is local or federated. Defaults to Local
+          enum:
+            - Local
+            - Federated
+          type: string
+      required:
+        - name
+      type: object
+    RBACListGroupsWithRelations:
+      items:
+        properties:
+          mappedRoles:
+            items:
+              properties:
+                groupId:
+                  type: string
+                id:
+                  type: string
+                roleId:
+                  type: string
+              type: object
+            type: array
+          rbacGroup:
+            properties:
+              description:
+                type: string
+              enterpriseId:
+                type: string
+              id:
+                type: string
+              name:
+                type: string
+            type: object
+        type: object
+      type: array
     RBACSharedGroupEnterpriseAssignment:
       properties:
         groupId:
-          type: string
           description: UUID of the group.
+          type: string
         managedOrgs:
-          type: array
           items:
             properties:
-              id:
+              enterpriseRole:
+                enum:
+                  - Administrator
+                example: Administrator
                 type: string
+              id:
                 format: uuid
+                type: string
               name:
                 type: string
               region:
-                type: object
                 properties:
                   label:
                     type: string
                   value:
                     type: string
-              enterpriseRole:
-                type: string
-                enum:
-                  - Administrator
-                example: Administrator
+                type: object
+          type: array
         managerOrgs:
-          type: array
           items:
             properties:
-              id:
+              enterpriseRole:
+                enum:
+                  - Administrator
+                example: Administrator
                 type: string
+              id:
                 format: uuid
+                type: string
               name:
                 type: string
               region:
-                type: object
                 properties:
                   label:
                     type: string
                   value:
                     type: string
-              enterpriseRole:
-                type: string
-                enum:
-                  - Administrator
-                example: Administrator
-    SharedGroupAccessInput:
+                type: object
+          type: array
+    RBACUserAssignmentGroup:
+      description: Represent entity of RBAC user group assignment
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        groupId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        userId:
+          type: string
+      required:
+        - id
+        - userId
+        - enterpriseId
+        - groupId
       type: object
+    RBACUserAssignmentRole:
+      description: Represent entity of RBAC user role assignment
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        roleId:
+          format: uuid
+          type: string
+        tenantId:
+          format: uuid
+          type: string
+        userId:
+          type: string
+      required:
+        - id
+        - userId
+        - enterpriseId
+        - tenantId
+        - roleId
+      type: object
+    RBACUserRole:
+      properties:
+        delegatable:
+          type: boolean
+        id:
+          format: uuid
+          type: string
+        name:
+          type: string
+        product:
+          type: string
+        productKey:
+          type: string
+        roleDescription:
+          type: string
+        roleDisplayName:
+          type: string
+      type: object
+    ResponsibleActor:
+      properties:
+        disabledAt:
+          format: date-time
+          type: string
+        firstName:
+          type: string
+        id:
+          format: uuid
+          type: string
+        lastName:
+          type: string
+      required:
+        - id
+        - disabledAt
+        - firstName
+        - lastName
+      type: object
+    RoleAssignmentIdInput:
+      description: role and its tenant id input
+      properties:
+        roleId:
+          format: uuid
+          type: string
+        tenantId:
+          format: uuid
+          type: string
+      required:
+        - roleId
+        - tenantId
+      type: object
+    SharedGroupAccessInput:
       description: Represent request body for assigning shared group of manager enterprise to managed enterprise
+      properties:
+        groupIds:
+          example:
+            - 6280494d-dd0f-4655-b558-d36ce9a10655
+            - 6280494d-dd0f-4655-b558-d36ce9a10656
+          items:
+            format: uuid
+            type: string
+          type: array
+        managedOrgIds:
+          items:
+            format: uuid
+            type: string
+          type: array
+        managedOrgRole:
+          enum:
+            - Administrator
+          example: Administrator
+          type: string
       required:
         - managedOrgIds
         - groupIds
         - managedOrgRole
-      properties:
-        managedOrgIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-        groupIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-          example:
-            - 6280494d-dd0f-4655-b558-d36ce9a10655
-            - 6280494d-dd0f-4655-b558-d36ce9a10656
-        managedOrgRole:
-          type: string
-          enum:
-            - Administrator
-          example: Administrator
-    model.RevokeAPIResponse:
       type: object
+    UIAppScopeRepresentation:
+      description: Description for UIAppScopeRepresentation
+      properties:
+        applicationScope:
+          type: string
+      required:
+        - applicationScope
+      type: object
+    UpdateApplicationScopeForAllCustomRolesInput:
+      description: The payload for the update CSW custom role application scope
+      properties:
+        applicationScope:
+          type: string
+      required:
+        - applicationScope
+      type: object
+    UpdateEnterpriseRequestBody:
+      description: Represent request body for updating enterprise name, displayName and region, required to have at least one param
+      properties:
+        country:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+        displayName:
+          type: string
+        name:
+          type: string
+        region:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+      type: object
+    UpdatedIDPGroupMapping:
+      properties:
+        enterpriseId:
+          format: uuid
+          type: string
+        groupMappings:
+          items:
+            properties:
+              idpGroupName:
+                type: string
+              idpId:
+                format: uuid
+                type: string
+              rbacGroupId:
+                format: uuid
+                type: string
+            required:
+              - idpGroupName
+              - rbacGroupId
+            type: object
+          type: array
+      type: object
+    User:
+      properties:
+        adminOf:
+          description: Enterprises that user is authorized to administer
+          items:
+            $ref: '#/components/schemas/DetailedEnterprise'
+          type: array
+        domains:
+          items:
+            $ref: '#/components/schemas/Domain'
+          type: array
+        email:
+          format: email
+          type: string
+        managedBy:
+          description: if the user is managed by an enterprise, this will be populated with that enterprise reference
+          oneOf:
+            - nullable: true
+              type: object
+            - $ref: '#/components/schemas/Enterprise'
+      required:
+        - email
+      type: object
+    UserEnterprise:
+      description: Represents an enterprise and the requesting users role in it
+      properties:
+        country:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        displayName:
+          type: string
+        id:
+          format: uuid
+          type: string
+        isManager:
+          type: boolean
+        managedOrgIDs:
+          items:
+            format: uuid
+            type: string
+          type: array
+        managerOrgIDs:
+          items:
+            format: uuid
+            type: string
+          type: array
+        name:
+          type: string
+        region:
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+          type: object
+        userRole:
+          type: string
+      required:
+        - id
+        - name
+        - userRole
+      type: object
+    UserEnumerationRepsBody:
+      properties:
+        securityCloud:
+          items:
+            type: string
+          type: array
+        user:
+          $ref: '#/components/schemas/EnterpriseUser'
+      required:
+        - user
+        - securityCloud
+      type: object
+    UserSettings:
+      properties:
+        timeZone:
+          description: The preferred time zone for displaying times in the UI
+          type: string
+        visualMode:
+          description: Defines if the UI should display light or dark mode
+          enum:
+            - light
+            - dark
+          type: string
+      type: object
+    gin.H:
+      additionalProperties:
+        type: object
+      type: object
+    model.ActivationStatus:
+      properties:
+        activationStatus:
+          $ref: '#/components/schemas/model.ProvisioningStatus'
+        activationTime:
+          type: string
+        isActive:
+          type: boolean
+        productInstanceId:
+          type: string
+        productName:
+          type: string
+        tenantId:
+          type: string
+      type: object
+    model.ClaimStatus:
+      properties:
+        claimCode:
+          type: string
+        claimedAt:
+          type: string
+        claimedByEmail:
+          type: string
+        enterpriseId:
+          type: string
+        enterpriseName:
+          type: string
+        isClaimable:
+          type: boolean
+        isClaimed:
+          type: boolean
+      type: object
+    model.Error:
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      type: object
+    model.MspSku:
+      properties:
+        availableEntitlements:
+          type: integer
+        minEntitlementsQuantity:
+          type: integer
+        productsList:
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+          type: array
+        reservedEntitlements:
+          type: integer
+        sharedEntitlements:
+          items:
+            $ref: '#/components/schemas/model.SharedEntitlement'
+          type: array
+        skuName:
+          type: string
+      type: object
+    model.OrgEntitlements:
+      properties:
+        pagination:
+          $ref: '#/components/schemas/model.PaginationInfo'
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.SubnSku'
+          type: array
+      type: object
+    model.PaginationInfo:
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalRecords:
+          type: integer
+      type: object
+    model.PatchUpdateSubscription:
+      properties:
+        endDate:
+          type: string
+        sendClaimCodeTo:
+          type: string
+        skus:
+          items:
+            $ref: '#/components/schemas/model.SubscriptionSkusInfo'
+          type: array
+        startDate:
+          type: string
+      type: object
+    model.ProductConf:
+      properties:
+        activationStatus:
+          type: string
+        name:
+          type: string
+        operand:
+          type: integer
+        operator:
+          type: string
+        region:
+          type: string
+      type: object
+    model.ProductInfo:
+      properties:
+        assignedEntitlements:
+          type: integer
+        product:
+          type: string
+        productRegion:
+          type: string
+      type: object
+    model.ProvisionedSKU:
+      properties:
+        name:
+          type: string
+        productInfo:
+          items:
+            $ref: '#/components/schemas/model.ProductInfo'
+          type: array
+      type: object
+    model.ProvisionedSubscription:
+      properties:
+        id:
+          type: string
+        skus:
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSKU'
+          type: array
+      type: object
+    model.ProvisioningStatus:
+      enum:
+        - NEW
+        - IN_PROGRESS
+        - FINISHED
+        - ERROR
+        - ACTION_REQUIRED
+      type: string
+      x-enum-varnames:
+        - ProvisioningStatusNew
+        - ProvisioningStatusInProgress
+        - ProvisioningStatusFinished
+        - ProvisioningStatusError
+        - ProvisioningStatusActionRequired
+    model.RevokeAPIResponse:
       properties:
         revokedSubscriptions:
-          type: array
           items:
             type: string
-    Error:
+          type: array
       type: object
+    model.SKU:
+      properties:
+        name:
+          type: string
+        quantity:
+          type: integer
+      type: object
+    model.SKUActionType:
+      enum:
+        - add
+        - modify
+        - cancel
+        - no_change
+        - unknown
+      type: string
+      x-enum-varnames:
+        - SKUActionTypeAdd
+        - SKUActionTypeModify
+        - SKUActionTypeCancel
+        - SKUActionTypeNoChange
+        - SKUActionTypeUnknown
+    model.SharedEntitlement:
+      properties:
+        assignedEntitlements:
+          type: integer
+        managedOrgId:
+          type: string
+        productsList:
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+          type: array
+      type: object
+    model.SkusMap:
+      additionalProperties:
+        type: integer
+      type: object
+    model.SubnSku:
+      properties:
+        endDate:
+          type: string
+        externalSubscriptionId:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          additionalProperties:
+            $ref: '#/components/schemas/model.MspSku'
+          type: object
+      type: object
+    model.SubscriptionProvisioningError:
+      properties:
+        error:
+          type: string
+        subscriptionId:
+          type: string
+      type: object
+    model.SubscriptionSkusInfo:
+      properties:
+        actionType:
+          allOf:
+            - $ref: '#/components/schemas/model.SKUActionType'
+          type: object
+        name:
+          type: string
+        quantity:
+          minimum: 1
+          type: integer
       required:
-        - code
-        - message
+        - actionType
+        - name
+        - quantity
+      type: object
+    model.UpdateEntitlementResponse:
+      properties:
+        endDate:
+          type: string
+        id:
+          type: string
+        licenseType:
+          type: string
+        provisioningErrors:
+          items:
+            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
+          type: array
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSubscription'
+          type: array
+      type: object
+    model.UpdateEntitlementsRequest:
+      properties:
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/model.UserSubscription'
+          type: array
+      type: object
+    model.UpstreamSubscription:
+      properties:
+        activationStatus:
+          items:
+            $ref: '#/components/schemas/model.ActivationStatus'
+          type: array
+        claimStatus:
+          $ref: '#/components/schemas/model.ClaimStatus'
+        createdAt:
+          type: string
+        endDate:
+          type: string
+        id:
+          type: string
+        isCancelled:
+          type: boolean
+        isProvisionable:
+          type: boolean
+        isTrial:
+          type: boolean
+        sendClaimCodeTo:
+          type: string
+        skus:
+          $ref: '#/components/schemas/model.SkusMap'
+        startDate:
+          type: string
+        updatedAt:
+          type: string
+      type: object
+    model.UserSubscription:
+      properties:
+        id:
+          type: string
+        skus:
+          items:
+            $ref: '#/components/schemas/model.SKU'
+          type: array
+      type: object
+    organizationsRelationship:
+      properties:
+        assigned_admins:
+          items:
+            $ref: '#/components/schemas/AssignedAdmins'
+          type: array
+        assigned_groups:
+          example:
+            - id: 6280494d-dd0f-4655-b558-d36ce9a10655
+              name: Group A
+          items:
+            $ref: '#/components/schemas/AssignedGroups'
+          type: array
+        id:
+          description: id of the org
+          example: 2b63ff9f-02e2-4f8e-ac98-b9e42c9feae1
+          type: string
+        name:
+          description: name of the org
+          example: Test Enterprise
+          type: string
+        region:
+          properties:
+            label:
+              example: North America
+              type: string
+            value:
+              example: NAM
+              type: string
+          type: object
+        subscriptions:
+          example:
+            - id: subs20251011
+              skus:
+                - key: BPT-SEC-ESS
+                  productInfo:
+                    - assignedEntitlements: 200
+                      product: Cisco XDR
+                      productRegion: US-WEST-2
+                    - assignedEntitlements: 200
+                      product: Cisco Secure Endpoint
+                      productRegion: GLOBAL
+                    - assignedEntitlements: 200
+                      product: Cisco Secure Email Threat Defense
+                      productRegion: GLOBAL
+          items:
+            $ref: '#/components/schemas/AssignedSubscriptions'
+          type: array
+    routes.UpstreamSubscriptionError:
       properties:
         code:
           type: integer
-          format: int32
+        error:
+          properties: {}
+          type: object
         message:
           type: string
-  headers:
-    Date:
-      schema:
-        type: string
-        pattern: ^.*$
-    Location:
-      schema:
-        type: string
-        format: uri
-  responses:
-    Forbidden:
-      description: Insufficient permissions to complete the request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: The request is not able to be authorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UnableToCreateResource:
-      description: The request is not able to be authorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InternalServerError:
-      description: Internal Server Error - The server encountered an unexpected condition which prevented it from fulfilling the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    PredefinedFailed:
-      description: Predefined Failed - if group role exit for user. it will be returned
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoContent:
-      description: No content
-    NotFoundError:
-      description: Not Found
-      headers:
-        Date:
-          $ref: '#/components/headers/Date'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ValidationError:
-      description: The request was invalid
-      headers:
-        Date:
-          $ref: '#/components/headers/Date'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    GeneralError:
-      description: An unknown error occurred
-      headers:
-        Date:
-          $ref: '#/components/headers/Date'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+      type: object
   securitySchemes:
     OpenID:
-      type: openIdConnect
       openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration
+      type: openIdConnect
     bearerAuth:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
     piamServiceTokenSecurity:
-      type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: https://auth.example.com/oauth/token
           scopes:
+            security:attack-surface-mgmt:identity:mappings-migrate: Grants write and read access to Attack Surface Management product mappings migration APIs
+            security:cdo:identity:mappings-migrate: Grants write and read access to CDO product mappings migration APIs
+            security:cdo:public-api: Grants write and read access to CDO Public Group Directory APIs
             security:duo:identity:mappings-migrate: Grants write and read access to product mappings migration APIs for Duo Security
             security:etd:identity:mappings-migrate: Grants write and read access to Encrypted Traffic Analytics product mappings migration APIs
+            security:global:provisioning-config:write: Global provisioning configuration management
+            security:global:provisioning-subscription:write: Global subscription provisioning operations
             security:panoptica:identity:mappings-migrate: Grants write and read access to Panoptica product mappings migration APIs
+            security:provisioning:global-config:write: Global configuration write access
+            security:provisioning:maintainance:write: Maintenance operations (provisioning, migrations)
+            security:provisioning:subscriptions:read: Read subscription data
+            security:provisioning:subscriptions:write: Write subscription data
             security:secure-access:identity:mappings-migrate: Grants write and read access to Secure Access product mappings migration APIs
             security:secure-endpoint:identity:mappings-migrate: Grants write and read access to Secure Endpoint product mappings migration APIs
             security:secure-workload:identity:mappings-migrate: Grants write and read access to Secure Workload product mappings migration APIs
+            security:subscription:move: Move subscriptions between enterprises
             security:vuln-mgmt:identity:mappings-migrate: Grants write and read access to Vulnerability Management product mappings migration APIs
-            security:attack-surface-mgmt:identity:mappings-migrate: Grants write and read access to Attack Surface Management product mappings migration APIs
-            security:cdo:identity:mappings-migrate: Grants write and read access to CDO product mappings migration APIs
             security:xdr:identity:mappings-migrate: Grants write and read access to XDR product mappings migration APIs
-            security:cdo:public-api: Grants write and read access to CDO Public Group Directory APIs
+          tokenUrl: https://auth.example.com/oauth/token
+      type: oauth2
+info:
+  description: MSP APIs for viewing, creating and updating the manager and managed organizations
+  title: MSP APIs
+  version: 1.4.0
+openapi: 3.0.3
+paths:
+  /enterprises/{id}/addManaged:
+    post:
+      description: Establishes management relationships between the specified manager organization and one or more existing organizations. All organizations must exist before creating relationships.
+      operationId: addEnterpriseManagementRelationship
+      parameters:
+        - description: manager enterprise id. This API works only for the manager enterprise
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementShareRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  managedOrgs:
+                    items:
+                      $ref: '#/components/schemas/PostManagedRelationshipResponse'
+                    type: array
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized - User is not an admin of the associated enterprise
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden - User is not an admin of the associated enterprise
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Add management relationships to existing organizations
+      tags:
+        - Management Relationships
+      x-publicly-available: true
+  /enterprises/{id}/createManaged:
+    post:
+      description: Creates a new organization and establishes it as managed by the specified manager organization. This forms a management relationship between the two organizations.
+      operationId: createEnterpriseManagementRelationship
+      parameters:
+        - description: manager enterprise id. This API works only for the manager enterprise
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                country:
+                  properties:
+                    label:
+                      type: string
+                    value:
+                      type: string
+                  type: object
+                displayName:
+                  type: string
+                name:
+                  type: string
+                region:
+                  properties:
+                    label:
+                      type: string
+                    value:
+                      type: string
+                  type: object
+              required:
+                - name
+                - displayName
+                - region
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  managedOrgs:
+                    items:
+                      $ref: '#/components/schemas/PostManagedRelationshipResponse'
+                    type: array
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized - User is not an admin of the associated enterprise
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden - User is not an admin of the associated enterprise
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+      security:
+        - bearerAuth: []
+      summary: Create a new managed organization
+      tags:
+        - Management Relationships
+      x-publicly-available: true
+  /enterprises/{id}/managed:
+    get:
+      operationId: getEnterpriseManagementRelationshipManaged
+      parameters:
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: ID of the manager org or the managed org
+          in: path
+          name: id
+          required: true
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: offset to paginated results
+          in: query
+          name: page
+          required: false
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: to limit the management relationship array response
+          in: query
+          name: limit
+          required: false
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: |
+            filter or search on fields such as organizations or subscriptions.
+            For example, `filter="oyo"` will return all organizations where Enterprise name like "Toyota", as well as subscription IDs like "subs_oyo123" and product names like  "prod_oyo123".
+          in: query
+          name: filter
+          required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  limit:
+                    example: 10
+                    type: integer
+                  organizations:
+                    items:
+                      $ref: '#/components/schemas/organizationsRelationship'
+                    type: array
+                  page:
+                    example: 1
+                    type: integer
+                  relationshipType:
+                    example: managed
+                    type: string
+                  totalItems:
+                    example: 100
+                    type: integer
+          description: ok
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/GeneralError'
+      security:
+        - bearerAuth: []
+      summary: Get all management relationship for the manager organization
+      tags:
+        - Management Relationships
+      x-publicly-available: true
+  /enterprises/{id}/manager:
+    get:
+      operationId: getEnterpriseManagementRelationshipManager
+      parameters:
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: ID of the manager org or the managed org
+          in: path
+          name: id
+          required: true
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: offset to paginated results
+          in: query
+          name: page
+          required: false
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: to limit the management relationship array response
+          in: query
+          name: limit
+          required: false
+        - content:
+            application/json:
+              schema:
+                type: string
+          description: |
+            filter or search on fields such as organizations or subscriptions.
+            For example, `filter="cdk"` will return all organizations where Enterprise name like "cdkLimited", as well as subscription IDs like "subs_cdk123" and product names like  "prod_cdk123".
+          in: query
+          name: filter
+          required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  limit:
+                    example: 10
+                    type: integer
+                  organizations:
+                    items:
+                      $ref: '#/components/schemas/organizationsRelationship'
+                    type: array
+                  page:
+                    example: 1
+                    type: integer
+                  relationshipType:
+                    example: manager
+                    type: string
+                  totalItems:
+                    example: 100
+                    type: integer
+          description: ok
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/GeneralError'
+      security:
+        - bearerAuth: []
+      summary: Get all management relationships of managed organization
+      tags:
+        - Management Relationships
+      x-publicly-available: true
+  /enterprises/{managedId}/manager/{managerId}:
+    get:
+      operationId: getEnterpriseManagementRelationshipManagerDetails
+      parameters:
+        - description: ID of the manager org
+          in: path
+          name: managerId
+          required: true
+          schema:
+            type: string
+        - description: ID of the managed org
+          in: path
+          name: managedId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  organizations:
+                    items:
+                      $ref: '#/components/schemas/organizationsRelationship'
+                    type: array
+                  relationshipType:
+                    example: manager
+                    type: string
+          description: ok
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/GeneralError'
+      security:
+        - bearerAuth: []
+      summary: get management relationship details of an associated org
+      tags:
+        - Management Relationships
+      x-publicly-available: true
+  /organizations/{managerId}/managed/{managedId}/entitlements:
+    get:
+      description: List all the active entitlements at the SKU level between a manager and managed org. User has to be a member of the enterprise to be able to get list of entitlements info.
+      parameters:
+        - description: ManagerID(UUID)
+          in: path
+          name: managerId
+          required: true
+          schema:
+            type: string
+        - description: ManagedID(UUID)
+          in: path
+          name: managedId
+          required: true
+          schema:
+            type: string
+        - description: Number of results per page (default 10)
+          in: query
+          name: limit
+          required: false
+          schema:
+            default: 10
+            type: integer
+        - description: Pagination offset (default 0)
+          in: query
+          name: offset
+          required: false
+          schema:
+            default: 0
+            minimum: 0
+            type: integer
+        - description: Okta access token (user must be an admin of the specified organization)
+          in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.OrgEntitlements'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Invalid enterprise ID, limit, or offset value
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Unauthorized - User is not admin of the organization
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      summary: Get entitlements for an organization
+      tags:
+        - ManageEntitlements
+      x-publicly-available: true
+    patch:
+      description: Updates the quantity of entitlements shared from a manager organization to a managed organization. Specific scopes are required to access the API `security:provisioning:subscriptions:write`. Client credentials are issued by IAM team individually.
+      parameters:
+        - description: Manager Organization ID (UUID)
+          in: path
+          name: managerId
+          required: true
+          schema:
+            type: string
+        - description: Managed Organization ID (UUID)
+          in: path
+          name: managedId
+          required: true
+          schema:
+            type: string
+        - description: Authorization token (user must be admin of both manager and managed orgs)
+          in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
+        description: Request body containing subscription and SKU details to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
+          description: Successfully updated entitlements
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: User is not an admin of manager or managed org
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+          description: Internal server error
+      security:
+        - piamServiceTokenSecurity:
+            - security:provisioning:subscriptions:write
+      summary: Update entitlements between manager and managed organizations
+      tags:
+        - ManageEntitlements
+      x-codegen-request-body-name: body
+      x-publicly-available: true
+security:
+  - OpenID: []
+  - bearerAuth: []
+servers:
+  - url: https://api.int.security.cisco.com/identity
+    variables:
+      baseUrl:
+        default: https://api.int.security.cisco.com/identity
+      domain:
+        default: https://sso-apps-preview.myverysecuresignon.name/api
