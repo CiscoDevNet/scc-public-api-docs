@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
   contact: {}
   description: Provisioning APIs for activating and managing entitlements, subscriptions, and claim codes
@@ -9,187 +9,210 @@ servers:
 paths:
   /claim-code/claim:
     post:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Process claim code to provision subscriptions and product instances for an enterprise
       tags:
         - Claim Code
-      summary: Claim Code
-      description: Read Claim Code
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
+      summary: Claim Code for Subscription
+      operationId: claim-code-subscription
       requestBody:
-        description: Read Claim Code
         content:
-          '*/*':
+          application/json:
             schema:
               $ref: '#/components/schemas/model.ClaimSubscription'
+        description: Claim code subscription details for processing
         required: true
       responses:
         '200':
-          description: OK
+          description: Successfully claimed and provisioned product instances
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-      x-codegen-request-body-name: order
-  /claim-code/read:
-    post:
-      tags:
-        - Claim Code
-      summary: Read Claim Code
-      description: Read Claim Code
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Read Claim Code
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.ClaimSubscription'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-      x-codegen-request-body-name: order
-  /msp-claim-code/claim:
-    post:
-      tags:
-        - Claim Code
-      summary: Claim Code
-      description: Claim MSP Claim Code
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Claim MSP Claim Code
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/model.MSPClaimSubscription'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content: {}
-      x-codegen-request-body-name: order
-  /customers:
-    get:
-      tags:
-        - Customers
-      summary: Get Customer's Product Instance By Enterprise Id
-      description: Get Customer's Product Instance from phanes database by Enterprise Id
-      parameters:
-        - name: enterprise_id
-          in: query
-          description: Enterprise Id
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.ProductInstance'
-  /enterprise/region-hierarchy:
-    get:
-      tags:
-        - Enterprise
-      summary: Get enterprise region hierarchy
-      description: Get the region hierarchy information for enterprises
-      parameters:
-        - name: Authorization
-          in: header
-          description: Access Token
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-  /enterprise/{enterpriseId}/products:
-    get:
-      tags:
-        - Enterprise
-      summary: Get list of Product Instances By Enterprise Id
-      description: |-
-        API accepts security cloud enterprise ID  and returns:
-        1. The enterprise name
-        2. The enterprise license state
-        3. The list of product instances contained within the enterprise, each including:
-        - The product instance ID
-        - The product type
-        - The product's external tenant ID
-        - The region of the product instance
-        - Provisioning state e.g., "NEW", "IN_PROGRESS", "FINISHED", "ERROR"
-        - Is the product a platform product or not
-      parameters:
-        - name: enterpriseId
-          in: path
-          description: enterprise Id(uuid)
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Service Token Bearer Auth
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: API returns enterprise name, enterprise license state The list of product instances contained within the enterprise.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.EnterpriseProductInstances'
+                type: string
         '400':
-          description: Bad Request
+          description: Bad request - invalid input data, missing enterprise ID, or validation errors
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '401':
-          description: Unauthorized - Authentication credentials were missing or incorrect.
+          description: Unauthorized - invalid or missing authentication token
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '403':
-          description: Forbidden - The request is understood, but it has been refused or access is not allowed.
+          description: Forbidden - user is not admin of the enterprise or claim is blocked
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '404':
-          description: Not Found
+          description: Not found - claim code or enterprise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '409':
+          description: Conflict - claim code already used or provisioning conflicts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error during provisioning
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /claim-code/read:
+    post:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Retrieve product instances associated with a specific claim code for an enterprise
+      tags:
+        - Claim Code
+      summary: Get Product Instances by Claim Code
+      operationId: get-product-instances-by-claim-code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ClaimCodeReadRequest'
+        description: Claim code read request containing claim_code and enterprise_id
+        required: true
+      responses:
+        '200':
+          description: Successfully retrieved product instances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstancesAndRegionsAndServices'
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - invalid or missing authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - user is not admin of the enterprise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '404':
+          description: Not found - claim code or enterprise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /msp-claim-code/claim:
+    post:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Process MSP-specific claim code to provision subscriptions and product instances for managed service provider environments
+      tags:
+        - Claim Code
+      summary: MSP Claim Code for Subscription
+      operationId: msp-claim-code-subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.ClaimSubscription'
+        description: MSP claim code subscription details for processing
+        required: true
+      responses:
+        '200':
+          description: Successfully claimed and provisioned MSP product instances
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad request - validation errors, client-side errors, or invalid MSP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - token issues or admin permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - rate limits, trials, or SKU restrictions for MSP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '404':
+          description: Not found - MSP claim code or enterprise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '409':
+          description: Conflict - MSP claim code already used or provisioning conflicts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error - database or provisioning failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /customers:
+    get:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Get all active Product Instance for a customer by Enterprise Id
+      tags:
+        - Enterprise
+      summary: Get Customer's Product Instance By Enterprise Id
+      operationId: GetCustomerProductInstances
+      parameters:
+        - description: Enterprise Id
+          name: enterprise_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product instances for the enterprise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ProductInstanceWithMetadata'
+        '400':
+          description: Bad Request - Invalid enterprise ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User is not admin of the enterprise
           content:
             application/json:
               schema:
@@ -200,41 +223,141 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-  /enterprise/{enterpriseId}/platform-subscription:
-    post:
+  /enterprise/region-hierarchy:
+    get:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: API returns the regional hierarchy details of the enterprise
       tags:
         - Enterprise
-      summary: Create platform subscription for enterprise
-      description: Creates a platform subscription for the specified enterprise
+      summary: Get Regional Hierarchy
+      operationId: GetEnterpriseRegionHierarchy
+      responses:
+        '200':
+          description: Regional hierarchy details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.RegionalHierarchy'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - Invalid scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - The request is understood, but it has been refused or access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /enterprise/{enterpriseId}/products:
+    get:
+      security:
+        - ServiceTokenBearerAuth:
+            - security:provisioning:tenants:read
+      description: Retrieve a list of product instances for a specific enterprise, including enterprise details and product information
+      tags:
+        - Enterprise
+      summary: Get Product Instances for Enterprise
+      operationId: get-product-instances-for-enterprise
       parameters:
-        - name: enterpriseId
+        - description: Enterprise ID (UUID format)
+          name: enterpriseId
           in: path
-          description: enterprise Id(uuid)
           required: true
           schema:
             type: string
-        - name: Authorization
-          in: header
-          description: Service Token Bearer Auth
+            format: uuid
+      responses:
+        '200':
+          description: Successfully retrieved enterprise product instances with enterprise name, license state, and product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.EnterpriseProductInstances'
+        '400':
+          description: Bad request - invalid enterprise ID format or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - authentication credentials were missing or incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - the request is understood, but access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '404':
+          description: Not found - enterprise or product instances not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+  /enterprise/{enterpriseId}/platform-subscription:
+    post:
+      security:
+        - ServiceTokenBearerAuth:
+            - security:provisioning:tenants:read
+      description: Creates Customer Enterprise Record, Platform Bootstrap Subscription and provision Platform Bootstrap Products for given enterpriseId
+      tags:
+        - Enterprise
+      summary: Creates Platform Bootstrap Subscription and provision Platform Bootstrap Products for given enterpriseId
+      operationId: PostPlatformRoute
+      parameters:
+        - description: enterprise Id(uuid)
+          name: enterpriseId
+          in: path
           required: true
           schema:
             type: string
       requestBody:
-        description: Platform subscription details
         content:
           application/json:
             schema:
-              type: object
+              $ref: '#/components/schemas/routes.PlatformBootstrapRequest'
+        description: Platform Bootstrap Payload
         required: true
       responses:
-        '201':
-          description: Platform subscription created successfully
+        '200':
+          description: Success message
           content:
             application/json:
               schema:
-                type: object
+                type: string
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - Authentication credentials were missing or incorrect
           content:
             application/json:
               schema:
@@ -247,52 +370,161 @@ paths:
                 $ref: '#/components/schemas/model.Error'
   /organizations/{managerId}/entitlements:
     get:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Retrieves entitlements for a specific managed organization. User must be admin of the organization. Supports pagination and search.
       tags:
-        - Entitlements
+        - MSP Entitlements Management
       summary: Get organization entitlements
-      description: Get entitlements for a manager organization
+      operationId: GetOrgEntitlements
       parameters:
-        - name: managerId
+        - description: Manager Organization ID (UUID)
+          name: managerId
           in: path
-          description: Manager Organization ID
           required: true
           schema:
             type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
-          required: true
+        - description: 'Number of records to return (default: 10)'
+          name: limit
+          in: query
+          schema:
+            type: integer
+        - description: 'Number of records to skip (default: 0)'
+          name: offset
+          in: query
+          schema:
+            type: integer
+        - description: Search term for filtering entitlements
+          name: search
+          in: query
+          schema:
+            type: string
+        - description: Managed organization ID for filtering
+          name: managedOrgId
+          in: query
           schema:
             type: string
       responses:
         '200':
-          description: OK
+          description: Organization entitlements
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/model.OrgEntitlements'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User not admin of organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
   /organizations/{managerId}/managed/{managedId}/entitlements:
     get:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: List all active entitlements at the SKU level between a manager and managed organization
       tags:
-        - Entitlements
-      summary: Get managed organization entitlements
-      description: Get entitlements for a managed organization under a manager
+        - MSP Entitlements Management
+      summary: Get Entitlements for Managed Organization
+      operationId: get-managed-entitlements
       parameters:
-        - name: managerId
+        - description: Manager organization ID (UUID format)
+          name: managerId
           in: path
-          description: Manager Organization ID
           required: true
           schema:
             type: string
-        - name: managedId
+            format: uuid
+        - description: Managed organization ID (UUID format)
+          name: managedId
           in: path
-          description: Managed Organization ID
           required: true
           schema:
             type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
+            format: uuid
+        - description: Number of results per page (default 10)
+          name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+        - description: Pagination offset (default 0)
+          name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved organization entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.OrgEntitlements'
+        '400':
+          description: Bad request - invalid enterprise ID, limit, or offset value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - user is not admin of the organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '403':
+          description: Forbidden - access to entitlements is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '404':
+          description: Not found - manager or managed organization not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+    delete:
+      security:
+        - ServiceTokenBearerAuth:
+            - security:provisioning:subscriptions:write
+      description: Revoke all entitlemendts shared from a manager organization to a managed organization
+      tags:
+        - MSP Entitlements Management
+      summary: Revoke entitlements for an organization
+      operationId: delete-managed-entitlements
+      parameters:
+        - description: ManagerID(UUID)
+          name: managerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - description: ManagedID(UUID)
+          name: managedId
+          in: path
           required: true
           schema:
             type: string
@@ -302,51 +534,86 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/model.RevokeAPIResponse'
+        '400':
+          description: Invalid Org ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: Unauthorized - User is not admin of the manager organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
     patch:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Updates the quantity of entitlements shared from a manager organization to a managed organization
       tags:
-        - Entitlements
-      summary: Update managed organization entitlements
-      description: Update entitlements for a managed organization under a manager
+        - MSP Entitlements Management
+      summary: Update entitlements between manager and managed organizations
+      operationId: update-managed-entitlements
       parameters:
-        - name: managerId
+        - description: Manager Organization ID (UUID)
+          name: managerId
           in: path
-          description: Manager Organization ID
           required: true
           schema:
             type: string
-        - name: managedId
+        - description: Managed Organization ID (UUID)
+          name: managedId
           in: path
-          description: Managed Organization ID
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
           required: true
           schema:
             type: string
       requestBody:
-        description: Entitlement update details
         content:
           application/json:
             schema:
-              type: object
+              $ref: '#/components/schemas/model.UpdateEntitlementsRequest'
+        description: Request body containing subscription and SKU details to update
         required: true
       responses:
         '200':
-          description: Entitlements updated successfully
+          description: Successfully updated entitlements
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/model.UpdateEntitlementResponse'
+        '400':
+          description: Invalid UUID format, request body, minimum quantity not met, or managed org not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '401':
+          description: User is not an admin of manager or managed org
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
   /ping:
     get:
-      tags:
-        - Health Check
-      summary: Get Server Health
       description: Get Server Health by checking if db is active
+      tags:
+        - Health
+      summary: Get Server Health
+      operationId: ping
       responses:
         '200':
           description: OK
@@ -362,19 +629,18 @@ paths:
                 $ref: '#/components/schemas/model.Error'
   /enterprises/{managerOrgId}/revoke-info:
     put:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: API for getting the revoked managed orgs info for a given manager enterprise and update the status as shown
       tags:
-        - MSP Revoke Info
-      summary: Get the revoked managed orgs info for a given manager enterprise and update the status
+        - MSP Organizations Management
+      summary: Get the revoked managed orgs info for a given manager enterprise and update the status as shown
+      operationId: HandleMspRevokedManagedOrgsInfo
       parameters:
-        - name: managerOrgId
+        - description: Id of the Manager Org whose Managed Orgs are revoked
+          name: managerOrgId
           in: path
-          description: Id of the Manager Org whose Managed Orgs are revoked
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
           required: true
           schema:
             type: string
@@ -384,21 +650,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/model.RevokeManagedOrgs'
+                $ref: '#/components/schemas/model.MspRevokedManagedOrgsInfo'
         '400':
-          description: Bad Request - Error in parsing request body
+          description: Bad Request - invalid enterprise id provided
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '404':
-          description: Not Found
+          description: Unauthorized - authentication failed or user is not the admin of the enterprise
           content:
             application/json:
               schema:
@@ -411,37 +671,33 @@ paths:
                 $ref: '#/components/schemas/model.Error'
   /productInstance/{instanceId}/provision:
     post:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Provisions a product instance with the given ID
       tags:
         - Product Instance
       summary: Provision a product instance
-      description: Provisions a product instance with the given ID
+      operationId: provision-product-instance
       parameters:
-        - name: instanceId
+        - description: ID of the product instance to provision
+          name: instanceId
           in: path
-          description: ID of the product instance to provision
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
           required: true
           schema:
             type: string
       requestBody:
-        description: Provisioning request details
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/model.ProductInstanceProvisionRequest'
+        description: Provisioning request details
         required: true
       responses:
         '200':
           description: OK - Provisioning completed successfully
-          content: {}
         '202':
           description: Accepted - Provisioning is in progress
-          content: {}
         '400':
           description: Bad Request - Invalid instance ID or request payload
           content:
@@ -460,8 +716,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-        '422':
-          description: Unprocessable Entity - Error during provisioning
+        '409':
+          description: Conflict - Product already exists for enterprise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Error'
+        '424':
+          description: Failed Dependency - Error during provisioning
           content:
             application/json:
               schema:
@@ -472,102 +734,89 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: body
   /productInstance/{instanceId}/applyLicenses:
     post:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Applies licenses from a source product instance to a target product instance
       tags:
         - Product Instance
-      summary: Apply licenses to a product instance
-      description: Applies licenses from a source product instance to a target product instance
+      summary: Apply licenses from a source product instance to a target product instance
+      operationId: apply-product-instance-licenses
       parameters:
-        - name: instanceId
+        - description: ID of the product instance to apply licenses to
+          name: instanceId
           in: path
-          description: ID of the product instance to which licenses are being applied
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
           required: true
           schema:
             type: string
       requestBody:
-        description: Details of the source instance ID from which to apply licenses
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/model.ProductInstanceApplyLicensesRequest'
+        description: Apply licenses request details
         required: true
       responses:
         '200':
           description: OK - Licenses applied successfully
-          content: {}
         '400':
-          description: Bad Request - Invalid instance ID or mismatch in customer or product details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model.Error'
-        '401':
-          description: Unauthorized - User is not an admin of the associated enterprise
+          description: Bad Request - Invalid instance ID, customer mismatch, or product mismatch
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '412':
-          description: Precondition Required - Customer for product instance and source product instance do not match
+          description: Precondition Required - Customers do not match
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '500':
-          description: Internal Server Error - Error applying licenses to the product instance
+          description: Internal Server Error - Error applying licenses
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-      x-codegen-request-body-name: body
   /productInstance/{instanceId}/reset:
     put:
+      security:
+        - EnterpriseAdminBearerAuth:
+            - security:enterprise:admin:{enterprise_id}
+      description: Resets a product instance to NEW status, clearing external tenant ID and other provisioning data
       tags:
         - Product Instance
-      summary: Reset the external ID and other values of a product instance
-      description: Resets the external ID and other values of a product instance for common provisioning
+      summary: Reset a product instance
+      operationId: reset-product-instance
       parameters:
-        - name: instanceId
+        - description: ID of the product instance to reset
+          name: instanceId
           in: path
-          description: ID of the product instance to reset
-          required: true
-          schema:
-            type: string
-        - name: Authorization
-          in: header
-          description: Enterprise Admin Bearer Auth
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: OK
+          description: Reset product instance
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.ProductInstance'
         '400':
-          description: Bad Request - Invalid request payload or empty external IDs
+          description: Bad Request - Invalid instance ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
         '401':
-          description: Unauthorized - Invalid scope
+          description: Unauthorized - Invalid scope or user not admin
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model.Error'
-        default:
-          description: Unexpected error when resetting product instance
+        '500':
+          description: Internal Server Error - Error resetting product instance
           content:
             application/json:
               schema:
@@ -583,6 +832,8 @@ components:
           type: string
         enterprise_name:
           type: string
+        enterprise_type:
+          type: string
         products:
           type: array
           items:
@@ -591,24 +842,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/model.ClaimCodeServices'
-    model.MSPClaimSubscription:
-      type: object
-      properties:
-        claim_code:
-          type: string
-        enterprise_id:
-          type: string
-        enterprise_name:
-          type: string
-        products:
-          type: array
-          items:
-            $ref: '#/components/schemas/model.ClaimCodeProduct'
     model.ClaimCodeProduct:
+      type: object
       required:
         - id
         - region
-      type: object
       properties:
         id:
           type: string
@@ -618,10 +856,17 @@ components:
           type: string
         region:
           $ref: '#/components/schemas/model.Region'
+    model.ClaimCodeReadRequest:
+      type: object
+      properties:
+        claim_code:
+          type: string
+        enterprise_id:
+          type: string
     model.ClaimCodeServices:
+      type: object
       required:
         - id
-      type: object
       properties:
         id:
           type: string
@@ -629,7 +874,7 @@ components:
           type: boolean
         name:
           type: string
-    model.ProductInstance:
+    model.ProductInstanceWithMetadata:
       type: object
       properties:
         id:
@@ -640,6 +885,23 @@ components:
           type: string
         region:
           $ref: '#/components/schemas/model.Region'
+    model.RegionalHierarchy:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.RegionalHierarchy'
+        description:
+          type: string
+        flat_priority:
+          type: integer
+        name:
+          type: string
+        priority:
+          type: integer
+        tier:
+          type: integer
     model.EnterpriseProductInstances:
       type: object
       properties:
@@ -668,6 +930,161 @@ components:
           type: string
         isPlatformProduct:
           type: boolean
+    model.OrgEntitlements:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/model.PaginationInfo'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubnSku'
+    model.PaginationInfo:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalRecords:
+          type: integer
+    model.SubnSku:
+      type: object
+      properties:
+        endDate:
+          type: string
+        externalSubscriptionId:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/model.MspSku'
+    model.MspSku:
+      type: object
+      properties:
+        availableEntitlements:
+          type: integer
+        minEntitlementsQuantity:
+          type: integer
+        productsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+        reservedEntitlements:
+          type: integer
+        sharedEntitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SharedEntitlement'
+        skuName:
+          type: string
+    model.ProductConf:
+      type: object
+      properties:
+        activationStatus:
+          type: string
+        name:
+          type: string
+        operand:
+          type: integer
+        operator:
+          type: string
+        region:
+          type: string
+    model.SharedEntitlement:
+      type: object
+      properties:
+        assignedEntitlements:
+          type: integer
+        managedOrgId:
+          type: string
+        productsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductConf'
+    model.RevokeAPIResponse:
+      type: object
+      properties:
+        revokedSubscriptions:
+          type: array
+          items:
+            type: string
+    model.UpdateEntitlementsRequest:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.UserSubscription'
+    model.UserSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SKU'
+    model.SKU:
+      type: object
+      properties:
+        name:
+          type: string
+        quantity:
+          type: integer
+    model.UpdateEntitlementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        provisioningErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.SubscriptionProvisioningError'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSubscription'
+    model.SubscriptionProvisioningError:
+      type: object
+      properties:
+        error:
+          type: string
+        subscriptionId:
+          type: string
+    model.ProvisionedSubscription:
+      type: object
+      properties:
+        endDate:
+          type: string
+        id:
+          type: string
+        licenseType:
+          type: string
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProvisionedSKU'
+    model.ProvisionedSKU:
+      type: object
+      properties:
+        name:
+          type: string
+        productInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductInfo'
+    model.ProductInfo:
+      type: object
+      properties:
+        assignedEntitlements:
+          type: integer
+        product:
+          type: string
+        productRegion:
+          type: string
     model.Health:
       type: object
       properties:
@@ -679,19 +1096,18 @@ components:
           type: string
         serviceStatus:
           type: string
-    model.RevokeManagedOrgs:
+    model.MspRevokedManagedOrgsInfo:
       type: object
       properties:
         managedOrgs:
           type: array
           items:
-            $ref: '#/components/schemas/model.ManagedOrgsList'
-    model.ManagedOrgsList:
+            $ref: '#/components/schemas/model.ManagedOrg'
+    model.ManagedOrg:
       type: object
       properties:
         id:
           type: string
-          format: uuid
         name:
           type: string
         products:
@@ -718,11 +1134,6 @@ components:
           type: string
         region:
           type: string
-    model.ProductInstanceApplyLicensesRequest:
-      type: object
-      properties:
-        sourceInstanceId:
-          type: string
     model.ProvisioningQuestionAnswer:
       type: object
       properties:
@@ -732,6 +1143,48 @@ components:
           type: string
         value:
           type: string
+    model.ProductInstanceApplyLicensesRequest:
+      type: object
+      properties:
+        sourceInstanceId:
+          type: string
+    model.ProductInstance:
+      type: object
+      properties:
+        id:
+          type: string
+        external_tenant_id:
+          type: string
+        provisioning_status:
+          type: string
+        region:
+          $ref: '#/components/schemas/model.Region'
+    model.ProductInstancesAndRegionsAndServices:
+      type: object
+      properties:
+        all_regions:
+          $ref: '#/components/schemas/model.RegionalHierarchy'
+        productInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.ProductInstance'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.Services'
+    model.Services:
+      type: object
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+        is_unified_onboarding_supported:
+          type: boolean
+        product_allowed_regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/model.Region'
     model.Region:
       type: object
       properties:
@@ -746,3 +1199,28 @@ components:
           type: string
         message:
           type: string
+    routes.PlatformBootstrapRequest:
+      type: object
+      required:
+        - enterprise_name
+      properties:
+        enterprise_name:
+          type: string
+        initial_admin:
+          type: string
+  securitySchemes:
+    EnterpriseAdminBearerAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
+          scopes:
+            security:enterprise:admin:{enterprise_id}: Grants enterprise admin access with dynamic enterprise ID validation
+    ServiceTokenBearerAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://id.cisco.com/oauth2/default/v1/token
+          scopes:
+            security:provisioning:tenants:read: Grants read access to provisioning tenants
+            security:provisioning:subscriptions:write: Grants write access to provisioning subscriptions
