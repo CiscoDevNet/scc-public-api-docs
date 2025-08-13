@@ -1,191 +1,102 @@
 {
+  "title": "Cisco Secure Cloud Insights API",
+  "organizationName": "Cisco DevNet",
+  "additionalProperties": {
+    "noIndex": false,
+    "mainBgColor": "#0d274d",
+    "mainTextColor": "#fff",
+    "secondBgColor": "#15305a",
+    "secondTextColor": "#aec2e0",
+    "headerBgColor": "#cee4f7",
+    "headerTextColor": "#0d274d",
+    "footerBgColor": "#15305a",
+    "footerTextColor": "#aec2e0",
+    "primaryColor": "#3a7ca8",
+    "primaryLight": "#cee4f7",
+    "primaryDark": "#0d274d",
+    "secondaryColor": "#3a7ca8",
+    "linkColor": "#3a7ca8",
+    "darkLinkColor": "#10B6DB",
+    "darkTextColor": "#bebebe",
+    "errorColor": "#DD0000",
+    "successColor": "#3fa535",
+    "warningColor": "#FF9A10",
+    "warningSuperLightColor": "#fef8e1",
+    "infoColor": "#10B6DB",
+    "alertColor": "#FF0000",
+    "hljsTheme": "atom-one-dark-reasonable"
+  },
+  "pages": [
+    {
+      "title": "Introduction",
+      "content": "docs/introduction.md"
+    },
+    {
+      "title": "Glossary",
+      "content": "docs/glossary.md"
+    },
+    {
+      "title": "API Overview",
+      "content": "docs/api_overview.md"
+    }
+  ],
+  "logo": "img/logo.png",
+  "favicon": "img/favicon.png",
   "items": [
     {
-      "title": "Security Cloud Control API Documentation",
-      "items": [
-        {
-          "title": "Introduction",
-          "content": "overview/introduction.md"
-        },
-        {
-          "title": "Authentication",
-          "content": "overview/authentication.md"
-        },
-        {
-          "title": "Getting Started",
-          "content": "overview/getting-started.md"
-        },
-        {
-          "title": "API Changelog",
-          "content": "overview/api-changelog.md"
-        }
-      ]
-    },
-    {
+      "type": "group",
       "title": "API Reference",
-      "config": {
-        "expand": 0,
-        "serverConfig": "select"
-      },
       "items": [
         {
-          "title": "API Key Management",
-          "content": "specs/api-token.yaml",
+          "title": "Alert API",
+          "content": "specs/alerts.yaml",
           "type": "oas3"
         },
         {
-          "title": "Identity and Access Management",
-          "content": "specs/iam.yaml",
+          "title": "Inventory API",
+          "content": "specs/inventory.yaml",
           "type": "oas3"
         },
         {
-          "title": "Provisioning Management",
-          "content": "specs/provisioning.yaml",
+          "title": "Logs API",
+          "content": "specs/logs.yaml",
           "type": "oas3"
         },
         {
-          "title": "Managed Service Provider Management",
-          "content": "specs/msp.yaml",
+          "title": "Notification API",
+          "content": "specs/notifications.yaml",
           "type": "oas3"
         },
         {
-          "title": "AI Assistant",
-          "content": "specs/ai-assistant.yaml",
+          "title": "Common API",
+          "content": "specs/common.yaml",
           "type": "oas3"
         },
         {
-          "title": "Mesh Policy Management",
-          "content": "specs/mesh-policy.yaml",
+          "title": "Search API",
+          "content": "specs/search.yaml",
           "type": "oas3"
         },
         {
-          "title": "Context Provisioning Management",
-          "content": "specs/context-provisioning.yaml",
+          "title": "System API",
+          "content": "specs/system.yaml",
           "type": "oas3"
         },
         {
-          "title": "Configuration Management",
-          "content": "specs/config.yaml",
+          "title": "None",
+          "content": "specs/None.yaml",
           "type": "oas3"
-        },
-        {
-          "title": "Firewall Management",
-          "items": [
-            {
-              "title": "Introduction",
-              "content": "cdo/overview/intro.md"
-            },
-            {
-              "title": "Authentication",
-              "content": "cdo/overview/authentication.md"
-            },
-            {
-              "title": "Getting Started",
-              "content": "cdo/overview/getting-started.md"
-            },
-            {
-              "title": "Searching",
-              "content": "cdo/overview/searching.md"
-            },
-            {
-              "title": "API Changelog",
-              "content": "cdo/api-changelog.md"
-            },
-            {
-              "title": "API Reference",
-              "config": {
-                "expand": 0,
-                "serverConfig": "select"
-              },
-              "items": [
-                {
-                  "title": "SCC Firewall Manager API",
-                  "content": "cdo/openapi.yaml",
-                  "type": "oas3"
-                },
-                {
-                  "title": "cdFMC API",
-                  "content": "cdo/cdfmc-openapi.yaml",
-                  "type": "oas3"
-                }
-              ]
-            },
-            {
-              "title": "Developer Resources",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Postman Collections",
-                  "content": "cdo/developer-resources/postman-collection.md"
-                },
-                {
-                  "title": "SDKs",
-                  "content": "cdo/developer-resources/sdks.md"
-                },
-                {
-                  "title": "Learning Labs",
-                  "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
-                  "type": "url"
-                },
-                {
-                  "title": "Code Exchange",
-                  "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
-                  "type": "url"
-                }
-              ]
-            },
-            {
-              "title": "Community and Support",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Developer Support",
-                  "content": "community-and-support/developer-support.md"
-                },
-                {
-                  "title": "Community",
-                  "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
-                  "type": "url"
-                }
-              ]
-            }
-          ]
         }
       ]
     },
     {
-      "title": "Developer Resources",
+      "type": "group",
+      "title": "API Change Log",
       "items": [
         {
-          "title": "Model Context Protocol(MCP) Server",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "SDKs",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "Postman Collection",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
+          "type": "item",
+          "title": "Release Notes",
+          "content": "docs/changelog.md"
         }
       ]
     }
