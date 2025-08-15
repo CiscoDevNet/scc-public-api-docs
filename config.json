@@ -1,36 +1,62 @@
 {
-  "items": [
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cisco Security Cloud API Documentation",
+    "version": "1.0.0"
+  },
+  "servers": [
     {
-      "title": "Security Cloud Control API Documentation",
+      "url": "https://api.umbrella.com",
+      "description": "Umbrella API Base URL"
+    },
+    {
+      "url": "https://api.threatgrid.com",
+      "description": "ThreatGrid API Base URL"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Getting Started",
+      "description": "Get started with Cisco Security Cloud API"
+    },
+    {
+      "name": "API Reference",
+      "description": "API Reference Docs"
+    }
+  ],
+  "paths": {},
+  "components": {
+    "schemas": {}
+  },
+  "sidebarLinks": [
+    {
+      "title": "Getting Started",
+      "type": "section",
       "items": [
         {
           "title": "Introduction",
-          "content": "overview/introduction.md"
+          "content": "docs/getting-started.md",
+          "type": "doc"
         },
         {
           "title": "Authentication",
-          "content": "overview/authentication.md"
+          "content": "docs/authentication.md",
+          "type": "doc"
         },
         {
-          "title": "Getting Started",
-          "content": "overview/getting-started.md"
-        },
-        {
-          "title": "API Changelog",
-          "content": "overview/api-changelog.md"
+          "title": "Error Handling",
+          "content": "docs/error-handling.md",
+          "type": "doc"
         }
       ]
     },
     {
       "title": "API Reference",
-      "config": {
-        "expand": 0,
-        "serverConfig": "select"
-      },
+      "type": "section",
       "items": [
         {
           "title": "API Key Management",
-          "content": "specs/api-token.yaml",
+          "content": "specs/api-key-management.yaml",
           "type": "oas3"
         },
         {
@@ -44,148 +70,14 @@
           "type": "oas3"
         },
         {
-          "title": "Managed Service Provider Management",
-          "content": "specs/msp.yaml",
+          "title": "Data Platform",
+          "content": "specs/data-platform.yaml",
           "type": "oas3"
         },
         {
-          "title": "AI Assistant",
-          "content": "specs/ai-assistant.yaml",
+          "title": "None",
+          "content": "specs/None.yaml",
           "type": "oas3"
-        },
-        {
-          "title": "Mesh Policy Management",
-          "content": "specs/mesh-policy.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Context Provisioning Management",
-          "content": "specs/context-provisioning.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Configuration Management",
-          "content": "specs/config.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Firewall Management",
-          "items": [
-            {
-              "title": "Introduction",
-              "content": "cdo/overview/intro.md"
-            },
-            {
-              "title": "Authentication",
-              "content": "cdo/overview/authentication.md"
-            },
-            {
-              "title": "Getting Started",
-              "content": "cdo/overview/getting-started.md"
-            },
-            {
-              "title": "Searching",
-              "content": "cdo/overview/searching.md"
-            },
-            {
-              "title": "API Changelog",
-              "content": "cdo/api-changelog.md"
-            },
-            {
-              "title": "API Reference",
-              "config": {
-                "expand": 0,
-                "serverConfig": "select"
-              },
-              "items": [
-                {
-                  "title": "SCC Firewall Manager API",
-                  "content": "cdo/openapi.yaml",
-                  "type": "oas3"
-                },
-                {
-                  "title": "cdFMC API",
-                  "content": "cdo/cdfmc-openapi.yaml",
-                  "type": "oas3"
-                }
-              ]
-            },
-            {
-              "title": "Developer Resources",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Postman Collections",
-                  "content": "cdo/developer-resources/postman-collection.md"
-                },
-                {
-                  "title": "SDKs",
-                  "content": "cdo/developer-resources/sdks.md"
-                },
-                {
-                  "title": "Learning Labs",
-                  "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
-                  "type": "url"
-                },
-                {
-                  "title": "Code Exchange",
-                  "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
-                  "type": "url"
-                }
-              ]
-            },
-            {
-              "title": "Community and Support",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Developer Support",
-                  "content": "community-and-support/developer-support.md"
-                },
-                {
-                  "title": "Community",
-                  "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
-                  "type": "url"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Developer Resources",
-      "items": [
-        {
-          "title": "Model Context Protocol(MCP) Server",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "SDKs",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "Postman Collection",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
         }
       ]
     }
