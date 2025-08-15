@@ -1,0 +1,301 @@
+openapi: 3.0.1
+info:
+  title: Products controller
+  description: Controller for user and products
+  contact:
+    name: Fred
+    url: http://gigantic-server.com
+    email: prigogoi@cisco.com
+  license:
+    name: Apache 2.0
+    url: http://foo.bar
+  version: 40.0.0
+servers:
+- url: http://localhost:8090/v1
+  description: Generated server url
+tags:
+- name: User
+  description: Business User Services
+- name: Sample Controller
+  description: Controller for sample operations
+paths:
+  /poc/v1/users:
+    put:
+      tags:
+      - Sample Controller
+      summary: Update user
+      description: API used for updating user
+      operationId: updateUserById
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        204:
+          description: No content
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+        400:
+          description: message
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+    post:
+      tags:
+      - Sample Controller
+      summary: Save user information
+      description: API used for saving the users
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        200:
+          description: success
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+        400:
+          description: message
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+    delete:
+      tags:
+      - Sample Controller
+      summary: Delete user
+      description: API used for deleting users
+      operationId: deleteUserById
+      requestBody:
+        description: user id to delete
+        content:
+          application/json:
+            schema:
+              type: string
+              description: user id
+      responses:
+        204:
+          description: no content
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+        400:
+          description: message
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+  /poc/v1/secure/products:
+    get:
+      tags:
+      - Sample Controller
+      summary: Get products
+      description: Get information on product offerings
+      operationId: getSecureProducts
+      parameters:
+      - name: max
+        in: query
+        description: max param
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: success
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Link:
+              description: link
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureProduct'
+        400:
+          description: message
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureProduct'
+  /poc/v1/ping:
+    get:
+      tags:
+      - Sample Controller
+      summary: API health check
+      description: API health check endpoint
+      operationId: ping
+      responses:
+        200:
+          description: success
+          headers:
+            TrackingId:
+              description: tracking
+              style: simple
+              schema:
+                allOf:
+                - type: string
+            Date:
+              description: date
+              style: simple
+              schema:
+                allOf:
+                - type: string
+          content:
+            text/plain:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        email:
+          type: string
+          description: User's email address
+    GenericMessage:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
+    SecureProduct:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            type: string
+          description: List of products
