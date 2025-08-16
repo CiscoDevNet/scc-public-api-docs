@@ -1,0 +1,237 @@
+openapi: 3.0.3
+info:
+  title: Product POC API
+  version: 1.0.0
+  description: OpenAPI specification for the Spring REST controller in `SampleController`.
+  contact:
+    name: Pritom Gogoi
+    email: prigogoi@cisco.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://products-poc.sbg-commons.com/poc/v1
+    description: Production server
+tags:
+  - name: Health
+    description: Endpoints for health checks
+  - name: Users
+    description: Endpoints for user management
+  - name: Products
+    description: Endpoints for product management
+paths:
+  /ping:
+    get:
+      tags:
+        - Health
+      summary: Liveness ping
+      description: Simple health check endpoint that returns a pong response
+      operationId: ping
+      responses:
+        '200':
+          description: Pong response
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Pong message with service name
+              example: pong from product-poc
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Internal server error
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get users
+      description: Returns a list of user identifiers (string values).
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: User identifier
+                description: List of user identifiers
+              example:
+                - User-1
+                - User-2
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Internal server error
+    post:
+      tags:
+        - Users
+      summary: Create user
+      description: Creates a new user with the provided details
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              sample:
+                value:
+                  id: '123'
+                  name: Jane Doe
+                  email: jane@example.com
+        description: User object to be created
+      responses:
+        '200':
+          description: Created (echoed back by controller)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Invalid user data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Internal server error
+    delete:
+      tags:
+        - Users
+      summary: Delete user by id
+      description: Deletes a user by their identifier
+      operationId: deleteUserById
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: User id to delete
+      responses:
+        '200':
+          description: Deletion message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: User - 123 has been deleted
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Invalid user ID
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: User not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Internal server error
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get secure products
+      description: Returns a list of product names inside a `SecureProduct` wrapper.
+      operationId: getSecureProducts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureProduct'
+              example:
+                products:
+                  - P1
+                  - P2
+                  - P3
+                  - P4
+                  - SecureX
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessage'
+              example:
+                message: Internal server error
+components:
+  schemas:
+    User:
+      type: object
+      description: Example user schema (adjust to match your actual DTO).
+      properties:
+        id:
+          type: string
+          example: '123'
+          description: Unique identifier for the user
+        name:
+          type: string
+          example: Jane Doe
+          description: Full name of the user
+        email:
+          type: string
+          format: email
+          example: jane@example.com
+          description: Email address of the user
+      required:
+        - id
+        - name
+        - email
+    GenericMessage:
+      type: object
+      description: A generic message wrapper for API responses
+      properties:
+        message:
+          type: string
+          example: User - 123 has been deleted
+          description: Message content
+      required:
+        - message
+    SecureProduct:
+      type: object
+      description: A container for secure product information
+      properties:
+        products:
+          type: array
+          items:
+            type: string
+            description: Product identifier
+          description: List of product identifiers
+      required:
+        - products
