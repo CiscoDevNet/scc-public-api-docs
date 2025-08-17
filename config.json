@@ -1,193 +1,81 @@
 {
   "items": [
     {
-      "title": "Security Cloud Control API Documentation",
-      "items": [
-        {
-          "title": "Introduction",
-          "content": "overview/introduction.md"
-        },
-        {
-          "title": "Authentication",
-          "content": "overview/authentication.md"
-        },
-        {
-          "title": "Getting Started",
-          "content": "overview/getting-started.md"
-        },
-        {
-          "title": "API Changelog",
-          "content": "overview/api-changelog.md"
-        }
-      ]
+      "type": "item",
+      "title": "Introduction",
+      "uri": "/README.md"
     },
     {
-      "title": "API Reference",
-      "config": {
-        "expand": 0,
-        "serverConfig": "select"
-      },
-      "items": [
-        {
-          "title": "API Key Management",
-          "content": "specs/api-token.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Identity and Access Management",
-          "content": "specs/iam.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Provisioning Management",
-          "content": "specs/provisioning.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Managed Service Provider Management",
-          "content": "specs/msp.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "AI Assistant",
-          "content": "specs/ai-assistant.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Mesh Policy Management",
-          "content": "specs/mesh-policy.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Context Provisioning Management",
-          "content": "specs/context-provisioning.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Configuration Management",
-          "content": "specs/config.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Firewall Management",
-          "items": [
-            {
-              "title": "Introduction",
-              "content": "cdo/overview/intro.md"
-            },
-            {
-              "title": "Authentication",
-              "content": "cdo/overview/authentication.md"
-            },
-            {
-              "title": "Getting Started",
-              "content": "cdo/overview/getting-started.md"
-            },
-            {
-              "title": "Searching",
-              "content": "cdo/overview/searching.md"
-            },
-            {
-              "title": "API Changelog",
-              "content": "cdo/api-changelog.md"
-            },
-            {
-              "title": "API Reference",
-              "config": {
-                "expand": 0,
-                "serverConfig": "select"
-              },
-              "items": [
-                {
-                  "title": "SCC Firewall Manager API",
-                  "content": "cdo/openapi.yaml",
-                  "type": "oas3"
-                },
-                {
-                  "title": "cdFMC API",
-                  "content": "cdo/cdfmc-openapi.yaml",
-                  "type": "oas3"
-                }
-              ]
-            },
-            {
-              "title": "Developer Resources",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Postman Collections",
-                  "content": "cdo/developer-resources/postman-collection.md"
-                },
-                {
-                  "title": "SDKs",
-                  "content": "cdo/developer-resources/sdks.md"
-                },
-                {
-                  "title": "Learning Labs",
-                  "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
-                  "type": "url"
-                },
-                {
-                  "title": "Code Exchange",
-                  "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
-                  "type": "url"
-                }
-              ]
-            },
-            {
-              "title": "Community and Support",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Developer Support",
-                  "content": "community-and-support/developer-support.md"
-                },
-                {
-                  "title": "Community",
-                  "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
-                  "type": "url"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "type": "divider",
+      "title": "Guides"
     },
     {
-      "title": "Developer Resources",
-      "items": [
-        {
-          "title": "Model Context Protocol(MCP) Server",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "SDKs",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "Postman Collection",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        }
-      ]
+      "type": "item",
+      "title": "API Error Handling",
+      "uri": "/guides/apierrorhandling.md"
+    },
+    {
+      "type": "item",
+      "title": "Authentication",
+      "uri": "/guides/authentication.md"
+    },
+    {
+      "type": "item",
+      "title": "API Lifecycle",
+      "uri": "/guides/api_lifecycle.md"
+    },
+    {
+      "type": "divider",
+      "title": "API Reference"
+    },
+    {
+      "title": "API Key Management",
+      "content": "specs/apikey.yaml",
+      "type": "oas3"
+    },
+    {
+      "title": "Identity and Access Management",
+      "content": "specs/iam.yaml",
+      "type": "oas3"
+    },
+    {
+      "title": "Provisioning Management",
+      "content": "specs/provisioning.yaml",
+      "type": "oas3"
+    },
+    {
+      "title": "Tenant Branding Management",
+      "content": "specs/branding.yaml",
+      "type": "oas3"
+    },
+    {
+      "title": "Products controller",
+      "content": "specs/Products controller.yaml",
+      "type": "oas3"
+    },
+    {
+      "type": "divider",
+      "title": "Support & Legal"
+    },
+    {
+      "type": "item",
+      "title": "Support",
+      "uri": "/support/README.md"
+    },
+    {
+      "type": "item",
+      "title": "Software License",
+      "uri": "/LICENSE"
+    },
+    {
+      "type": "item",
+      "title": "Notices",
+      "uri": "/NOTICES"
+    },
+    {
+      "type": "item",
+      "title": "Code of Conduct",
+      "uri": "/CODE_OF_CONDUCT.md"
     }
   ]
 }
