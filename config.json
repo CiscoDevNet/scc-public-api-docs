@@ -1,193 +1,108 @@
 {
-  "items": [
-    {
-      "title": "Security Cloud Control API Documentation",
-      "items": [
+    "title": "SCC API Documentation",
+    "sidebar": [
         {
-          "title": "Introduction",
-          "content": "overview/introduction.md"
+            "title": "Overview",
+            "items": [
+                {
+                    "title": "Introduction",
+                    "content": "docs/intro.md"
+                }
+            ]
         },
         {
-          "title": "Authentication",
-          "content": "overview/authentication.md"
+            "title": "API Reference",
+            "items": [
+                {
+                    "title": "admin-api",
+                    "content": "specs/admin-api.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "accounts_v2",
+                    "content": "specs/accounts_v2.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "business_domains_v2",
+                    "content": "specs/business_domains_v2.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "certificate_management",
+                    "content": "specs/certificate_management.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "inventory",
+                    "content": "specs/inventory.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "inventory_webhooks",
+                    "content": "specs/inventory_webhooks.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "onboard_usage_syncing",
+                    "content": "specs/onboard_usage_syncing.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "orchestration",
+                    "content": "specs/orchestration.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "organization_content",
+                    "content": "specs/organization_content.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "partner_usage_syncing",
+                    "content": "specs/partner_usage_syncing.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "telemetry_data_config",
+                    "content": "specs/telemetry_data_config.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "usage",
+                    "content": "specs/usage.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "webhooks",
+                    "content": "specs/webhooks.yaml", 
+                    "type": "oas3"
+                },
+                {
+                    "title": "products_poc",
+                    "content": "specs/products_poc.yaml", 
+                    "type": "oas3"
+                }
+            ]
         },
         {
-          "title": "Getting Started",
-          "content": "overview/getting-started.md"
-        },
-        {
-          "title": "API Changelog",
-          "content": "overview/api-changelog.md"
+            "title": "Release Notes",
+            "items": [
+                {
+                    "title": "Latest",
+                    "content": "docs/release-notes/latest.md"
+                }
+            ]
         }
-      ]
+    ],
+    "search": {
+        "maxResults": 15,
+        "placeholder": "Search...",
+        "hotKey": "/"
     },
-    {
-      "title": "API Reference",
-      "config": {
-        "expand": 0,
-        "serverConfig": "select"
-      },
-      "items": [
-        {
-          "title": "API Key Management",
-          "content": "specs/api-token.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Identity and Access Management",
-          "content": "specs/iam.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Provisioning Management",
-          "content": "specs/provisioning.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Managed Service Provider Management",
-          "content": "specs/msp.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "AI Assistant",
-          "content": "specs/ai-assistant.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Mesh Policy Management",
-          "content": "specs/mesh-policy.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Context Provisioning Management",
-          "content": "specs/context-provisioning.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Configuration Management",
-          "content": "specs/config.yaml",
-          "type": "oas3"
-        },
-        {
-          "title": "Firewall Management",
-          "items": [
-            {
-              "title": "Introduction",
-              "content": "cdo/overview/intro.md"
-            },
-            {
-              "title": "Authentication",
-              "content": "cdo/overview/authentication.md"
-            },
-            {
-              "title": "Getting Started",
-              "content": "cdo/overview/getting-started.md"
-            },
-            {
-              "title": "Searching",
-              "content": "cdo/overview/searching.md"
-            },
-            {
-              "title": "API Changelog",
-              "content": "cdo/api-changelog.md"
-            },
-            {
-              "title": "API Reference",
-              "config": {
-                "expand": 0,
-                "serverConfig": "select"
-              },
-              "items": [
-                {
-                  "title": "SCC Firewall Manager API",
-                  "content": "cdo/openapi.yaml",
-                  "type": "oas3"
-                },
-                {
-                  "title": "cdFMC API",
-                  "content": "cdo/cdfmc-openapi.yaml",
-                  "type": "oas3"
-                }
-              ]
-            },
-            {
-              "title": "Developer Resources",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Postman Collections",
-                  "content": "cdo/developer-resources/postman-collection.md"
-                },
-                {
-                  "title": "SDKs",
-                  "content": "cdo/developer-resources/sdks.md"
-                },
-                {
-                  "title": "Learning Labs",
-                  "content": "https://developer.cisco.com/learning/modules/automating-cisco-defense-orchestrator/",
-                  "type": "url"
-                },
-                {
-                  "title": "Code Exchange",
-                  "content": "https://developer.cisco.com/codeexchange/search/?products=Cisco+Defense+Orchestrator",
-                  "type": "url"
-                }
-              ]
-            },
-            {
-              "title": "Community and Support",
-              "config": {
-                "expand": 0
-              },
-              "items": [
-                {
-                  "title": "Developer Support",
-                  "content": "community-and-support/developer-support.md"
-                },
-                {
-                  "title": "Community",
-                  "content": "https://community.cisco.com/t5/network-security/bd-p/disc-network-security",
-                  "type": "url"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+    "auth": {
+        "label": "Sign In"
     },
-    {
-      "title": "Developer Resources",
-      "items": [
-        {
-          "title": "Model Context Protocol(MCP) Server",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "SDKs",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        },
-        {
-          "title": "Postman Collection",
-          "items": [
-            {
-              "title": "Getting Started",
-              "content": "mcp/getting-started.md"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+    "basePath": "/api-docs/",
+    "baseSiteUrl": "https://ciscodevnet.github.io"
 }
