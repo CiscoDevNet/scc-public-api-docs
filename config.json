@@ -154,6 +154,11 @@
               ]
             }
           ]
+        },
+        {
+          "title": "Products APIs",
+          "content": "specs/products_poc.yaml",
+          "type": "oas3"
         }
       ]
     },
