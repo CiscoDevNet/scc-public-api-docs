@@ -154,11 +154,6 @@
               ]
             }
           ]
-        },
-        {
-          "service_name": "products_poc",
-          "content": "specs/products_poc.yaml",
-          "type": "oas3"
         }
       ]
     },
