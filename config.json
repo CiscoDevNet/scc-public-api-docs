@@ -154,6 +154,11 @@
               ]
             }
           ]
+        },
+        {
+          "title": "Products APIs",
+          "content": "specs/products_controller.yaml",
+          "type": "oas3"
         }
       ]
     },
