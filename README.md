@@ -1,2 +1,3 @@
 # scc-public-api-docs
-s
+
+API docs for SCC APIs
