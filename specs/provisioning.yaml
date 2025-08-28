@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   contact: {}
   description: Provisioning APIs for activating and managing entitlements, subscriptions, and claim codes
-  title: Provisioning APIs
+  title: Provisioning APIs v2
   version: 1.0.1
 servers:
   - url: https://api.int.security.cisco.com/provisioning
